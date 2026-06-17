@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | Accolade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      :root {
+        --card: rgba(15, 15, 15, 0.68);
+        --line: rgba(255, 255, 255, 0.16);
+        --muted: rgba(255, 255, 255, 0.68);
+        --accent: #d8c2a4;
+        --danger: #e65d5d;
+        --ok: #5ad58a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+        background: #16120d url("photos/main_bg.jpeg") center / cover fixed;
+        color: #fff;
+      }
+
+      .shell {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #fff;
+        font-family: "Cinzel", serif;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        font-size: 13px;
+      }
+
+      .back-link {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        text-decoration: none;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 22px;
+        backdrop-filter: blur(10px);
+      }
+
+      .hidden-section {
+        display: none;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      @media (min-width: 960px) {
+        .grid {
+          grid-template-columns: 1.2fr 0.8fr;
+          align-items: start;
+        }
+      }
+
+      .title {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: clamp(1.3rem, 2.8vw, 2rem);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .input-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      @media (min-width: 700px) {
+        .input-grid.two {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.86);
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+
+      textarea {
+        min-height: 92px;
+        resize: vertical;
+      }
+
+      .checks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .checks label {
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        margin: 0;
+        font-weight: 500;
+      }
+
+      .checks input {
+        width: auto;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 999px;
+        background: #fff;
+        color: #1f1f1f;
+        padding: 9px 16px;
+        font-weight: 700;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: #fff;
+      }
+
+      button.danger {
+        border-color: rgba(230, 93, 93, 0.4);
+        color: #fff;
+        background: rgba(230, 93, 93, 0.2);
+      }
+
+      .status {
+        margin: 10px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .status.is-error {
+        color: var(--danger);
+      }
+
+      .status.is-success {
+        color: var(--ok);
+      }
+
+      .product-row {
+        display: grid;
+        grid-template-columns: 62px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.17);
+        padding: 10px 0;
+      }
+
+      .product-row img {
+        width: 62px;
+        height: 78px;
+        border-radius: 9px;
+        object-fit: cover;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .product-row h3 {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .product-row p {
+        margin: 3px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .product-row .meta {
+        font-size: 11px;
+      }
+
+      .product-row-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .product-row-actions button {
+        padding: 7px 10px;
+        letter-spacing: 0.1em;
+        font-size: 10px;
+      }
+
+      .empty-note {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .helper-note {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .error-note {
+        margin-top: 8px;
+        color: var(--danger);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="index.html"><i class="fas fa-shield-alt"></i> Accolade Admin</a>
+        <a class="back-link" href="shop.html">Back to shop</a>
+      </header>
+
+      <section id="admin-login-card" class="card">
+        <h1 class="title">Admin sign in</h1>
+        <p class="muted">
+          Only admin account can access this dashboard. No public signup is enabled.
+        </p>
+        <form id="admin-login-form" class="input-grid">
+          <div>
+            <label for="admin-email">Admin email</label>
+            <input id="admin-email" type="email" required />
+          </div>
+          <div>
+            <label for="admin-password">Password</label>
+            <input id="admin-password" type="password" required />
+          </div>
+          <div class="actions">
+            <button type="submit">Sign in</button>
+          </div>
+          <p id="admin-login-error" class="error-note"></p>
+        </form>
+      </section>
+
+      <section id="admin-dashboard" class="hidden-section">
+        <div class="grid">
+          <article class="card">
+            <div class="topbar">
+              <div>
+                <h2 id="product-form-title" class="title">Add new product</h2>
+                <p class="muted">Signed in as <span id="admin-user-email"></span></p>
+              </div>
+              <button id="admin-logout" type="button" class="secondary">Sign out</button>
+            </div>
+
+            <form id="product-form" class="input-grid">
+              <div class="input-grid two">
+                <div>
+                  <label for="product-name">Product name</label>
+                  <input id="product-name" type="text" required />
+                </div>
+                <div>
+                  <label for="product-subtitle">Subtitle</label>
+                  <input id="product-subtitle" type="text" />
+                </div>
+              </div>
+
+              <div class="input-grid two">
+                <div>
+                  <label for="price-current">Current price (BDT)</label>
+                  <input id="price-current" type="number" min="0" required />
+                </div>
+                <div>
+                  <label for="price-original">Original price (BDT)</label>
+                  <input id="price-original" type="number" min="0" />
+                </div>
+              </div>
+
+              <div class="input-grid two">
+                <div>
+                  <label for="product-badge">Badge text</label>
+                  <input id="product-badge" type="text" placeholder="10% OFF / LIMITED" />
+                </div>
+                <div>
+                  <label for="product-sort-order">Sort order (small = first)</label>
+                  <input id="product-sort-order" type="number" min="0" value="9999" />
+                </div>
+              </div>
+
+              <div class="input-grid two">
+                <div>
+                  <label for="product-cotton">Cotton/Fabric summary</label>
+                  <input id="product-cotton" type="text" />
+                </div>
+                <div>
+                  <label for="product-quality">Quality summary</label>
+                  <input id="product-quality" type="text" />
+                </div>
+              </div>
+
+              <div>
+                <label for="product-fabric">Art/Fabric note</label>
+                <input id="product-fabric" type="text" />
+              </div>
+
+              <div>
+                <label for="product-sizechart">Size chart URL</label>
+                <input id="product-sizechart" type="url" placeholder="https://yourdomain.com/uploads/size-chart.jpg" />
+              </div>
+
+              <div>
+                <label for="product-images">Product image URLs (one per line)</label>
+                <textarea id="product-images" placeholder="https://yourdomain.com/uploads/product-1.jpg"></textarea>
+              </div>
+
+              <div>
+                <label for="product-design">Modal design points (one per line, max 3)</label>
+                <textarea id="product-design" placeholder="Limited drop artwork"></textarea>
+              </div>
+
+              <div>
+                <label>Visibility and category</label>
+                <div class="checks">
+                  <label><input id="product-published" type="checkbox" checked /> Published</label>
+                  <label><input id="category-featured" type="checkbox" /> Featured products</label>
+                  <label><input id="category-hot" type="checkbox" /> Hot selling</label>
+                </div>
+              </div>
+
+              <div>
+                <label for="category-custom">Extra categories (comma separated)</label>
+                <input id="category-custom" type="text" placeholder="new-drop, terry-cotton" />
+              </div>
+
+              <div class="actions">
+                <button type="submit">Save product</button>
+                <button id="cancel-edit" type="button" class="secondary hidden-section">Cancel edit</button>
+              </div>
+              <p id="product-status" class="status">Ready</p>
+            </form>
+          </article>
+
+          <aside class="card">
+            <h2 class="title" style="font-size:1.2rem;">All products</h2>
+            <p class="helper-note">
+              Image upload tip: since Firebase Storage is not in your free plan, upload images to
+              Hostinger File Manager and paste those public image URLs here.
+            </p>
+            <div id="product-list"></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>
