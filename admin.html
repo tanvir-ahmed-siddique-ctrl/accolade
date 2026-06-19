@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard | Accolade</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
@@ -41,6 +40,13 @@
           linear-gradient(135deg, rgba(0, 0, 0, 0.72), rgba(21, 16, 12, 0.92)),
           url("photos/main_bg.jpeg") center / cover fixed;
         color: #fff;
+      }
+
+      a,
+      button,
+      input,
+      textarea {
+        font: inherit;
       }
 
       body::before {
@@ -99,9 +105,11 @@
 
       .card {
         background: var(--panel);
-        border: 1px solid var(--line);
+        border: 1px solid var(--line-strong);
         border-radius: 28px;
-        box-shadow: var(--shadow);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          var(--shadow);
         backdrop-filter: blur(18px);
       }
 
@@ -133,6 +141,9 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+        background:
+          linear-gradient(135deg, rgba(216, 194, 164, 0.08), rgba(255, 255, 255, 0.025)),
+          rgba(0, 0, 0, 0.18);
       }
 
       .title {
@@ -191,10 +202,12 @@
       }
 
       .stat-card {
-        border: 1px solid var(--line);
+        border: 1px solid rgba(216, 194, 164, 0.22);
         border-radius: 18px;
         padding: 14px;
-        background: rgba(255, 255, 255, 0.055);
+        background:
+          linear-gradient(145deg, rgba(216, 194, 164, 0.08), rgba(255, 255, 255, 0.035)),
+          rgba(0, 0, 0, 0.14);
       }
 
       .stat-card strong {
@@ -231,10 +244,13 @@
       }
 
       .form-section {
-        border: 1px solid var(--line);
+        border: 1px solid rgba(216, 194, 164, 0.22);
         border-radius: 22px;
         padding: 18px;
-        background: rgba(0, 0, 0, 0.18);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(216, 194, 164, 0.035)),
+          rgba(0, 0, 0, 0.24);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
 
       .form-section + .form-section {
@@ -292,33 +308,62 @@
         font-weight: 800;
       }
 
+      #admin-login-form > div:not(.actions),
+      #product-form .input-grid > div,
+      #product-form .form-section > div:not(.section-head):not(.media-layout),
+      #product-form .media-layout .input-grid > div {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.045);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+      }
+
       input,
       textarea {
+        appearance: none;
+        -webkit-appearance: none;
         width: 100%;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 15px;
+        border: 1px solid rgba(216, 194, 164, 0.38);
+        border-radius: 14px;
         outline: none;
-        background: rgba(0, 0, 0, 0.32);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.035)),
+          rgba(8, 7, 6, 0.78);
         color: #fff;
-        padding: 12px 13px;
-        font: inherit;
+        min-height: 48px;
+        padding: 13px 14px;
         font-size: 14px;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 10px 24px rgba(0, 0, 0, 0.12);
         transition:
           border-color 0.2s ease,
           background 0.2s ease,
-          box-shadow 0.2s ease;
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: rgba(255, 255, 255, 0.34);
       }
 
       textarea {
-        min-height: 104px;
+        min-height: 118px;
         resize: vertical;
       }
 
       input:focus,
       textarea:focus {
-        border-color: rgba(216, 194, 164, 0.78);
-        background: rgba(0, 0, 0, 0.46);
-        box-shadow: 0 0 0 4px rgba(216, 194, 164, 0.08);
+        border-color: rgba(242, 223, 191, 0.92);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045)),
+          rgba(0, 0, 0, 0.72);
+        box-shadow:
+          0 0 0 4px rgba(216, 194, 164, 0.13),
+          0 16px 32px rgba(0, 0, 0, 0.22);
+        transform: translateY(-1px);
       }
 
       .field-hint {
@@ -336,7 +381,9 @@
         border: 1px solid var(--line-strong);
         border-radius: 18px;
         padding: 14px;
-        background: rgba(216, 194, 164, 0.08);
+        background:
+          linear-gradient(145deg, rgba(216, 194, 164, 0.16), rgba(255, 255, 255, 0.035)),
+          rgba(0, 0, 0, 0.2);
       }
 
       .mini-guide h4 {
@@ -367,9 +414,11 @@
         align-items: center;
         gap: 9px;
         padding: 12px;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(216, 194, 164, 0.24);
         border-radius: 15px;
-        background: rgba(255, 255, 255, 0.055);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.065), rgba(216, 194, 164, 0.04)),
+          rgba(0, 0, 0, 0.12);
         font-size: 12px;
         letter-spacing: normal;
         text-transform: none;
@@ -377,7 +426,13 @@
       }
 
       .checks input {
-        width: auto;
+        appearance: auto;
+        -webkit-appearance: checkbox;
+        width: 18px;
+        height: 18px;
+        min-height: 18px;
+        padding: 0;
+        box-shadow: none;
         accent-color: var(--accent);
       }
 
@@ -389,14 +444,21 @@
       }
 
       button {
-        border: 1px solid rgba(255, 255, 255, 0.32);
+        appearance: none;
+        -webkit-appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.5);
         border-radius: 999px;
-        background: #fff;
+        background:
+          linear-gradient(135deg, #fff8eb, #d8c2a4);
         color: #1f1f1f;
-        padding: 11px 18px;
+        min-height: 44px;
+        padding: 12px 20px;
         font-weight: 800;
         font-size: 11px;
         cursor: pointer;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.8),
+          0 14px 34px rgba(0, 0, 0, 0.28);
         transition:
           transform 0.2s ease,
           box-shadow 0.2s ease,
@@ -405,7 +467,9 @@
 
       button:hover {
         transform: translateY(-1px);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.86),
+          0 18px 40px rgba(0, 0, 0, 0.34);
       }
 
       button:disabled {
@@ -415,14 +479,19 @@
       }
 
       button.secondary {
-        background: transparent;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(216, 194, 164, 0.06)),
+          rgba(0, 0, 0, 0.18);
         color: #fff;
+        border-color: rgba(216, 194, 164, 0.42);
       }
 
       button.danger {
         border-color: rgba(255, 122, 122, 0.45);
         color: #fff;
-        background: rgba(255, 122, 122, 0.16);
+        background:
+          linear-gradient(135deg, rgba(255, 122, 122, 0.24), rgba(255, 122, 122, 0.12)),
+          rgba(0, 0, 0, 0.2);
       }
 
       .status,
@@ -532,10 +601,12 @@
       }
 
       .map-item {
-        border: 1px solid var(--line);
+        border: 1px solid rgba(216, 194, 164, 0.18);
         border-radius: 16px;
         padding: 12px;
-        background: rgba(255, 255, 255, 0.045);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(216, 194, 164, 0.025)),
+          rgba(0, 0, 0, 0.12);
       }
 
       .map-item strong {
@@ -562,9 +633,11 @@
         gap: 12px;
         align-items: start;
         padding: 12px;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(216, 194, 164, 0.2);
         border-radius: 18px;
-        background: rgba(255, 255, 255, 0.045);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(216, 194, 164, 0.025)),
+          rgba(0, 0, 0, 0.14);
       }
 
       .product-row img {
