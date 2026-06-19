@@ -2,6 +2,8 @@ import { collection, db, getDocs } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
 
+document.documentElement.classList.add("firebase-products-loading");
+
 const featuredGrid = document.querySelector("#featured-products .product-grid");
 const allGrid = document.querySelector("#all-categories .product-grid");
 const hotGrid = document.querySelector("#top-rated .product-grid");
@@ -207,6 +209,7 @@ function renderProducts(products) {
 
 async function loadProducts() {
   if (!featuredGrid && !allGrid && !hotGrid) {
+    document.documentElement.classList.remove("firebase-products-loading");
     return;
   }
   renderIntoGrid(featuredGrid, [], "Loading featured products...");
@@ -241,6 +244,8 @@ async function loadProducts() {
       [],
       "Could not load products from Firebase. Check Firestore rules.",
     );
+  } finally {
+    document.documentElement.classList.remove("firebase-products-loading");
   }
 }
 

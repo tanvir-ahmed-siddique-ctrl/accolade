@@ -31,6 +31,18 @@ const productList = document.getElementById("product-list");
 const formTitle = document.getElementById("product-form-title");
 const cancelEditButton = document.getElementById("cancel-edit");
 const customCategoriesInput = document.getElementById("category-custom");
+const saveProductButton = document.getElementById("save-product");
+const productCountLabel = document.getElementById("product-count");
+const publishedCountLabel = document.getElementById("published-count");
+const editorModeLabel = document.getElementById("editor-mode");
+const previewImage = document.getElementById("preview-image");
+const previewName = document.getElementById("preview-name");
+const previewSubtitle = document.getElementById("preview-subtitle");
+const previewCurrent = document.getElementById("preview-current");
+const previewOriginal = document.getElementById("preview-original");
+const previewBadge = document.getElementById("preview-badge");
+const previewChip = document.getElementById("preview-chip");
+const previewDesignList = document.getElementById("preview-design-list");
 
 function slugify(value) {
   return String(value || "")
@@ -65,6 +77,21 @@ function getTimestamp(value) {
   return 0;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function setText(element, value) {
+  if (element) {
+    element.textContent = value;
+  }
+}
+
 function setStatus(message, type = "normal") {
   if (!productStatus) {
     return;
@@ -79,7 +106,68 @@ function setStatus(message, type = "normal") {
   }
 }
 
-function resetForm() {
+function updateDashboardStats() {
+  setText(productCountLabel, state.products.length);
+  setText(
+    publishedCountLabel,
+    state.products.filter((product) => product.isPublished !== false).length,
+  );
+  setText(editorModeLabel, state.editingId ? "Edit" : "Add");
+}
+
+function getPreviewFields() {
+  const name = document.getElementById("product-name")?.value.trim();
+  const subtitle = document.getElementById("product-subtitle")?.value.trim();
+  const priceCurrent = toNumber(document.getElementById("price-current")?.value);
+  const priceOriginal = toNumber(
+    document.getElementById("price-original")?.value || `${priceCurrent}`,
+  );
+  const badge = document.getElementById("product-badge")?.value.trim();
+  const images = parseList(document.getElementById("product-images")?.value);
+  const designPoints = parseList(document.getElementById("product-design")?.value);
+  const isFeatured = document.getElementById("category-featured")?.checked;
+  const isHot = document.getElementById("category-hot")?.checked;
+
+  return {
+    name: name || "Product name",
+    subtitle: subtitle || "Premium collection",
+    priceCurrent,
+    priceOriginal: priceOriginal || priceCurrent,
+    badge: badge || "NEW",
+    primaryImage: images[0] || "photos/any.jpeg",
+    designPoints: designPoints.slice(0, 3),
+    chip: isFeatured ? "Featured" : isHot ? "Hot Selling" : "Product",
+  };
+}
+
+function updatePreview() {
+  if (!productForm) {
+    return;
+  }
+
+  const preview = getPreviewFields();
+  if (previewImage) {
+    previewImage.src = preview.primaryImage;
+    previewImage.alt = `${preview.name} preview`;
+  }
+  setText(previewName, preview.name);
+  setText(previewSubtitle, preview.subtitle);
+  setText(previewCurrent, preview.priceCurrent || 0);
+  setText(previewOriginal, preview.priceOriginal || preview.priceCurrent || 0);
+  setText(previewBadge, preview.badge);
+  setText(previewChip, preview.chip);
+
+  if (previewDesignList) {
+    const items = preview.designPoints.length
+      ? preview.designPoints
+      : ["Add up to three product highlights."];
+    previewDesignList.innerHTML = items
+      .map((item) => `<li>${escapeHtml(item)}</li>`)
+      .join("");
+  }
+}
+
+function resetForm(statusMessage = "Ready", statusType = "normal") {
   if (!productForm) {
     return;
   }
@@ -87,7 +175,12 @@ function resetForm() {
   state.editingId = null;
   formTitle.textContent = "Add new product";
   cancelEditButton.classList.add("hidden-section");
-  setStatus("Ready");
+  if (saveProductButton) {
+    saveProductButton.textContent = "Save product";
+  }
+  updateDashboardStats();
+  updatePreview();
+  setStatus(statusMessage, statusType);
 }
 
 function getCategoriesFromForm() {
@@ -168,6 +261,7 @@ function renderProductList() {
   if (!productList) {
     return;
   }
+  updateDashboardStats();
   if (!state.products.length) {
     productList.innerHTML = `
       <p class="empty-note">No products found yet. Add the first product using the form.</p>
@@ -178,17 +272,18 @@ function renderProductList() {
   productList.innerHTML = state.products
     .map((product) => {
       const categories = product.categories?.join(", ") || "all";
+      const visibility = product.isPublished === false ? "Draft" : "Published";
       return `
         <article class="product-row">
-          <img src="${product.images?.[0] || "photos/any.jpeg"}" alt="${product.name}" />
+          <img src="${escapeHtml(product.images?.[0] || "photos/any.jpeg")}" alt="${escapeHtml(product.name)}" />
           <div class="product-row-info">
-            <h3>${product.name}</h3>
-            <p>${product.subtitle}</p>
-            <p class="meta">BDT ${product.priceCurrent} | ${categories}</p>
-          </div>
-          <div class="product-row-actions">
-            <button type="button" data-edit-id="${product.id}">Edit</button>
-            <button type="button" data-delete-id="${product.id}" class="danger">Delete</button>
+            <h3>${escapeHtml(product.name)}</h3>
+            <p>${escapeHtml(product.subtitle)}</p>
+            <p class="meta">BDT ${escapeHtml(product.priceCurrent)} | ${escapeHtml(categories)} | ${visibility}</p>
+            <div class="product-row-actions">
+              <button type="button" data-edit-id="${escapeHtml(product.id)}">Edit</button>
+              <button type="button" data-delete-id="${escapeHtml(product.id)}" class="danger">Delete</button>
+            </div>
           </div>
         </article>
       `;
@@ -206,6 +301,9 @@ function renderProductList() {
       state.editingId = selected.id;
       formTitle.textContent = `Edit product: ${selected.name}`;
       cancelEditButton.classList.remove("hidden-section");
+      if (saveProductButton) {
+        saveProductButton.textContent = "Update product";
+      }
 
       document.getElementById("product-name").value = selected.name || "";
       document.getElementById("product-subtitle").value = selected.subtitle || "";
@@ -237,6 +335,8 @@ function renderProductList() {
       );
       customCategoriesInput.value = custom.join(", ");
 
+      updateDashboardStats();
+      updatePreview();
       window.scrollTo({ top: 0, behavior: "smooth" });
       setStatus("Editing existing product");
     });
@@ -322,8 +422,15 @@ if (cancelEditButton) {
 }
 
 if (productForm) {
+  productForm.addEventListener("input", updatePreview);
+  productForm.addEventListener("change", updatePreview);
   productForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (saveProductButton) {
+      saveProductButton.disabled = true;
+      saveProductButton.textContent = state.editingId ? "Updating..." : "Saving...";
+    }
+    setStatus(state.editingId ? "Updating product..." : "Saving product...");
     try {
       const payload = getFormData();
       if (state.editingId) {
@@ -331,22 +438,30 @@ if (productForm) {
           ...payload,
           updatedAt: serverTimestamp(),
         });
-        setStatus("Product updated successfully", "success");
+        await loadProducts();
+        resetForm("Product updated successfully", "success");
       } else {
         await addDoc(collection(db, PRODUCTS_COLLECTION), {
           ...payload,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
-        setStatus("Product added successfully", "success");
+        await loadProducts();
+        resetForm("Product added successfully", "success");
       }
-      resetForm();
-      await loadProducts();
     } catch (error) {
       console.error("Save failed", error);
       setStatus(error.message || "Save failed", "error");
+    } finally {
+      if (saveProductButton) {
+        saveProductButton.disabled = false;
+        saveProductButton.textContent = state.editingId
+          ? "Update product"
+          : "Save product";
+      }
     }
   });
+  updatePreview();
 }
 
 onAuthStateChanged(auth, async (user) => {

@@ -11,15 +11,21 @@
     />
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap");
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 
       :root {
-        --card: rgba(15, 15, 15, 0.68);
-        --line: rgba(255, 255, 255, 0.16);
-        --muted: rgba(255, 255, 255, 0.68);
+        --bg: #15100c;
+        --panel: rgba(18, 15, 12, 0.78);
+        --panel-strong: rgba(11, 10, 9, 0.9);
+        --line: rgba(255, 255, 255, 0.14);
+        --line-strong: rgba(216, 194, 164, 0.34);
+        --muted: rgba(255, 255, 255, 0.66);
+        --muted-strong: rgba(255, 255, 255, 0.82);
         --accent: #d8c2a4;
-        --danger: #e65d5d;
-        --ok: #5ad58a;
+        --accent-strong: #f2dfbf;
+        --danger: #ff7a7a;
+        --ok: #79e0a2;
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
       }
 
       * {
@@ -30,157 +36,382 @@
         margin: 0;
         min-height: 100vh;
         font-family: "Inter", sans-serif;
-        background: #16120d url("photos/main_bg.jpeg") center / cover fixed;
+        background:
+          radial-gradient(circle at 12% 8%, rgba(216, 194, 164, 0.18), transparent 30%),
+          linear-gradient(135deg, rgba(0, 0, 0, 0.72), rgba(21, 16, 12, 0.92)),
+          url("photos/main_bg.jpeg") center / cover fixed;
         color: #fff;
       }
 
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 100% 72px;
+        opacity: 0.45;
+      }
+
       .shell {
-        max-width: 1100px;
+        position: relative;
+        z-index: 1;
+        width: min(1440px, 100%);
         margin: 0 auto;
-        padding: 24px;
+        padding: 22px;
       }
 
       .topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 16px;
         margin-bottom: 18px;
+      }
+
+      .brand,
+      .back-link,
+      .eyebrow,
+      label,
+      button,
+      .pill {
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
       }
 
       .brand {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        text-decoration: none;
         color: #fff;
         font-family: "Cinzel", serif;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
         font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
       }
 
       .back-link {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        text-decoration: none;
         color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
       }
 
       .card {
-        background: var(--card);
+        background: var(--panel);
         border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 22px;
-        backdrop-filter: blur(10px);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
       }
 
       .hidden-section {
-        display: none;
+        display: none !important;
       }
 
-      .grid {
+      .login-shell {
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
+        grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+        overflow: hidden;
+        min-height: 560px;
       }
 
-      @media (min-width: 960px) {
-        .grid {
-          grid-template-columns: 1.2fr 0.8fr;
-          align-items: start;
-        }
+      .login-art {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 18px;
+        min-height: 420px;
+        padding: 36px;
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.82)),
+          url("photos/main_bg.jpeg") center / cover;
+      }
+
+      .login-copy {
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
 
       .title {
         margin: 0;
         font-family: "Cinzel", serif;
-        font-size: clamp(1.3rem, 2.8vw, 2rem);
+        font-size: clamp(1.55rem, 3vw, 2.6rem);
+        line-height: 1.05;
       }
 
-      .muted {
+      .section-title {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .muted,
+      .helper-note,
+      .field-hint {
         color: var(--muted);
-        font-size: 13px;
         line-height: 1.65;
       }
 
-      .input-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
+      .muted {
+        margin: 10px 0 0;
+        font-size: 14px;
       }
 
-      @media (min-width: 700px) {
-        .input-grid.two {
-          grid-template-columns: 1fr 1fr;
-        }
+      .dashboard-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 20px;
+        align-items: center;
+        padding: 28px;
+        margin-bottom: 18px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 22px;
+      }
+
+      .stat-card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.055);
+      }
+
+      .stat-card strong {
+        display: block;
+        margin-top: 6px;
+        color: var(--accent-strong);
+        font-size: 1.2rem;
+      }
+
+      .studio-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.75fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .composer {
+        padding: 24px;
+      }
+
+      .side-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .panel-pad {
+        padding: 22px;
+      }
+
+      form,
+      .input-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .form-section {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+        background: rgba(0, 0, 0, 0.18);
+      }
+
+      .form-section + .form-section {
+        margin-top: 2px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .section-head p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .step-badge,
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line-strong);
+        color: var(--accent-strong);
+        background: rgba(216, 194, 164, 0.08);
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .step-badge {
+        width: 32px;
+        height: 32px;
+        letter-spacing: 0;
+      }
+
+      .pill {
+        padding: 7px 10px;
+      }
+
+      .input-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       label {
         display: block;
-        margin-bottom: 5px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.86);
+        margin-bottom: 6px;
+        color: var(--muted-strong);
+        font-size: 10px;
+        font-weight: 800;
       }
 
       input,
       textarea {
         width: 100%;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 15px;
+        outline: none;
+        background: rgba(0, 0, 0, 0.32);
         color: #fff;
-        padding: 10px 12px;
+        padding: 12px 13px;
+        font: inherit;
         font-size: 14px;
+        transition:
+          border-color 0.2s ease,
+          background 0.2s ease,
+          box-shadow 0.2s ease;
       }
 
       textarea {
-        min-height: 92px;
+        min-height: 104px;
         resize: vertical;
       }
 
+      input:focus,
+      textarea:focus {
+        border-color: rgba(216, 194, 164, 0.78);
+        background: rgba(0, 0, 0, 0.46);
+        box-shadow: 0 0 0 4px rgba(216, 194, 164, 0.08);
+      }
+
+      .field-hint {
+        margin: 7px 0 0;
+        font-size: 11px;
+      }
+
+      .media-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 260px;
+        gap: 14px;
+      }
+
+      .mini-guide {
+        border: 1px solid var(--line-strong);
+        border-radius: 18px;
+        padding: 14px;
+        background: rgba(216, 194, 164, 0.08);
+      }
+
+      .mini-guide h4 {
+        margin: 0 0 8px;
+        color: var(--accent-strong);
+        font-size: 13px;
+      }
+
+      .mini-guide ol,
+      .mini-guide ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted-strong);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
       .checks {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
       }
 
       .checks label {
-        letter-spacing: normal;
-        text-transform: none;
+        min-height: 48px;
+        margin: 0;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        margin: 0;
-        font-weight: 500;
+        gap: 9px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.055);
+        font-size: 12px;
+        letter-spacing: normal;
+        text-transform: none;
+        cursor: pointer;
       }
 
       .checks input {
         width: auto;
+        accent-color: var(--accent);
       }
 
       .actions {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        align-items: center;
       }
 
       button {
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.32);
         border-radius: 999px;
         background: #fff;
         color: #1f1f1f;
-        padding: 9px 16px;
-        font-weight: 700;
+        padding: 11px 18px;
+        font-weight: 800;
         font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
         cursor: pointer;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.62;
+        transform: none;
       }
 
       button.secondary {
@@ -189,18 +420,24 @@
       }
 
       button.danger {
-        border-color: rgba(230, 93, 93, 0.4);
+        border-color: rgba(255, 122, 122, 0.45);
         color: #fff;
-        background: rgba(230, 93, 93, 0.2);
+        background: rgba(255, 122, 122, 0.16);
+      }
+
+      .status,
+      .error-note {
+        margin: 0;
+        min-height: 20px;
+        font-size: 13px;
       }
 
       .status {
-        margin: 10px 0 0;
-        font-size: 13px;
         color: var(--muted);
       }
 
-      .status.is-error {
+      .status.is-error,
+      .error-note {
         color: var(--danger);
       }
 
@@ -208,66 +445,221 @@
         color: var(--ok);
       }
 
+      .preview-card {
+        overflow: hidden;
+      }
+
+      .preview-image {
+        position: relative;
+        aspect-ratio: 4 / 5;
+        border-radius: 22px;
+        overflow: hidden;
+        background:
+          linear-gradient(135deg, rgba(216, 194, 164, 0.16), rgba(0, 0, 0, 0.28)),
+          #17120e;
+        border: 1px solid var(--line);
+      }
+
+      .preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .preview-chip,
+      .preview-badge {
+        position: absolute;
+        top: 12px;
+        border-radius: 999px;
+        padding: 6px 9px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .preview-chip {
+        left: 12px;
+        background: rgba(255, 255, 255, 0.84);
+        color: #1f1f1f;
+      }
+
+      .preview-badge {
+        right: 12px;
+        background: #c4342f;
+        color: #fff;
+      }
+
+      .preview-copy {
+        padding: 16px 2px 2px;
+      }
+
+      .preview-copy h3 {
+        margin: 0;
+        font-family: "Cinzel", serif;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+      }
+
+      .preview-copy p {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+      }
+
+      .price-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        color: #dfb76c;
+        font-weight: 800;
+      }
+
+      .price-line del {
+        color: rgba(223, 183, 108, 0.7);
+      }
+
+      .map-list,
+      .product-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .map-item {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.045);
+      }
+
+      .map-item strong {
+        display: block;
+        color: var(--accent-strong);
+        font-size: 12px;
+      }
+
+      .map-item span,
+      .map-item ul {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .map-item ul {
+        padding-left: 18px;
+      }
+
       .product-row {
         display: grid;
-        grid-template-columns: 62px 1fr auto;
+        grid-template-columns: 64px minmax(0, 1fr);
         gap: 12px;
-        align-items: center;
-        border-bottom: 1px dashed rgba(255, 255, 255, 0.17);
-        padding: 10px 0;
+        align-items: start;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.045);
       }
 
       .product-row img {
-        width: 62px;
-        height: 78px;
-        border-radius: 9px;
+        width: 64px;
+        height: 82px;
+        border-radius: 12px;
         object-fit: cover;
         border: 1px solid rgba(255, 255, 255, 0.15);
       }
 
-      .product-row h3 {
+      .product-row h3,
+      .product-row p {
         margin: 0;
+      }
+
+      .product-row h3 {
         font-size: 14px;
       }
 
       .product-row p {
-        margin: 3px 0 0;
-        font-size: 12px;
+        margin-top: 4px;
         color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
       }
 
       .product-row .meta {
+        color: var(--accent-strong);
         font-size: 11px;
       }
 
       .product-row-actions {
         display: flex;
-        gap: 6px;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 10px;
       }
 
       .product-row-actions button {
         padding: 7px 10px;
-        letter-spacing: 0.1em;
         font-size: 10px;
+        letter-spacing: 0.1em;
       }
 
       .empty-note {
         margin: 0;
+        color: var(--muted);
         font-size: 13px;
-        color: var(--muted);
-      }
-
-      .helper-note {
-        margin-top: 10px;
-        font-size: 12px;
-        color: var(--muted);
         line-height: 1.6;
       }
 
-      .error-note {
-        margin-top: 8px;
-        color: var(--danger);
-        font-size: 13px;
+      @media (max-width: 1100px) {
+        .studio-grid,
+        .login-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .media-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .shell {
+          padding: 14px;
+        }
+
+        .topbar,
+        .dashboard-hero,
+        .section-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .dashboard-hero {
+          display: flex;
+          padding: 22px;
+        }
+
+        .stats,
+        .input-grid.two,
+        .checks {
+          grid-template-columns: 1fr;
+        }
+
+        .composer,
+        .panel-pad,
+        .login-copy,
+        .login-art {
+          padding: 18px;
+        }
+
+        .hero-actions {
+          justify-content: flex-start;
+        }
       }
     </style>
   </head>
@@ -278,132 +670,276 @@
         <a class="back-link" href="shop.html">Back to shop</a>
       </header>
 
-      <section id="admin-login-card" class="card">
-        <h1 class="title">Admin sign in</h1>
-        <p class="muted">
-          Only admin account can access this dashboard. No public signup is enabled.
-        </p>
-        <form id="admin-login-form" class="input-grid">
-          <div>
-            <label for="admin-email">Admin email</label>
-            <input id="admin-email" type="email" required />
-          </div>
-          <div>
-            <label for="admin-password">Password</label>
-            <input id="admin-password" type="password" required />
-          </div>
-          <div class="actions">
-            <button type="submit">Sign in</button>
-          </div>
-          <p id="admin-login-error" class="error-note"></p>
-        </form>
+      <section id="admin-login-card" class="card login-shell">
+        <div class="login-art">
+          <p class="eyebrow">Private product studio</p>
+          <h1 class="title">Sign in and publish cleaner drops.</h1>
+          <p class="muted">
+            Manage product cards, modal details, images, categories, and publish status from one guided dashboard.
+          </p>
+        </div>
+        <div class="login-copy">
+          <p class="eyebrow">Admin access</p>
+          <h2 class="title">Admin sign in</h2>
+          <p class="muted">
+            Only the admin account can access this dashboard. No public signup is enabled.
+          </p>
+          <form id="admin-login-form" class="input-grid" style="margin-top: 24px;">
+            <div>
+              <label for="admin-email">Admin email</label>
+              <input id="admin-email" type="email" autocomplete="email" required />
+            </div>
+            <div>
+              <label for="admin-password">Password</label>
+              <input id="admin-password" type="password" autocomplete="current-password" required />
+            </div>
+            <div class="actions">
+              <button type="submit">Sign in</button>
+            </div>
+            <p id="admin-login-error" class="error-note"></p>
+          </form>
+        </div>
       </section>
 
       <section id="admin-dashboard" class="hidden-section">
-        <div class="grid">
-          <article class="card">
-            <div class="topbar">
-              <div>
-                <h2 id="product-form-title" class="title">Add new product</h2>
-                <p class="muted">Signed in as <span id="admin-user-email"></span></p>
+        <div class="card dashboard-hero">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1 class="title">Product upload studio</h1>
+            <p class="muted">Signed in as <span id="admin-user-email"></span>. Fill the product box first, then add modal details and media.</p>
+            <div class="stats" aria-label="Product stats">
+              <div class="stat-card">
+                <span class="muted">Total products</span>
+                <strong id="product-count">0</strong>
               </div>
-              <button id="admin-logout" type="button" class="secondary">Sign out</button>
+              <div class="stat-card">
+                <span class="muted">Published</span>
+                <strong id="published-count">0</strong>
+              </div>
+              <div class="stat-card">
+                <span class="muted">Mode</span>
+                <strong id="editor-mode">Add</strong>
+              </div>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <a class="back-link" href="shop.html">View shop</a>
+            <button id="admin-logout" type="button" class="secondary">Sign out</button>
+          </div>
+        </div>
+
+        <div class="studio-grid">
+          <article class="card composer">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Editor</p>
+                <h2 id="product-form-title" class="section-title">Add new product</h2>
+                <p>Required fields are product name, current price, and at least one image URL.</p>
+              </div>
+              <span class="pill">Live preview</span>
             </div>
 
-            <form id="product-form" class="input-grid">
-              <div class="input-grid two">
+            <form id="product-form">
+              <section class="form-section" aria-labelledby="product-box-heading">
+                <div class="section-head">
+                  <div>
+                    <h3 id="product-box-heading" class="section-title">Product box</h3>
+                    <p>These fields show directly on the shop product card.</p>
+                  </div>
+                  <span class="step-badge">1</span>
+                </div>
+
+                <div class="input-grid two">
+                  <div>
+                    <label for="product-name">Product name</label>
+                    <input id="product-name" type="text" placeholder="Accolade Classic Tee" required />
+                    <p class="field-hint">Shown as the product-card title and modal title.</p>
+                  </div>
+                  <div>
+                    <label for="product-subtitle">Subtitle</label>
+                    <input id="product-subtitle" type="text" placeholder="Premium collection" />
+                    <p class="field-hint">Short line under the title in card and modal.</p>
+                  </div>
+                </div>
+
+                <div class="input-grid two">
+                  <div>
+                    <label for="price-current">Current price (BDT)</label>
+                    <input id="price-current" type="number" min="0" placeholder="850" required />
+                  </div>
+                  <div>
+                    <label for="price-original">Original price (BDT)</label>
+                    <input id="price-original" type="number" min="0" placeholder="1200" />
+                    <p class="field-hint">If higher than current price, shop shows a discount.</p>
+                  </div>
+                </div>
+
+                <div class="input-grid two">
+                  <div>
+                    <label for="product-badge">Badge text</label>
+                    <input id="product-badge" type="text" placeholder="10% OFF / Limited" />
+                  </div>
+                  <div>
+                    <label for="product-sort-order">Sort order (small = first)</label>
+                    <input id="product-sort-order" type="number" min="0" value="9999" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="form-section" aria-labelledby="modal-heading">
+                <div class="section-head">
+                  <div>
+                    <h3 id="modal-heading" class="section-title">Modal details</h3>
+                    <p>These fields appear after a customer taps a product card.</p>
+                  </div>
+                  <span class="step-badge">2</span>
+                </div>
+
+                <div class="input-grid two">
+                  <div>
+                    <label for="product-cotton">Cotton/Fabric summary</label>
+                    <input id="product-cotton" type="text" placeholder="220 GSM cotton blend" />
+                  </div>
+                  <div>
+                    <label for="product-quality">Quality summary</label>
+                    <input id="product-quality" type="text" placeholder="Premium print and stitching" />
+                  </div>
+                </div>
+
                 <div>
-                  <label for="product-name">Product name</label>
-                  <input id="product-name" type="text" required />
+                  <label for="product-fabric">Art/Fabric note</label>
+                  <input id="product-fabric" type="text" placeholder="Oversized fit with front artwork" />
                 </div>
+
                 <div>
-                  <label for="product-subtitle">Subtitle</label>
-                  <input id="product-subtitle" type="text" />
+                  <label for="product-design">Modal design points (one per line, max 3)</label>
+                  <textarea id="product-design" placeholder="Limited drop artwork&#10;Relaxed silhouette&#10;Soft hand feel"></textarea>
+                  <p class="field-hint">Keep this to 3 clear points so the product modal stays clean.</p>
                 </div>
-              </div>
+              </section>
 
-              <div class="input-grid two">
+              <section class="form-section" aria-labelledby="media-heading">
+                <div class="section-head">
+                  <div>
+                    <h3 id="media-heading" class="section-title">Images and upload</h3>
+                    <p>Paste public image links here. First image becomes the product box thumbnail.</p>
+                  </div>
+                  <span class="step-badge">3</span>
+                </div>
+
+                <div class="media-layout">
+                  <div class="input-grid">
+                    <div>
+                      <label for="product-images">Product image URLs (one per line)</label>
+                      <textarea id="product-images" placeholder="https://yourdomain.com/uploads/product-front.jpg&#10;https://yourdomain.com/uploads/product-back.jpg"></textarea>
+                      <p class="field-hint">Use direct image URLs ending in .jpg, .jpeg, .png, or .webp when possible.</p>
+                    </div>
+
+                    <div>
+                      <label for="product-sizechart">Size chart URL</label>
+                      <input id="product-sizechart" type="text" inputmode="url" placeholder="https://yourdomain.com/uploads/size-chart.jpg" />
+                    </div>
+                  </div>
+
+                  <aside class="mini-guide" aria-label="Upload instructions">
+                    <h4>Upload guide</h4>
+                    <ol>
+                      <li>Upload product photos in Hostinger File Manager.</li>
+                      <li>Open/copy each public file URL.</li>
+                      <li>Paste one product image URL per line.</li>
+                      <li>Put the best front photo first.</li>
+                    </ol>
+                  </aside>
+                </div>
+              </section>
+
+              <section class="form-section" aria-labelledby="publish-heading">
+                <div class="section-head">
+                  <div>
+                    <h3 id="publish-heading" class="section-title">Publish and category</h3>
+                    <p>Choose where this product appears on the shop page.</p>
+                  </div>
+                  <span class="step-badge">4</span>
+                </div>
+
                 <div>
-                  <label for="price-current">Current price (BDT)</label>
-                  <input id="price-current" type="number" min="0" required />
+                  <label>Visibility and category</label>
+                  <div class="checks">
+                    <label><input id="product-published" type="checkbox" checked /> Published</label>
+                    <label><input id="category-featured" type="checkbox" /> Featured products</label>
+                    <label><input id="category-hot" type="checkbox" /> Hot selling</label>
+                  </div>
                 </div>
+
                 <div>
-                  <label for="price-original">Original price (BDT)</label>
-                  <input id="price-original" type="number" min="0" />
+                  <label for="category-custom">Extra categories (comma separated)</label>
+                  <input id="category-custom" type="text" placeholder="new-drop, terry-cotton" />
+                  <p class="field-hint">The dashboard automatically adds "all". Use simple names for future filters.</p>
                 </div>
-              </div>
-
-              <div class="input-grid two">
-                <div>
-                  <label for="product-badge">Badge text</label>
-                  <input id="product-badge" type="text" placeholder="10% OFF / LIMITED" />
-                </div>
-                <div>
-                  <label for="product-sort-order">Sort order (small = first)</label>
-                  <input id="product-sort-order" type="number" min="0" value="9999" />
-                </div>
-              </div>
-
-              <div class="input-grid two">
-                <div>
-                  <label for="product-cotton">Cotton/Fabric summary</label>
-                  <input id="product-cotton" type="text" />
-                </div>
-                <div>
-                  <label for="product-quality">Quality summary</label>
-                  <input id="product-quality" type="text" />
-                </div>
-              </div>
-
-              <div>
-                <label for="product-fabric">Art/Fabric note</label>
-                <input id="product-fabric" type="text" />
-              </div>
-
-              <div>
-                <label for="product-sizechart">Size chart URL</label>
-                <input id="product-sizechart" type="url" placeholder="https://yourdomain.com/uploads/size-chart.jpg" />
-              </div>
-
-              <div>
-                <label for="product-images">Product image URLs (one per line)</label>
-                <textarea id="product-images" placeholder="https://yourdomain.com/uploads/product-1.jpg"></textarea>
-              </div>
-
-              <div>
-                <label for="product-design">Modal design points (one per line, max 3)</label>
-                <textarea id="product-design" placeholder="Limited drop artwork"></textarea>
-              </div>
-
-              <div>
-                <label>Visibility and category</label>
-                <div class="checks">
-                  <label><input id="product-published" type="checkbox" checked /> Published</label>
-                  <label><input id="category-featured" type="checkbox" /> Featured products</label>
-                  <label><input id="category-hot" type="checkbox" /> Hot selling</label>
-                </div>
-              </div>
-
-              <div>
-                <label for="category-custom">Extra categories (comma separated)</label>
-                <input id="category-custom" type="text" placeholder="new-drop, terry-cotton" />
-              </div>
+              </section>
 
               <div class="actions">
-                <button type="submit">Save product</button>
+                <button id="save-product" type="submit">Save product</button>
                 <button id="cancel-edit" type="button" class="secondary hidden-section">Cancel edit</button>
+                <p id="product-status" class="status">Ready</p>
               </div>
-              <p id="product-status" class="status">Ready</p>
             </form>
           </article>
 
-          <aside class="card">
-            <h2 class="title" style="font-size:1.2rem;">All products</h2>
-            <p class="helper-note">
-              Image upload tip: since Firebase Storage is not in your free plan, upload images to
-              Hostinger File Manager and paste those public image URLs here.
-            </p>
-            <div id="product-list"></div>
+          <aside class="side-stack">
+            <section class="card panel-pad preview-card" aria-labelledby="preview-heading">
+              <p class="eyebrow">What customers see</p>
+              <h2 id="preview-heading" class="section-title">Product box preview</h2>
+              <p class="helper-note">This mirrors the shop card. The first image URL, name, subtitle, badge, and prices are used here.</p>
+              <div class="preview-image" style="margin-top: 16px;">
+                <img id="preview-image" src="photos/any.jpeg" alt="Product preview" />
+                <span id="preview-chip" class="preview-chip">Product</span>
+                <span id="preview-badge" class="preview-badge">NEW</span>
+              </div>
+              <div class="preview-copy">
+                <h3 id="preview-name">Product name</h3>
+                <p id="preview-subtitle">Premium collection</p>
+                <div class="price-line">
+                  <span>BDT</span>
+                  <del id="preview-original">0</del>
+                  <span id="preview-current">0</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="card panel-pad" aria-labelledby="mapping-heading">
+              <p class="eyebrow">Field map</p>
+              <h2 id="mapping-heading" class="section-title">Product box vs modal</h2>
+              <div class="map-list" style="margin-top: 14px;">
+                <div class="map-item">
+                  <strong>Product box means</strong>
+                  <span id="map-card-fields">Name, subtitle, first image, badge, and prices shown in the shop grid.</span>
+                </div>
+                <div class="map-item">
+                  <strong>Modal means</strong>
+                  <span id="map-modal-fields">Images slider, cotton/fabric, quality, art/fabric note, size chart, and design points after clicking the card.</span>
+                </div>
+                <div class="map-item">
+                  <strong>Design points preview</strong>
+                  <ul id="preview-design-list">
+                    <li>Add up to three product highlights.</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <section class="card panel-pad">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Inventory</p>
+                  <h2 class="section-title">All products</h2>
+                </div>
+              </div>
+              <p class="helper-note">
+                Edit any product to refill the form. Delete removes it from Firestore permanently.
+              </p>
+              <div id="product-list" class="product-list" style="margin-top: 14px;"></div>
+            </section>
           </aside>
         </div>
       </section>
