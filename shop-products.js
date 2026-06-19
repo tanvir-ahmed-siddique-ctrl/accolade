@@ -1,14 +1,10 @@
 import { collection, db, getDocs } from "./firebase-config.js";
 
-const grid = document.getElementById("firebase-product-grid");
-const statusText = document.getElementById("firebase-products-status");
-const filterButtons = Array.from(
-  document.querySelectorAll("[data-product-filter]"),
-);
-
 const PRODUCTS_COLLECTION = "products";
-let activeFilter = "all";
-let allProducts = [];
+
+const featuredGrid = document.querySelector("#featured-products .product-grid");
+const allGrid = document.querySelector("#all-categories .product-grid");
+const hotGrid = document.querySelector("#top-rated .product-grid");
 
 function toNumber(value, fallback = 0) {
   const parsed = Number.parseInt(String(value ?? "").replace(/[^\d]/g, ""), 10);
@@ -107,7 +103,6 @@ function normalizeProduct(docSnap) {
       ? Number(data.sortOrder)
       : 9999,
     createdAt: getTimestampValue(data.createdAt),
-    updatedAt: getTimestampValue(data.updatedAt),
   };
 }
 
@@ -173,64 +168,53 @@ function createProductCard(product) {
   return card;
 }
 
-function filterProducts() {
-  if (activeFilter === "all") {
-    return allProducts;
-  }
-  return allProducts.filter((product) => product.categories.includes(activeFilter));
-}
-
-function renderProducts() {
-  if (!grid) {
+function renderIntoGrid(gridElement, products, emptyMessage) {
+  if (!gridElement) {
     return;
   }
-  const visibleProducts = filterProducts();
-  grid.innerHTML = "";
-  if (!visibleProducts.length) {
-    grid.innerHTML = `
-      <div class="col-span-full border border-[rgba(255,255,255,0.18)] rounded-2xl p-6 text-sm tracking-wide">
-        No products in this category yet.
-      </div>
-    `;
-    if (statusText) {
-      statusText.textContent = "No products found for selected category.";
-    }
+  gridElement.innerHTML = "";
+
+  if (!products.length) {
+    const emptyState = document.createElement("div");
+    emptyState.className =
+      "col-span-full border border-[rgba(255,255,255,0.18)] rounded-2xl p-6 text-sm tracking-wide";
+    emptyState.textContent = emptyMessage;
+    gridElement.appendChild(emptyState);
     return;
   }
 
-  visibleProducts.forEach((product) => {
-    grid.appendChild(createProductCard(product));
+  products.forEach((product) => {
+    gridElement.appendChild(createProductCard(product));
   });
 
   if (typeof window.attachImageLoaders === "function") {
-    window.attachImageLoaders(grid);
-  }
-
-  if (statusText) {
-    statusText.textContent = `${visibleProducts.length} product${
-      visibleProducts.length > 1 ? "s" : ""
-    } loaded`;
+    window.attachImageLoaders(gridElement);
   }
 }
 
-function updateActiveFilterButton() {
-  filterButtons.forEach((button) => {
-    const isActive = button.dataset.productFilter === activeFilter;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", isActive ? "true" : "false");
-  });
+function renderProducts(products) {
+  const featuredProducts = products.filter((product) =>
+    product.categories.includes("featured"),
+  );
+  const hotProducts = products.filter((product) =>
+    product.categories.includes("hot-selling"),
+  );
+
+  renderIntoGrid(featuredGrid, featuredProducts, "No featured products yet.");
+  renderIntoGrid(allGrid, products, "No products found.");
+  renderIntoGrid(hotGrid, hotProducts, "No hot selling products yet.");
 }
 
 async function loadProducts() {
-  if (!grid) {
+  if (!featuredGrid && !allGrid && !hotGrid) {
     return;
   }
-  if (statusText) {
-    statusText.textContent = "Loading products...";
-  }
+  renderIntoGrid(featuredGrid, [], "Loading featured products...");
+  renderIntoGrid(allGrid, [], "Loading products...");
+  renderIntoGrid(hotGrid, [], "Loading hot selling products...");
   try {
     const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
-    allProducts = snapshot.docs
+    const products = snapshot.docs
       .map(normalizeProduct)
       .filter((product) => product.isPublished)
       .sort((left, right) => {
@@ -239,23 +223,25 @@ async function loadProducts() {
         }
         return right.createdAt - left.createdAt;
       });
-    renderProducts();
+    renderProducts(products);
   } catch (error) {
     console.error("Failed to load Firestore products", error);
-    if (statusText) {
-      statusText.textContent =
-        "Could not load products from Firebase. Check config and Firestore rules.";
-    }
+    renderIntoGrid(
+      featuredGrid,
+      [],
+      "Could not load products from Firebase. Check Firestore rules.",
+    );
+    renderIntoGrid(
+      allGrid,
+      [],
+      "Could not load products from Firebase. Check Firestore rules.",
+    );
+    renderIntoGrid(
+      hotGrid,
+      [],
+      "Could not load products from Firebase. Check Firestore rules.",
+    );
   }
 }
 
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    activeFilter = button.dataset.productFilter || "all";
-    updateActiveFilterButton();
-    renderProducts();
-  });
-});
-
-updateActiveFilterButton();
 loadProducts();
