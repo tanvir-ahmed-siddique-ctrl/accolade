@@ -73,10 +73,15 @@ Netlify -> Site settings -> Environment variables:
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
-- `FIREBASE_WEB_API_KEY`
 - `ALLOWED_ADMIN_UIDS` (comma separated admin UID list)
 
 Do not put these secrets inside frontend files.
+
+Important:
+
+- Do **not** set `FIREBASE_WEB_API_KEY` as a Netlify environment variable.
+- Firebase Web API key is public and already exists in `firebase-config.js`.
+- Adding it as Netlify env var can trigger Netlify secrets scanning failure.
 
 ## 6) Cloudinary upload flow (already integrated)
 

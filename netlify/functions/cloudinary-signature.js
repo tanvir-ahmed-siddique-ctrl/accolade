@@ -54,16 +54,15 @@ exports.handler = async (event) => {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const cloudinaryApiKey = process.env.CLOUDINARY_API_KEY;
   const cloudinaryApiSecret = process.env.CLOUDINARY_API_SECRET;
-  const firebaseApiKey = process.env.FIREBASE_WEB_API_KEY;
   const allowedAdminUids = String(process.env.ALLOWED_ADMIN_UIDS || "")
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
 
-  if (!cloudName || !cloudinaryApiKey || !cloudinaryApiSecret || !firebaseApiKey) {
+  if (!cloudName || !cloudinaryApiKey || !cloudinaryApiSecret) {
     return jsonResponse(500, {
       error:
-        "Missing required server configuration. Add Cloudinary and Firebase env vars in Netlify.",
+        "Missing required server configuration. Add Cloudinary env vars in Netlify.",
     });
   }
 
@@ -75,8 +74,12 @@ exports.handler = async (event) => {
   }
 
   const idToken = String(body.idToken || "");
+  const firebaseApiKey = String(body.firebaseApiKey || "").trim();
   if (!idToken) {
     return jsonResponse(401, { error: "Authentication token is required" });
+  }
+  if (!firebaseApiKey) {
+    return jsonResponse(400, { error: "Firebase API key is required" });
   }
 
   const uid = await verifyFirebaseToken(idToken, firebaseApiKey);
