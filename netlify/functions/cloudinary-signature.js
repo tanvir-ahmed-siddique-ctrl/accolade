@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 
 const DEFAULT_UPLOAD_FOLDER = "accolade/products";
+const FIREBASE_PUBLIC_API_KEY = "AIzaSyBHZfsYdmWvtacR6QmeWKcV70t0BTek24U";
 
 function jsonResponse(statusCode, payload) {
   return {
@@ -73,21 +74,24 @@ exports.handler = async (event) => {
     return jsonResponse(400, { error: "Invalid JSON payload" });
   }
 
+  if (!allowedAdminUids.length) {
+    return jsonResponse(500, {
+      error:
+        "Missing required ALLOWED_ADMIN_UIDS configuration. Add at least one admin UID in Netlify.",
+    });
+  }
+
   const idToken = String(body.idToken || "");
-  const firebaseApiKey = String(body.firebaseApiKey || "").trim();
   if (!idToken) {
     return jsonResponse(401, { error: "Authentication token is required" });
   }
-  if (!firebaseApiKey) {
-    return jsonResponse(400, { error: "Firebase API key is required" });
-  }
 
-  const uid = await verifyFirebaseToken(idToken, firebaseApiKey);
+  const uid = await verifyFirebaseToken(idToken, FIREBASE_PUBLIC_API_KEY);
   if (!uid) {
     return jsonResponse(401, { error: "Invalid or expired authentication token" });
   }
 
-  if (allowedAdminUids.length > 0 && !allowedAdminUids.includes(uid)) {
+  if (!allowedAdminUids.includes(uid)) {
     return jsonResponse(403, { error: "You are not allowed to upload files" });
   }
 

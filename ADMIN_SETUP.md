@@ -82,6 +82,7 @@ Important:
 - Do **not** set `FIREBASE_WEB_API_KEY` as a Netlify environment variable.
 - Firebase Web API key is public and already exists in `firebase-config.js`.
 - Adding it as Netlify env var can trigger Netlify secrets scanning failure.
+- `ALLOWED_ADMIN_UIDS` must not be empty in production, otherwise upload function blocks requests.
 
 ## 6) Cloudinary upload flow (already integrated)
 

@@ -5,7 +5,6 @@ import {
   db,
   deleteDoc,
   doc,
-  firebasePublicApiKey,
   getDocs,
   onAuthStateChanged,
   serverTimestamp,
@@ -248,11 +247,7 @@ async function requestUploadSignature(folder) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      idToken,
-      folder,
-      firebaseApiKey: firebasePublicApiKey,
-    }),
+    body: JSON.stringify({ idToken, folder }),
   });
 
   let payload = {};

@@ -29,7 +29,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const firebasePublicApiKey = firebaseConfig.apiKey;
 
 export {
   addDoc,
@@ -38,7 +37,6 @@ export {
   db,
   deleteDoc,
   doc,
-  firebasePublicApiKey,
   getDocs,
   onAuthStateChanged,
   serverTimestamp,
