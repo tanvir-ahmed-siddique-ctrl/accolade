@@ -1,60 +1,99 @@
-# Accolade Admin + Firebase Setup
+# Accolade Admin + Firebase + Netlify + Cloudinary Setup
 
-## 1) Firebase Auth and Firestore
+## 1) Firebase requirements
 
-You already completed these, but confirm:
+Confirm these in Firebase Console:
 
 - Authentication -> Sign-in method -> Email/Password enabled
 - Authentication -> Users -> add only admin user(s)
 - Firestore Database -> created in production mode
 
-## 2) Authorized domain for Hostinger
+### Firestore security rule (required)
 
-In Firebase Console:
+Replace `YOUR_ADMIN_UID` and publish:
 
-- Authentication -> Settings -> Authorized domains
-- Add your Hostinger domain (for example `accoladeclo.com`)
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == "YOUR_ADMIN_UID";
+    }
+  }
+}
+```
 
-Without this, admin login from your live domain may fail.
+## 2) Deploy with Netlify drag-and-drop
 
-## 3) Firestore collection structure
+1. Zip this project and drag-drop into Netlify.
+2. Keep these files/folders in upload:
+   - `index.html`, `shop.html`, `admin.html`
+   - `admin.js`, `shop-products.js`, `firebase-config.js`
+   - `netlify.toml`
+   - `netlify/functions/cloudinary-signature.js`
+   - `photos/` and static assets
+3. Open Netlify site URL and verify:
+   - `/shop.html`
+   - `/admin.html`
 
-Collection: `products`
+## 3) Add custom Hostinger domain to Netlify
 
-Each product document uses fields like:
+In Netlify:
 
-- `name` (string)
-- `subtitle` (string)
-- `priceCurrent` (number)
-- `priceOriginal` (number)
-- `badge` (string)
-- `images` (array of URLs)
-- `sizeChartUrl` (string URL)
-- `cotton`, `quality`, `fabric` (string)
-- `designPoints` (array, max 3)
-- `featured` (boolean)
-- `hotSelling` (boolean)
-- `categories` (array, includes `all`)
-- `isPublished` (boolean)
-- `sortOrder` (number)
-- `createdAt`, `updatedAt` (timestamp)
+- Site settings -> Domain management -> Add custom domain
 
-## 4) Image strategy without Firebase Storage
+In Hostinger DNS:
 
-Since Firebase Storage is not available in your free tier:
+- A record `@` -> `75.2.60.5`
+- A record `@` -> `99.83.190.102`
+- CNAME `www` -> `your-netlify-subdomain.netlify.app`
 
-1. Upload product images to Hostinger File Manager  
-   example folder: `/public_html/uploads/products/`
-2. Use absolute public URLs in admin panel:
-   - `https://yourdomain.com/uploads/products/product1.jpg`
-   - one URL per line in the image field
-3. Use the same approach for size chart image URL
+Then in Netlify:
 
-## 5) Admin usage
+- Verify DNS
+- Enable HTTPS
+- Set your preferred primary domain
+
+## 4) Firebase authorized domains (required for login)
+
+Authentication -> Settings -> Authorized domains:
+
+- `localhost`
+- `your-netlify-subdomain.netlify.app`
+- `yourdomain.com`
+- `www.yourdomain.com` (if used)
+
+Without this, admin login fails on live domain.
+
+## 5) Netlify environment variables (server-side secrets)
+
+Netlify -> Site settings -> Environment variables:
+
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+- `FIREBASE_WEB_API_KEY`
+- `ALLOWED_ADMIN_UIDS` (comma separated admin UID list)
+
+Do not put these secrets inside frontend files.
+
+## 6) Cloudinary upload flow (already integrated)
+
+Dashboard now supports direct upload:
+
+- Select image file(s) in admin form
+- Click **Upload images** -> URLs auto-added to product image list
+- Click **Upload first as size chart** -> auto-fills size chart URL
+
+Uploads are signed by Netlify function, so API secret stays private.
+
+## 7) Admin usage
 
 - Open `admin.html`
 - Sign in with admin email/password
-- Fill form and click **Save product**
+- Upload images (optional) or paste URLs
+- Fill product form and click **Save product**
 - Set category toggles for Featured/Hot Selling
-- Product appears on `shop.html` in the dynamic section
+- Product appears on `shop.html` sections (Firestore-driven)
 

@@ -401,6 +401,35 @@
         line-height: 1.7;
       }
 
+      .upload-box {
+        border: 1px dashed rgba(216, 194, 164, 0.45);
+        border-radius: 16px;
+        padding: 12px;
+        background:
+          linear-gradient(145deg, rgba(216, 194, 164, 0.12), rgba(255, 255, 255, 0.045)),
+          rgba(0, 0, 0, 0.18);
+      }
+
+      .upload-box input[type="file"] {
+        min-height: auto;
+        padding: 10px;
+        background: rgba(8, 7, 6, 0.62);
+      }
+
+      .upload-actions {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .upload-help {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.65;
+      }
+
       .checks {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -895,7 +924,7 @@
                 <div class="section-head">
                   <div>
                     <h3 id="media-heading" class="section-title">Images and upload</h3>
-                    <p>Paste public image links here. First image becomes the product box thumbnail.</p>
+                    <p>Paste image links or upload directly from this dashboard. First image becomes the product box thumbnail.</p>
                   </div>
                   <span class="step-badge">3</span>
                 </div>
@@ -912,15 +941,32 @@
                       <label for="product-sizechart">Size chart URL</label>
                       <input id="product-sizechart" type="text" inputmode="url" placeholder="https://yourdomain.com/uploads/size-chart.jpg" />
                     </div>
+
+                    <div class="upload-box">
+                      <label for="product-image-files">Upload image files (auto Cloudinary URL)</label>
+                      <input id="product-image-files" type="file" accept="image/*" multiple />
+                      <div class="upload-actions">
+                        <button id="upload-product-images" type="button" class="secondary">
+                          Upload images
+                        </button>
+                        <button id="upload-size-chart" type="button" class="secondary">
+                          Upload first as size chart
+                        </button>
+                      </div>
+                      <p id="upload-status" class="status">No upload started</p>
+                      <p class="upload-help">
+                        Upload runs through secure Netlify function and auto-fills URL fields.
+                      </p>
+                    </div>
                   </div>
 
                   <aside class="mini-guide" aria-label="Upload instructions">
                     <h4>Upload guide</h4>
                     <ol>
-                      <li>Upload product photos in Hostinger File Manager.</li>
-                      <li>Open/copy each public file URL.</li>
-                      <li>Paste one product image URL per line.</li>
-                      <li>Put the best front photo first.</li>
+                      <li>Select files and click <strong>Upload images</strong>.</li>
+                      <li>URLs will auto-append in the product image field.</li>
+                      <li>Use <strong>Upload first as size chart</strong> for chart image.</li>
+                      <li>You can still paste manual URLs if needed.</li>
                     </ol>
                   </aside>
                 </div>
