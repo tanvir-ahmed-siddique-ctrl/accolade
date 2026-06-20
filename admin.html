@@ -269,6 +269,20 @@
         color: var(--danger);
         font-size: 13px;
       }
+
+      .upload-box {
+        border: 1px dashed rgba(255, 255, 255, 0.28);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .upload-help {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
     </style>
   </head>
   <body>
@@ -370,6 +384,24 @@
                 <textarea id="product-images" placeholder="https://yourdomain.com/uploads/product-1.jpg"></textarea>
               </div>
 
+              <div class="upload-box">
+                <label for="product-image-files">Or upload images directly (auto Cloudinary URL)</label>
+                <input id="product-image-files" type="file" accept="image/*" multiple />
+                <div class="actions" style="margin-top: 10px;">
+                  <button id="upload-product-images" type="button" class="secondary">
+                    Upload images
+                  </button>
+                  <button id="upload-size-chart" type="button" class="secondary">
+                    Upload first as size chart
+                  </button>
+                </div>
+                <p id="upload-status" class="status">No upload started</p>
+                <p class="upload-help">
+                  Selected images will upload to Cloudinary via secure Netlify function.
+                  Product image URLs are auto-appended to the field above.
+                </p>
+              </div>
+
               <div>
                 <label for="product-design">Modal design points (one per line, max 3)</label>
                 <textarea id="product-design" placeholder="Limited drop artwork"></textarea>
@@ -400,8 +432,7 @@
           <aside class="card">
             <h2 class="title" style="font-size:1.2rem;">All products</h2>
             <p class="helper-note">
-              Image upload tip: since Firebase Storage is not in your free plan, upload images to
-              Hostinger File Manager and paste those public image URLs here.
+              Upload images from this dashboard directly. URLs are generated automatically by Cloudinary.
             </p>
             <div id="product-list"></div>
           </aside>

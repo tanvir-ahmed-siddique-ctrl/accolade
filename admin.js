@@ -31,6 +31,17 @@ const productList = document.getElementById("product-list");
 const formTitle = document.getElementById("product-form-title");
 const cancelEditButton = document.getElementById("cancel-edit");
 const customCategoriesInput = document.getElementById("category-custom");
+const productImagesInput = document.getElementById("product-images");
+const sizeChartInput = document.getElementById("product-sizechart");
+const imageFilesInput = document.getElementById("product-image-files");
+const uploadProductImagesButton = document.getElementById("upload-product-images");
+const uploadSizeChartButton = document.getElementById("upload-size-chart");
+const uploadStatus = document.getElementById("upload-status");
+
+const SIGNATURE_ENDPOINT = "/.netlify/functions/cloudinary-signature";
+const MAX_UPLOAD_SIZE_MB = 8;
+const PRODUCT_UPLOAD_FOLDER = "accolade/products";
+const SIZE_CHART_UPLOAD_FOLDER = "accolade/sizecharts";
 
 function slugify(value) {
   return String(value || "")
@@ -79,6 +90,20 @@ function setStatus(message, type = "normal") {
   }
 }
 
+function setUploadStatus(message, type = "normal") {
+  if (!uploadStatus) {
+    return;
+  }
+  uploadStatus.textContent = message;
+  uploadStatus.classList.remove("is-error", "is-success");
+  if (type === "error") {
+    uploadStatus.classList.add("is-error");
+  }
+  if (type === "success") {
+    uploadStatus.classList.add("is-success");
+  }
+}
+
 function resetForm() {
   if (!productForm) {
     return;
@@ -88,6 +113,135 @@ function resetForm() {
   formTitle.textContent = "Add new product";
   cancelEditButton.classList.add("hidden-section");
   setStatus("Ready");
+  setUploadStatus("No upload started");
+}
+
+function setUploadButtonsDisabled(isDisabled) {
+  if (uploadProductImagesButton) {
+    uploadProductImagesButton.disabled = isDisabled;
+  }
+  if (uploadSizeChartButton) {
+    uploadSizeChartButton.disabled = isDisabled;
+  }
+}
+
+function validateFiles(files) {
+  if (!files.length) {
+    throw new Error("Please select at least one image file.");
+  }
+  files.forEach((file) => {
+    if (!file.type.startsWith("image/")) {
+      throw new Error(`"${file.name}" is not a valid image file.`);
+    }
+    if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
+      throw new Error(
+        `"${file.name}" is larger than ${MAX_UPLOAD_SIZE_MB}MB. Please compress it first.`,
+      );
+    }
+  });
+}
+
+async function requestUploadSignature(folder) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    throw new Error("Please sign in first.");
+  }
+
+  const idToken = await currentUser.getIdToken();
+  const response = await fetch(SIGNATURE_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ idToken, folder }),
+  });
+
+  let payload = {};
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = {};
+  }
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Could not get upload signature.");
+  }
+
+  return payload;
+}
+
+async function uploadSingleFile(file, signatureData) {
+  const uploadForm = new FormData();
+  uploadForm.append("file", file);
+  uploadForm.append("api_key", signatureData.apiKey);
+  uploadForm.append("timestamp", String(signatureData.timestamp));
+  uploadForm.append("signature", signatureData.signature);
+  uploadForm.append("folder", signatureData.folder);
+
+  const response = await fetch(signatureData.uploadUrl, {
+    method: "POST",
+    body: uploadForm,
+  });
+  const payload = await response.json();
+
+  if (!response.ok || !payload.secure_url) {
+    throw new Error(payload.error?.message || `Upload failed for "${file.name}".`);
+  }
+  return payload.secure_url;
+}
+
+function appendUrlsToProductImages(urls) {
+  if (!productImagesInput || !urls.length) {
+    return;
+  }
+  const existing = parseList(productImagesInput.value);
+  const merged = [...existing, ...urls];
+  productImagesInput.value = merged.join("\n");
+}
+
+async function handleUpload({ forSizeChart }) {
+  if (!imageFilesInput) {
+    return;
+  }
+  try {
+    const files = Array.from(imageFilesInput.files || []);
+    validateFiles(files);
+    setUploadButtonsDisabled(true);
+
+    const folder = forSizeChart
+      ? SIZE_CHART_UPLOAD_FOLDER
+      : PRODUCT_UPLOAD_FOLDER;
+    setUploadStatus("Getting secure upload token...");
+    const signatureData = await requestUploadSignature(folder);
+
+    const uploadedUrls = [];
+    for (let index = 0; index < files.length; index += 1) {
+      setUploadStatus(`Uploading ${index + 1}/${files.length}: ${files[index].name}`);
+      const url = await uploadSingleFile(files[index], signatureData);
+      uploadedUrls.push(url);
+    }
+
+    if (forSizeChart) {
+      if (sizeChartInput && uploadedUrls[0]) {
+        sizeChartInput.value = uploadedUrls[0];
+      }
+      setUploadStatus("Size chart uploaded and auto-filled.", "success");
+    } else {
+      appendUrlsToProductImages(uploadedUrls);
+      setUploadStatus(
+        `${uploadedUrls.length} image URL${
+          uploadedUrls.length > 1 ? "s" : ""
+        } added to product images.`,
+        "success",
+      );
+    }
+    imageFilesInput.value = "";
+  } catch (error) {
+    console.error("Upload failed", error);
+    setUploadStatus(error.message || "Upload failed.", "error");
+  } finally {
+    setUploadButtonsDisabled(false);
+  }
 }
 
 function getCategoriesFromForm() {
@@ -319,6 +473,18 @@ if (logoutButton) {
 
 if (cancelEditButton) {
   cancelEditButton.addEventListener("click", resetForm);
+}
+
+if (uploadProductImagesButton) {
+  uploadProductImagesButton.addEventListener("click", () => {
+    handleUpload({ forSizeChart: false });
+  });
+}
+
+if (uploadSizeChartButton) {
+  uploadSizeChartButton.addEventListener("click", () => {
+    handleUpload({ forSizeChart: true });
+  });
 }
 
 if (productForm) {
