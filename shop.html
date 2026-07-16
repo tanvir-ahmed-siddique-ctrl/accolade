@@ -2171,6 +2171,19 @@
     text-decoration: none;
     letter-spacing: 0.1em;
 }
+#mobile-menu .admin-menu-link {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-family: "Inter", sans-serif !important;
+    font-size: 0.7rem !important;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: none !important;
+    color: rgba(255, 255, 255, 0.28) !important;
+}
+#mobile-menu .admin-menu-link:hover {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
 
       /* White font exceptions and rules */
       body, h1, h2, h3, h4, h5, h6, p, label, .nav-link, .brand-text, .form-input, .select-field, .cart-item-name {
@@ -2254,7 +2267,7 @@
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
       <a href="#cart" onclick="closeAllSizeMenus(); openCartModal(); return false;">Cart</a>
-      <a href="admin.html">Admin sign in</a>
+      <a href="admin.html" class="admin-menu-link">Admin</a>
     </div>
 
     <!-- Announcement marquee (update text here) -->
@@ -2628,19 +2641,27 @@
                 <span>Cash on Delivery</span>
               </div>
             </div>
-            <a
-              id="modal-sizechart"
-              class="size-link"
-              href="photos/chart.jpeg"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Size chart (opens in a new tab)"
-              title="Opens in a new tab"
-              >Size chart</a
-            >
-            <p class="size-note">
-              size selection available at checkout
-            </p>
+            <div class="size-chart-box" aria-label="Size chart" style="border:1px solid rgba(255,255,255,0.18);border-radius:16px;overflow:hidden;background:rgba(20,20,20,0.45);">
+              <p style="padding:12px 14px 8px;font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--price);">Size chart</p>
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:10px;">
+                  <thead>
+                    <tr>
+                      <th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);color:var(--muted);">Size</th>
+                      <th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);color:var(--muted);">Length</th>
+                      <th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);color:var(--muted);">Chest</th>
+                      <th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);color:var(--muted);">Sleeve</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);">S</th><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">68 cm (26.8")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">55 cm (21.7")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">26 cm (10.2")</td></tr>
+                    <tr><th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);">M</th><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">70 cm (27.6")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">57 cm (22.4")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">27 cm (10.6")</td></tr>
+                    <tr><th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);">L</th><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">72 cm (28.3")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">59 cm (23.2")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">28 cm (11.0")</td></tr>
+                    <tr><th style="padding:8px 10px;text-align:left;border-top:1px solid rgba(255,255,255,0.1);">XL</th><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">74 cm (29.1")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">61 cm (24.0")</td><td style="padding:8px 10px;border-top:1px solid rgba(255,255,255,0.1);">29 cm (11.4")</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
             <div class="modal-actions">
               <button id="modal-add" class="add-btn" type="button">
                 Add to cart <i class="fas fa-cart-shopping text-xs"></i>
@@ -3378,7 +3399,6 @@
       const modalCotton = document.getElementById("modal-cotton");
       const modalQuality = document.getElementById("modal-quality");
       const modalFabric = document.getElementById("modal-fabric");
-      const modalSizechart = document.getElementById("modal-sizechart");
       const modalAdd = document.getElementById("modal-add");
       const modalBuy = document.getElementById("modal-buy");
       const modalBadge = document.getElementById("modal-badge");
@@ -3917,7 +3937,6 @@
         modalCotton.textContent = (card.dataset.cotton || "add details").toLowerCase();
         modalQuality.textContent = (card.dataset.quality || "add details").toLowerCase();
         modalFabric.textContent = (card.dataset.fabric || "add details").toLowerCase();
-        modalSizechart.href = card.dataset.sizechart || "photos/chart.jpeg";
 
         buildSlides(images);
         applyDesignItems(designItems);

@@ -777,7 +777,7 @@
           <p class="eyebrow">Private product studio</p>
           <h1 class="title">Sign in and publish cleaner drops.</h1>
           <p class="muted">
-            Manage product cards, modal details, images, categories, and publish status from one guided dashboard.
+            Manage shop cards, product page details, photos, categories, and publish status from one guided dashboard.
           </p>
         </div>
         <div class="login-copy">
@@ -808,7 +808,7 @@
           <div>
             <p class="eyebrow">Dashboard</p>
             <h1 class="title">Product upload studio</h1>
-            <p class="muted">Signed in as <span id="admin-user-email"></span>. Fill the product box first, then add modal details and media.</p>
+            <p class="muted">Signed in as <span id="admin-user-email"></span>. Follow steps 1 → 4, then click Save product.</p>
             <div class="stats" aria-label="Product stats">
               <div class="stat-card">
                 <span class="muted">Total products</span>
@@ -836,7 +836,7 @@
               <div>
                 <p class="eyebrow">Editor</p>
                 <h2 id="product-form-title" class="section-title">Add new product</h2>
-                <p>Required fields are product name, current price, and at least one image URL.</p>
+                <p>Required: product name, selling price, and at least one photo. Follow the numbered steps below.</p>
               </div>
               <span class="pill">Live preview</span>
             </div>
@@ -845,8 +845,8 @@
               <section class="form-section" aria-labelledby="product-box-heading">
                 <div class="section-head">
                   <div>
-                    <h3 id="product-box-heading" class="section-title">Product box</h3>
-                    <p>These fields show directly on the shop product card.</p>
+                    <h3 id="product-box-heading" class="section-title">1. Shop card (what customers see first)</h3>
+                    <p>This is the small product box on the shop page. Fill this carefully — customers decide to click based on this.</p>
                   </div>
                   <span class="step-badge">1</span>
                 </div>
@@ -855,24 +855,25 @@
                   <div>
                     <label for="product-name">Product name</label>
                     <input id="product-name" type="text" placeholder="Accolade Classic Tee" required />
-                    <p class="field-hint">Shown as the product-card title and modal title.</p>
+                    <p class="field-hint">Write the product title clearly. Example: “Oversized Black Tee”.</p>
                   </div>
                   <div>
-                    <label for="product-subtitle">Subtitle</label>
+                    <label for="product-subtitle">Short subtitle</label>
                     <input id="product-subtitle" type="text" placeholder="Premium collection" />
-                    <p class="field-hint">Short line under the title in card and modal.</p>
+                    <p class="field-hint">One short line under the name. Example: “Heavyweight cotton”.</p>
                   </div>
                 </div>
 
                 <div class="input-grid two">
                   <div>
-                    <label for="price-current">Current price (BDT)</label>
+                    <label for="price-current">Selling price (BDT)</label>
                     <input id="price-current" type="number" min="0" placeholder="850" required />
+                    <p class="field-hint">The price customers will pay now. Numbers only.</p>
                   </div>
                   <div>
-                    <label for="price-original">Original price (BDT)</label>
+                    <label for="price-original">Old / crossed price (BDT)</label>
                     <input id="price-original" type="number" min="0" placeholder="1200" />
-                    <p class="field-hint">If higher than current price, shop shows a discount.</p>
+                    <p class="field-hint">Optional. Put a higher number if you want a discount look (old price crossed out).</p>
                   </div>
                 </div>
 
@@ -880,10 +881,12 @@
                   <div>
                     <label for="product-badge">Badge text</label>
                     <input id="product-badge" type="text" placeholder="10% OFF / Limited" />
+                    <p class="field-hint">Small tag on the photo. Example: “New”, “Hot”, “20% OFF”.</p>
                   </div>
                   <div>
-                    <label for="product-sort-order">Sort order (small = first)</label>
+                    <label for="product-sort-order">Display order number</label>
                     <input id="product-sort-order" type="number" min="0" value="9999" />
+                    <p class="field-hint">Smaller number = shows earlier. Example: 1 first, then 2, then 3.</p>
                   </div>
                 </div>
               </section>
@@ -891,82 +894,80 @@
               <section class="form-section" aria-labelledby="modal-heading">
                 <div class="section-head">
                   <div>
-                    <h3 id="modal-heading" class="section-title">Modal details</h3>
-                    <p>These fields appear after a customer taps a product card.</p>
+                    <h3 id="modal-heading" class="section-title">2. Product page details</h3>
+                    <p>These details appear after a customer opens the product page. Keep them short and clear.</p>
                   </div>
                   <span class="step-badge">2</span>
                 </div>
 
                 <div class="input-grid two">
                   <div>
-                    <label for="product-cotton">Cotton/Fabric summary</label>
+                    <label for="product-cotton">Cotton / material</label>
                     <input id="product-cotton" type="text" placeholder="220 GSM cotton blend" />
+                    <p class="field-hint">What the fabric is made of. Example: “100% cotton, 220 GSM”.</p>
                   </div>
                   <div>
-                    <label for="product-quality">Quality summary</label>
+                    <label for="product-quality">Quality note</label>
                     <input id="product-quality" type="text" placeholder="Premium print and stitching" />
+                    <p class="field-hint">One quality highlight. Example: “Double-stitched seams”.</p>
                   </div>
                 </div>
 
                 <div>
-                  <label for="product-fabric">Art/Fabric note</label>
+                  <label for="product-fabric">Fit / style note</label>
                   <input id="product-fabric" type="text" placeholder="Oversized fit with front artwork" />
+                  <p class="field-hint">Describe fit or style. Example: “Relaxed oversized fit”.</p>
                 </div>
 
                 <div>
-                  <label for="product-design">Modal design points (one per line, max 3)</label>
+                  <label for="product-design">Design highlights (one per line, max 3)</label>
                   <textarea id="product-design" placeholder="Limited drop artwork&#10;Relaxed silhouette&#10;Soft hand feel"></textarea>
-                  <p class="field-hint">Keep this to 3 clear points so the product modal stays clean.</p>
+                  <p class="field-hint">Write up to 3 short bullet points. Press Enter after each line.</p>
                 </div>
               </section>
 
               <section class="form-section" aria-labelledby="media-heading">
                 <div class="section-head">
                   <div>
-                    <h3 id="media-heading" class="section-title">Images and upload</h3>
-                    <p>Paste image links or upload directly from this dashboard. First image becomes the product box thumbnail.</p>
+                    <h3 id="media-heading" class="section-title">3. Product photos</h3>
+                    <p>First photo becomes the shop thumbnail. Size chart is already fixed on the product page — you do not need to upload one.</p>
                   </div>
                   <span class="step-badge">3</span>
                 </div>
 
                 <div class="media-layout">
                   <div class="input-grid">
-                    <div>
-                      <label for="product-images">Product image URLs (one per line)</label>
-                      <textarea id="product-images" placeholder="https://yourdomain.com/uploads/product-front.jpg&#10;https://yourdomain.com/uploads/product-back.jpg"></textarea>
-                      <p class="field-hint">Use direct image URLs ending in .jpg, .jpeg, .png, or .webp when possible.</p>
-                    </div>
-
-                    <div>
-                      <label for="product-sizechart">Size chart URL</label>
-                      <input id="product-sizechart" type="text" inputmode="url" placeholder="https://yourdomain.com/uploads/size-chart.jpg" />
-                    </div>
-
                     <div class="upload-box">
-                      <label for="product-image-files">Upload image files (auto Cloudinary URL)</label>
+                      <label for="product-image-files">Upload photos from your phone/computer</label>
                       <input id="product-image-files" type="file" accept="image/*" multiple />
                       <div class="upload-actions">
                         <button id="upload-product-images" type="button" class="secondary">
                           Upload images
                         </button>
-                        <button id="upload-size-chart" type="button" class="secondary">
-                          Upload first as size chart
-                        </button>
                       </div>
                       <p id="upload-status" class="status">No upload started</p>
                       <p class="upload-help">
-                        Upload runs through secure Netlify function and auto-fills URL fields.
+                        Choose clear product photos → click <strong>Upload images</strong> → links will appear automatically in the box below.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label for="product-images">Or paste the URL (one photo link per line)</label>
+                      <textarea id="product-images" placeholder="https://...&#10;https://..."></textarea>
+                      <p class="field-hint">
+                        Prefer uploading above. Use this only if you already have image links. First line = main photo.
                       </p>
                     </div>
                   </div>
 
                   <aside class="mini-guide" aria-label="Upload instructions">
-                    <h4>Upload guide</h4>
+                    <h4>Easy photo guide</h4>
                     <ol>
-                      <li>Select files and click <strong>Upload images</strong>.</li>
-                      <li>URLs will auto-append in the product image field.</li>
-                      <li>Use <strong>Upload first as size chart</strong> for chart image.</li>
-                      <li>You can still paste manual URLs if needed.</li>
+                      <li>Click <strong>Choose files</strong> and pick 2–5 clear product photos.</li>
+                      <li>Click <strong>Upload images</strong> and wait until it says success.</li>
+                      <li>Photo links will auto-fill in “paste the URL”.</li>
+                      <li>First photo is the main shop image — put your best one first.</li>
+                      <li>Size chart is already shown on the product page. No upload needed.</li>
                     </ol>
                   </aside>
                 </div>
@@ -975,25 +976,26 @@
               <section class="form-section" aria-labelledby="publish-heading">
                 <div class="section-head">
                   <div>
-                    <h3 id="publish-heading" class="section-title">Publish and category</h3>
-                    <p>Choose where this product appears on the shop page.</p>
+                    <h3 id="publish-heading" class="section-title">4. Where it appears</h3>
+                    <p>Choose if the product is live, and which shop sections it should show in.</p>
                   </div>
                   <span class="step-badge">4</span>
                 </div>
 
                 <div>
-                  <label>Visibility and category</label>
+                  <label>Visibility and sections</label>
                   <div class="checks">
-                    <label><input id="product-published" type="checkbox" checked /> Published</label>
+                    <label><input id="product-published" type="checkbox" checked /> Published (live on shop)</label>
                     <label><input id="category-featured" type="checkbox" /> Featured products</label>
                     <label><input id="category-hot" type="checkbox" /> Hot selling</label>
                   </div>
+                  <p class="field-hint">Uncheck Published to keep it hidden as a draft. Tick Featured / Hot Selling to show in those sections.</p>
                 </div>
 
                 <div>
-                  <label for="category-custom">Extra categories (comma separated)</label>
+                  <label for="category-custom">Extra tags (optional)</label>
                   <input id="category-custom" type="text" placeholder="new-drop, terry-cotton" />
-                  <p class="field-hint">The dashboard automatically adds "all". Use simple names for future filters.</p>
+                  <p class="field-hint">Optional labels for later filtering. Separate with commas. Most admins can leave this blank.</p>
                 </div>
               </section>
 
@@ -1009,7 +1011,7 @@
             <section class="card panel-pad preview-card" aria-labelledby="preview-heading">
               <p class="eyebrow">What customers see</p>
               <h2 id="preview-heading" class="section-title">Product box preview</h2>
-              <p class="helper-note">This mirrors the shop card. The first image URL, name, subtitle, badge, and prices are used here.</p>
+              <p class="helper-note">This is how the shop card will look. First photo, name, subtitle, badge, and prices appear here.</p>
               <div class="preview-image" style="margin-top: 16px;">
                 <img id="preview-image" src="photos/any.jpeg" alt="Product preview" />
                 <span id="preview-chip" class="preview-chip">Product</span>
@@ -1028,15 +1030,15 @@
 
             <section class="card panel-pad" aria-labelledby="mapping-heading">
               <p class="eyebrow">Field map</p>
-              <h2 id="mapping-heading" class="section-title">Product box vs modal</h2>
+              <h2 id="mapping-heading" class="section-title">Shop card vs product page</h2>
               <div class="map-list" style="margin-top: 14px;">
                 <div class="map-item">
-                  <strong>Product box means</strong>
-                  <span id="map-card-fields">Name, subtitle, first image, badge, and prices shown in the shop grid.</span>
+                  <strong>Shop card means</strong>
+                  <span id="map-card-fields">Name, subtitle, first photo, badge, and prices in the shop grid.</span>
                 </div>
                 <div class="map-item">
-                  <strong>Modal means</strong>
-                  <span id="map-modal-fields">Images slider, cotton/fabric, quality, art/fabric note, size chart, and design points after clicking the card.</span>
+                  <strong>Product page means</strong>
+                  <span id="map-modal-fields">Photo gallery, material/quality notes, design points, size options, and the built-in size chart table.</span>
                 </div>
                 <div class="map-item">
                   <strong>Design points preview</strong>
@@ -1055,7 +1057,7 @@
                 </div>
               </div>
               <p class="helper-note">
-                Edit any product to refill the form. Delete removes it from Firestore permanently.
+                Click <strong>Edit</strong> to change a product. Click <strong>Delete</strong> only if you are sure — it cannot be undone.
               </p>
               <div id="product-list" class="product-list" style="margin-top: 14px;"></div>
             </section>

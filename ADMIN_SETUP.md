@@ -83,8 +83,8 @@ Do not put these secrets inside frontend files.
 Dashboard now supports direct upload:
 
 - Select image file(s) in admin form
-- Click **Upload images** -> URLs auto-added to product image list
-- Click **Upload first as size chart** -> auto-fills size chart URL
+- Click **Upload images** → URLs auto-added under “paste the URL”
+- Size chart is built into the product page (no URL upload needed)
 
 Uploads are signed by Netlify function, so API secret stays private.
 
@@ -92,8 +92,8 @@ Uploads are signed by Netlify function, so API secret stays private.
 
 - Open `admin.html`
 - Sign in with admin email/password
-- Upload images (optional) or paste URLs
-- Fill product form and click **Save product**
-- Set category toggles for Featured/Hot Selling
-- Product appears on `shop.html` sections (Firestore-driven)
+- Follow steps 1–4 (card info → details → photos → publish)
+- Prefer **Upload images**; only paste URLs if you already have them
+- Click **Save product**
+- Product appears on `shop.html` (Firestore-driven)
 

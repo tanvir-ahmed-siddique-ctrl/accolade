@@ -44,16 +44,13 @@ const previewBadge = document.getElementById("preview-badge");
 const previewChip = document.getElementById("preview-chip");
 const previewDesignList = document.getElementById("preview-design-list");
 const productImagesInput = document.getElementById("product-images");
-const sizeChartInput = document.getElementById("product-sizechart");
 const imageFilesInput = document.getElementById("product-image-files");
 const uploadProductImagesButton = document.getElementById("upload-product-images");
-const uploadSizeChartButton = document.getElementById("upload-size-chart");
 const uploadStatus = document.getElementById("upload-status");
 
 const SIGNATURE_ENDPOINT = "/.netlify/functions/cloudinary-signature";
 const MAX_UPLOAD_SIZE_MB = 8;
 const PRODUCT_UPLOAD_FOLDER = "accolade/products";
-const SIZE_CHART_UPLOAD_FOLDER = "accolade/sizecharts";
 
 function slugify(value) {
   return String(value || "")
@@ -213,9 +210,6 @@ function setUploadButtonsDisabled(isDisabled) {
   if (uploadProductImagesButton) {
     uploadProductImagesButton.disabled = isDisabled;
   }
-  if (uploadSizeChartButton) {
-    uploadSizeChartButton.disabled = isDisabled;
-  }
 }
 
 function validateFiles(files) {
@@ -294,7 +288,7 @@ function appendUrlsToProductImages(urls) {
   updatePreview();
 }
 
-async function handleUpload({ forSizeChart }) {
+async function handleUpload() {
   if (!imageFilesInput) {
     return;
   }
@@ -304,12 +298,8 @@ async function handleUpload({ forSizeChart }) {
     validateFiles(files);
     setUploadButtonsDisabled(true);
 
-    const folder = forSizeChart
-      ? SIZE_CHART_UPLOAD_FOLDER
-      : PRODUCT_UPLOAD_FOLDER;
-
     setUploadStatus("Getting secure upload token...");
-    const signatureData = await requestUploadSignature(folder);
+    const signatureData = await requestUploadSignature(PRODUCT_UPLOAD_FOLDER);
 
     const uploadedUrls = [];
     for (let index = 0; index < files.length; index += 1) {
@@ -318,21 +308,13 @@ async function handleUpload({ forSizeChart }) {
       uploadedUrls.push(url);
     }
 
-    if (forSizeChart) {
-      if (sizeChartInput && uploadedUrls[0]) {
-        sizeChartInput.value = uploadedUrls[0];
-      }
-      updatePreview();
-      setUploadStatus("Size chart uploaded and auto-filled.", "success");
-    } else {
-      appendUrlsToProductImages(uploadedUrls);
-      setUploadStatus(
-        `${uploadedUrls.length} image URL${
-          uploadedUrls.length > 1 ? "s" : ""
-        } added to product images.`,
-        "success",
-      );
-    }
+    appendUrlsToProductImages(uploadedUrls);
+    setUploadStatus(
+      `${uploadedUrls.length} image URL${
+        uploadedUrls.length > 1 ? "s" : ""
+      } added to product images.`,
+      "success",
+    );
 
     imageFilesInput.value = "";
   } catch (error) {
@@ -377,7 +359,6 @@ function getFormData() {
   const cotton = document.getElementById("product-cotton").value.trim();
   const quality = document.getElementById("product-quality").value.trim();
   const fabric = document.getElementById("product-fabric").value.trim();
-  const sizeChartUrl = document.getElementById("product-sizechart").value.trim();
   const imageUrls = parseList(document.getElementById("product-images").value);
   const designPoints = parseList(document.getElementById("product-design").value);
   const sortOrder = Number.parseInt(
@@ -406,7 +387,6 @@ function getFormData() {
     cotton: cotton || "add details",
     quality: quality || "add details",
     fabric: fabric || "add details",
-    sizeChartUrl: sizeChartUrl || "photos/chart.jpeg",
     images: imageUrls,
     designPoints: designPoints.slice(0, 3),
     categories,
@@ -473,8 +453,6 @@ function renderProductList() {
       document.getElementById("product-cotton").value = selected.cotton || "";
       document.getElementById("product-quality").value = selected.quality || "";
       document.getElementById("product-fabric").value = selected.fabric || "";
-      document.getElementById("product-sizechart").value =
-        selected.sizeChartUrl || "";
       document.getElementById("product-images").value = (
         selected.images || []
       ).join("\n");
@@ -583,13 +561,7 @@ if (cancelEditButton) {
 
 if (uploadProductImagesButton) {
   uploadProductImagesButton.addEventListener("click", () => {
-    handleUpload({ forSizeChart: false });
-  });
-}
-
-if (uploadSizeChartButton) {
-  uploadSizeChartButton.addEventListener("click", () => {
-    handleUpload({ forSizeChart: true });
+    handleUpload();
   });
 }
 

@@ -21,7 +21,6 @@ const els = {
   quality: document.getElementById("pd-quality"),
   fabric: document.getElementById("pd-fabric"),
   designList: document.getElementById("pd-design-list"),
-  sizeChart: document.getElementById("pd-sizechart"),
   sizeOptions: document.getElementById("pd-size-options"),
   sizeHint: document.getElementById("pd-size-hint"),
   qtyValue: document.getElementById("pd-qty-value"),
@@ -88,7 +87,6 @@ function normalizeProduct(docSnap) {
     cotton: String(data.cotton || "add details"),
     quality: String(data.quality || "add details"),
     fabric: String(data.fabric || "add details"),
-    sizeChartUrl: String(data.sizeChartUrl || data.sizechart || "photos/chart.jpeg"),
     images,
     designPoints,
     isPublished: data.isPublished !== false,
@@ -260,8 +258,6 @@ function renderProduct(data) {
   if (els.cotton) els.cotton.textContent = data.cotton;
   if (els.quality) els.quality.textContent = data.quality;
   if (els.fabric) els.fabric.textContent = data.fabric;
-  if (els.sizeChart) els.sizeChart.href = data.sizeChartUrl;
-
   if (els.designList) {
     const points = data.designPoints.length
       ? data.designPoints

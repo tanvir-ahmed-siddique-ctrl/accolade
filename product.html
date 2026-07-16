@@ -153,6 +153,19 @@
         text-decoration: none;
         letter-spacing: 0.1em;
       }
+      #mobile-menu .admin-menu-link {
+        margin-top: auto;
+        padding-top: 1.5rem;
+        font-family: "Inter", sans-serif !important;
+        font-size: 0.7rem !important;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: none !important;
+        color: rgba(255, 255, 255, 0.28) !important;
+      }
+      #mobile-menu .admin-menu-link:hover {
+        color: rgba(255, 255, 255, 0.45) !important;
+      }
 
       .product-main {
         flex: 1;
@@ -523,13 +536,57 @@
         color: var(--price);
       }
 
-      .size-link {
+      .size-chart-box {
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 16px;
+        background: rgba(20, 20, 20, 0.45);
+        overflow: hidden;
+      }
+      .size-chart-title {
+        padding: 14px 16px 10px;
         font-size: 12px;
-        letter-spacing: 0.16em;
+        font-weight: 700;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
         color: var(--price);
-        text-decoration: underline;
-        width: fit-content;
+      }
+      .size-chart-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+      }
+      .size-chart-table th,
+      .size-chart-table td {
+        padding: 10px 12px;
+        text-align: left;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .size-chart-table thead th {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .size-chart-table tbody th {
+        font-weight: 700;
+        color: #fff;
+        width: 48px;
+      }
+      .size-chart-table td {
+        color: rgba(255, 255, 255, 0.82);
+        white-space: nowrap;
+      }
+      @media (max-width: 520px) {
+        .size-chart-table {
+          font-size: 10px;
+        }
+        .size-chart-table th,
+        .size-chart-table td {
+          padding: 8px 8px;
+        }
       }
 
       .pd-actions {
@@ -800,7 +857,7 @@
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
       <a href="shop.html?checkout=true">Cart</a>
-      <a href="admin.html">Admin sign in</a>
+      <a href="admin.html" class="admin-menu-link">Admin</a>
     </div>
 
     <main class="product-main">
@@ -896,33 +953,47 @@
             </div>
           </div>
 
-          <div class="pd-quick-info">
-            <div class="pd-quick-item">
-              <i class="fas fa-truck"></i>
-              <span>Fast and Safe Delivery</span>
-            </div>
-            <div class="pd-quick-item">
-              <i class="fas fa-circle-check"></i>
-              <span>Quality Assurance</span>
-            </div>
-            <div class="pd-quick-item">
-              <i class="fas fa-credit-card"></i>
-              <span>Payment Trust</span>
-            </div>
-            <div class="pd-quick-item">
-              <i class="fas fa-money-bill-wave"></i>
-              <span>Cash on Delivery</span>
+          <div class="size-chart-box" aria-label="Size chart">
+            <p class="size-chart-title">Size chart</p>
+            <div style="overflow-x: auto;">
+              <table class="size-chart-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Size</th>
+                    <th scope="col">Length</th>
+                    <th scope="col">Chest</th>
+                    <th scope="col">Sleeve</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">S</th>
+                    <td>68 cm (26.8")</td>
+                    <td>55 cm (21.7")</td>
+                    <td>26 cm (10.2")</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">M</th>
+                    <td>70 cm (27.6")</td>
+                    <td>57 cm (22.4")</td>
+                    <td>27 cm (10.6")</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">L</th>
+                    <td>72 cm (28.3")</td>
+                    <td>59 cm (23.2")</td>
+                    <td>28 cm (11.0")</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">XL</th>
+                    <td>74 cm (29.1")</td>
+                    <td>61 cm (24.0")</td>
+                    <td>29 cm (11.4")</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-
-          <a
-            id="pd-sizechart"
-            class="size-link"
-            href="photos/chart.jpeg"
-            target="_blank"
-            rel="noreferrer"
-            >Size chart</a
-          >
 
           <div class="pd-actions">
             <button id="pd-add" class="add-btn" type="button">
