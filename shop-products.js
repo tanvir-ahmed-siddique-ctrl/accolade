@@ -121,8 +121,9 @@ function createProductCard(product) {
   card.className = "product-card info-card";
   card.tabIndex = 0;
   card.setAttribute("role", "button");
-  card.setAttribute("aria-label", `Open details for ${product.name}`);
+  card.setAttribute("aria-label", `View ${product.name}`);
 
+  card.dataset.id = product.id;
   card.dataset.name = product.name;
   card.dataset.subtitle = product.subtitle;
   card.dataset.price = `BDT ${product.priceCurrent}`;
@@ -154,16 +155,14 @@ function createProductCard(product) {
     </div>
   `;
 
-  const openModal = () => {
-    if (typeof window.openProductModal === "function") {
-      window.openProductModal(card);
-    }
+  const openProductPage = () => {
+    window.location.href = `product.html?id=${encodeURIComponent(product.id)}`;
   };
-  card.addEventListener("click", openModal);
+  card.addEventListener("click", openProductPage);
   card.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      openModal();
+      openProductPage();
     }
   });
 

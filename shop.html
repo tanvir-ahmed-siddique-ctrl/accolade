@@ -2914,7 +2914,7 @@
         }
       }
 
-      function addToCart(name, unitPrice, quantity = 1) {
+      function addToCart(name, unitPrice, quantity = 1, size = "SELECT SIZE") {
         const safeQuantity = Math.max(1, parseInt(quantity, 10) || 1);
         const linePrice = unitPrice * safeQuantity;
         cart.push({
@@ -2922,7 +2922,7 @@
           price: linePrice,
           unitPrice,
           quantity: safeQuantity,
-          size: "SELECT SIZE",
+          size: size || "SELECT SIZE",
         });
         subtotal += linePrice;
 
@@ -2940,97 +2940,20 @@
           return;
         }
         container.innerHTML = cart
-          .map((item, index) => {
+          .map((item) => {
             const qtyLabel = item.quantity > 1 ? ` x${item.quantity}` : "";
-            const currentSize = item.size || "SELECT SIZE";
-            const sizeOptions = ["SELECT SIZE", "S", "M", "L", "XL"]
-              .map(
-                (size) =>
-                  `<option value="${size}" ${
-                    currentSize === size ? "selected" : ""
-                  }>${size}</option>`,
-              )
-              .join("");
+            const sizeLabel =
+              item.size && item.size !== "SELECT SIZE"
+                ? ` · Size ${item.size}`
+                : "";
             return `<div class="flex justify-between border-b border-dashed border-[#d6c8b4] pb-2 text-sm">
                     <div class="flex flex-wrap items-center gap-2">
-                      <span>${item.name}${qtyLabel}</span>
-                      <div class="size-select-wrapper">
-                        <span class="size-label">Size</span>
-                        <select class="size-select-native" data-size-index="${index}" aria-label="Size for ${item.name}">
-                          ${sizeOptions}
-                        </select>
-                        <button
-                          type="button"
-                          class="size-select-toggle border border-[#1f1f1f] rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] bg-white"
-                          data-size-toggle="${index}"
-                          aria-expanded="false"
-                        >
-                          <span class="size-select-value" data-size-display="${index}">${currentSize}</span>
-                          <i class="fas fa-chevron-down size-select-chevron text-[10px]"></i>
-                        </button>
-                        <div class="size-select-menu" data-size-menu="${index}">
-                          <button type="button" class="size-select-option" data-size-index="${index}" data-size-value="S">S</button>
-                          <button type="button" class="size-select-option" data-size-index="${index}" data-size-value="M">M</button>
-                          <button type="button" class="size-select-option" data-size-index="${index}" data-size-value="L">L</button>
-                          <button type="button" class="size-select-option" data-size-index="${index}" data-size-value="XL">XL</button>
-                        </div>
-                      </div>
+                      <span>${item.name}${qtyLabel}${sizeLabel}</span>
                     </div>
                     <span class="font-semibold price-text">${item.price} Tk</span>
                 </div>`;
           })
           .join("");
-        container.querySelectorAll(".size-select-native").forEach((select) => {
-          select.addEventListener("change", () => {
-            const index = parseInt(select.dataset.sizeIndex, 10);
-            if (!Number.isNaN(index) && cart[index]) {
-              cart[index].size = select.value;
-              const display = container.querySelector(
-                `[data-size-display="${index}"]`,
-              );
-              if (display) {
-                display.textContent = select.value;
-              }
-              updateCalculations();
-              saveCart();
-            }
-          });
-        });
-        container.querySelectorAll(".size-select-toggle").forEach((toggle) => {
-          toggle.addEventListener("click", (event) => {
-            event.stopPropagation();
-            const index = toggle.dataset.sizeToggle;
-            const menu = container.querySelector(
-              `.size-select-menu[data-size-menu="${index}"]`,
-            );
-            if (!menu) {
-              return;
-            }
-            const isOpen = menu.classList.contains("is-open");
-            closeAllSizeMenus();
-            if (!isOpen) {
-              menu.classList.add("is-open");
-              toggle.classList.add("is-open");
-              toggle.setAttribute("aria-expanded", "true");
-            }
-          });
-        });
-        container.querySelectorAll(".size-select-option").forEach((option) => {
-          option.addEventListener("click", (event) => {
-            event.stopPropagation();
-            const index = option.dataset.sizeIndex;
-            const value = option.dataset.sizeValue;
-            const select = container.querySelector(
-              `.size-select-native[data-size-index="${index}"]`,
-            );
-            if (select) {
-              select.value = value;
-              select.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-            closeAllSizeMenus();
-          });
-        });
-        bindSizeDropdownOutsideHandler();
       }
 
       function renderCartModal() {
@@ -3048,9 +2971,13 @@
         cartModalItems.innerHTML = cart
           .map((item, index) => {
             const qtyLabel = item.quantity > 1 ? ` x${item.quantity}` : "";
+            const sizeLabel =
+              item.size && item.size !== "SELECT SIZE"
+                ? ` · ${item.size}`
+                : "";
             return `<div class="cart-item">
                   <div>
-                    <div class="cart-item-name">${item.name}${qtyLabel}</div>
+                    <div class="cart-item-name">${item.name}${qtyLabel}${sizeLabel}</div>
                     <div class="cart-item-price price-text">${item.price} Tk</div>
                   </div>
                   <button class="cart-remove" data-index="${index}">Remove</button>
@@ -3097,7 +3024,6 @@
 
       function openCheckout() {
         saveCart();
-        // Render cart items with size selectors in order summary
         renderCartSummary();
         updateCalculations();
         // Hide products, show checkout form
@@ -3952,6 +3878,11 @@
       }
 
       function openProductModal(card) {
+        const productId = card?.dataset?.id;
+        if (productId) {
+          window.location.href = `product.html?id=${encodeURIComponent(productId)}`;
+          return;
+        }
         const name =
           card.dataset.name || card.querySelector("h3")?.textContent.trim();
         const subtitle =
