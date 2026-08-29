@@ -55,27 +55,17 @@
       }
       body {
         font-family: "Cinzel", "Sansation", "Inter", sans-serif;
-        background-color: #14110e;
+        background-color: var(--sand);
+        background-image: url('photos/main_bg.jpeg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
         color: var(--brown);
         padding-top: var(--header-height);
         width: 100%;
         max-width: 100vw;
         overflow-x: hidden;
-        position: relative;
-        min-height: 100vh;
-      }
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        background-image: url('photos/main_bg.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        pointer-events: none;
-        transform: translateZ(0);
-        will-change: transform;
       }
       @keyframes skeletonShimmer {
         0% { transform: translateX(-100%); }
