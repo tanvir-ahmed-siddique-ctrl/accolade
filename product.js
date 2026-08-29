@@ -1,7 +1,20 @@
 import { db, doc, getDoc } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
+const CACHE_KEY = "accolade_products_cache";
 const SIZES = ["S", "M", "L", "XL"];
+
+function getCachedProduct(id) {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed?.products)) {
+      return parsed.products.find((p) => p.id === id) || null;
+    }
+  } catch (e) {}
+  return null;
+}
 
 const params = new URLSearchParams(window.location.search);
 const productId = params.get("id");
@@ -289,21 +302,27 @@ async function loadProduct() {
     showError("Product not found. Go back to shop and try again.");
     return;
   }
+  const cached = getCachedProduct(productId);
+  if (cached) {
+    renderProduct(cached);
+  }
   try {
     const snap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
     if (!snap.exists()) {
-      showError("This product is no longer available.");
+      if (!cached) showError("This product is no longer available.");
       return;
     }
     const data = normalizeProduct(snap);
     if (!data.isPublished) {
-      showError("This product is no longer available.");
+      if (!cached) showError("This product is no longer available.");
       return;
     }
     renderProduct(data);
   } catch (error) {
     console.error("Failed to load product", error);
-    showError("Could not load product. Please try again.");
+    if (!cached) {
+      showError("Could not load product. Please try again.");
+    }
   }
 }
 

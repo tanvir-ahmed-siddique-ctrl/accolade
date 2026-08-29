@@ -496,6 +496,9 @@ function renderProductList() {
       }
       try {
         await deleteDoc(doc(db, PRODUCTS_COLLECTION, product.id));
+        try {
+          localStorage.removeItem("accolade_products_cache");
+        } catch (e) {}
         setStatus("Product deleted", "success");
         await loadProducts();
       } catch (error) {
@@ -582,6 +585,9 @@ if (productForm) {
           ...payload,
           updatedAt: serverTimestamp(),
         });
+        try {
+          localStorage.removeItem("accolade_products_cache");
+        } catch (e) {}
         await loadProducts();
         resetForm("Product updated successfully", "success");
       } else {
@@ -590,6 +596,9 @@ if (productForm) {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
+        try {
+          localStorage.removeItem("accolade_products_cache");
+        } catch (e) {}
         await loadProducts();
         resetForm("Product added successfully", "success");
       }

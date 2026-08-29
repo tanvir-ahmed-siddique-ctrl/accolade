@@ -1,12 +1,69 @@
 import { collection, db, getDocs } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
+const CACHE_KEY = "accolade_products_cache";
 
-document.documentElement.classList.add("firebase-products-loading");
+function getCachedProducts() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed?.products) && parsed.products.length > 0) {
+      return parsed.products;
+    }
+  } catch (e) {}
+  return null;
+}
+
+function setCachedProducts(products) {
+  try {
+    localStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({
+        timestamp: Date.now(),
+        products,
+      }),
+    );
+  } catch (e) {}
+}
+
+function createSkeletonCard() {
+  const card = document.createElement("div");
+  card.className = "product-card skeleton-card opacity-60 pointer-events-none";
+  card.innerHTML = `
+    <div class="product-image" style="background:rgba(255,255,255,0.06);min-height:220px;border-radius:12px;"></div>
+    <div class="mt-4 space-y-2">
+      <div style="height:14px;background:rgba(255,255,255,0.08);border-radius:4px;width:70%;"></div>
+      <div style="height:10px;background:rgba(255,255,255,0.05);border-radius:4px;width:40%;"></div>
+      <div style="height:12px;background:rgba(255,255,255,0.08);border-radius:4px;width:50%;"></div>
+    </div>
+  `;
+  return card;
+}
+
+function renderSkeletons(gridElement, count = 3) {
+  if (!gridElement) return;
+  gridElement.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    gridElement.appendChild(createSkeletonCard());
+  }
+}
 
 const featuredGrid = document.querySelector("#featured-products .product-grid");
 const allGrid = document.querySelector("#all-categories .product-grid");
 const hotGrid = document.querySelector("#top-rated .product-grid");
+
+// Try instant render from cache if available (0ms delay)
+const initialCache = getCachedProducts();
+if (initialCache && initialCache.length > 0) {
+  renderProducts(initialCache);
+  document.documentElement.classList.remove("firebase-products-loading");
+} else {
+  document.documentElement.classList.add("firebase-products-loading");
+  renderSkeletons(featuredGrid, 3);
+  renderSkeletons(allGrid, 6);
+  renderSkeletons(hotGrid, 3);
+}
 
 function toNumber(value, fallback = 0) {
   const parsed = Number.parseInt(String(value ?? "").replace(/[^\d]/g, ""), 10);
@@ -211,9 +268,12 @@ async function loadProducts() {
     document.documentElement.classList.remove("firebase-products-loading");
     return;
   }
-  renderIntoGrid(featuredGrid, [], "Loading featured products...");
-  renderIntoGrid(allGrid, [], "Loading products...");
-  renderIntoGrid(hotGrid, [], "Loading hot selling products...");
+  const hasCached = Boolean(getCachedProducts());
+  if (!hasCached) {
+    renderSkeletons(featuredGrid, 3);
+    renderSkeletons(allGrid, 6);
+    renderSkeletons(hotGrid, 3);
+  }
   try {
     const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
     const products = snapshot.docs
@@ -225,24 +285,27 @@ async function loadProducts() {
         }
         return right.createdAt - left.createdAt;
       });
+    setCachedProducts(products);
     renderProducts(products);
   } catch (error) {
     console.error("Failed to load Firestore products", error);
-    renderIntoGrid(
-      featuredGrid,
-      [],
-      "Could not load products from Firebase. Check Firestore rules.",
-    );
-    renderIntoGrid(
-      allGrid,
-      [],
-      "Could not load products from Firebase. Check Firestore rules.",
-    );
-    renderIntoGrid(
-      hotGrid,
-      [],
-      "Could not load products from Firebase. Check Firestore rules.",
-    );
+    if (!hasCached) {
+      renderIntoGrid(
+        featuredGrid,
+        [],
+        "Could not load products from Firebase. Check Firestore rules.",
+      );
+      renderIntoGrid(
+        allGrid,
+        [],
+        "Could not load products from Firebase. Check Firestore rules.",
+      );
+      renderIntoGrid(
+        hotGrid,
+        [],
+        "Could not load products from Firebase. Check Firestore rules.",
+      );
+    }
   } finally {
     document.documentElement.classList.remove("firebase-products-loading");
   }
