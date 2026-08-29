@@ -175,11 +175,31 @@ function normalizeProduct(docSnap) {
 }
 
 function createProductCard(product) {
-  const primaryImage = product.images[0] || "photos/any.jpeg";
-  const discount = calculateDiscount(product.priceCurrent, product.priceOriginal);
-  const labelChip = product.categories.includes("featured")
+  const images = Array.isArray(product.images)
+    ? product.images.filter(Boolean)
+    : String(product.images || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+  const primaryImage = images[0] || "photos/any.jpeg";
+
+  const priceCurrent = toNumber(product.priceCurrent ?? product.price, 0);
+  const priceOriginal = toNumber(
+    product.priceOriginal ?? product.offer,
+    priceCurrent,
+  );
+  const discount = calculateDiscount(priceCurrent, priceOriginal);
+
+  const categories = Array.isArray(product.categories)
+    ? product.categories
+    : String(product.categories || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+  const labelChip = categories.includes("featured")
     ? "Featured"
-    : product.categories.includes("hot-selling")
+    : categories.includes("hot-selling")
       ? "Hot Selling"
       : "Product";
 
@@ -187,32 +207,53 @@ function createProductCard(product) {
   card.className = "product-card info-card";
   card.tabIndex = 0;
   card.setAttribute("role", "button");
-  card.setAttribute("aria-label", `View ${product.name}`);
+  card.setAttribute("aria-label", `View ${product.name || "Product"}`);
 
-  card.dataset.id = product.id;
-  card.dataset.name = product.name;
-  card.dataset.price = `BDT ${product.priceCurrent}`;
-  card.dataset.priceValue = `${product.priceCurrent}`;
-  card.dataset.offer = `${product.priceOriginal}`;
-  card.dataset.badge = product.badge;
-  card.dataset.cotton = product.cotton;
-  card.dataset.sizes = product.sizes.join(",");
-  card.dataset.colors = product.colors.join(",");
-  card.dataset.design = product.designPoints.join("|");
-  card.dataset.images = product.images.join(",");
+  const sizes = Array.isArray(product.sizes)
+    ? product.sizes.filter(Boolean)
+    : String(product.sizes || "")
+        .split(/,|\n|\|/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+  const colors = Array.isArray(product.colors)
+    ? product.colors.filter(Boolean)
+    : String(product.colors || "")
+        .split(/,|\n|\|/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+  const designPoints = Array.isArray(product.designPoints)
+    ? product.designPoints.filter(Boolean)
+    : String(product.designPoints || "")
+        .split("|")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+  card.dataset.id = product.id || "";
+  card.dataset.name = product.name || "Product";
+  card.dataset.price = `BDT ${priceCurrent}`;
+  card.dataset.priceValue = `${priceCurrent}`;
+  card.dataset.offer = `${priceOriginal}`;
+  card.dataset.badge = product.badge || "";
+  card.dataset.cotton = product.cotton || "";
+  card.dataset.sizes = sizes.join(",");
+  card.dataset.colors = colors.join(",");
+  card.dataset.design = designPoints.join("|");
+  card.dataset.images = images.join(",");
 
   card.innerHTML = `
     <div class="product-image">
-      <img src="${primaryImage}" alt="${product.name}" loading="lazy" />
+      <img src="${primaryImage}" alt="${product.name || "Product"}" loading="lazy" />
       <span class="label-chip">${labelChip}</span>
-      <span class="badge">${product.badge}</span>
+      <span class="badge">${product.badge || (discount ? `${discount}% OFF` : "NEW")}</span>
     </div>
     <div class="mt-4 space-y-2">
-      <h3 class="font-bold text-sm uppercase tracking-wider">${product.name}</h3>
+      <h3 class="font-bold text-sm uppercase tracking-wider">${product.name || "Product"}</h3>
       <div class="price-display">
         <span class="price-currency">BDT</span>
-        <span class="price-original">${product.priceOriginal}</span>
-        <span class="price-current">${product.priceCurrent}</span>
+        <span class="price-original">${priceOriginal}</span>
+        <span class="price-current">${priceCurrent}</span>
         <span class="price-badge">${discount ? `${discount}% OFF` : "NEW"}</span>
       </div>
     </div>
@@ -257,12 +298,19 @@ function renderIntoGrid(gridElement, products, emptyMessage) {
 }
 
 function renderProducts(products) {
-  const featuredProducts = products.filter((product) =>
-    product.categories.includes("featured"),
-  );
-  const hotProducts = products.filter((product) =>
-    product.categories.includes("hot-selling"),
-  );
+  if (!Array.isArray(products)) return;
+  const featuredProducts = products.filter((product) => {
+    const cats = Array.isArray(product.categories)
+      ? product.categories
+      : String(product.categories || "").split(",");
+    return cats.includes("featured");
+  });
+  const hotProducts = products.filter((product) => {
+    const cats = Array.isArray(product.categories)
+      ? product.categories
+      : String(product.categories || "").split(",");
+    return cats.includes("hot-selling");
+  });
 
   renderIntoGrid(featuredGrid, featuredProducts, "No featured products yet.");
   renderIntoGrid(allGrid, products, "No products found.");

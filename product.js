@@ -218,7 +218,13 @@ function buildGallery(images) {
   els.track.innerHTML = "";
   if (els.thumbs) els.thumbs.innerHTML = "";
 
-  const items = images.length ? images : ["photos/any.jpeg"];
+  const list = Array.isArray(images)
+    ? images.filter(Boolean)
+    : String(images || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+  const items = list.length ? list : ["photos/any.jpeg"];
   slidesCount = items.length;
   slideIndex = 0;
 
@@ -423,9 +429,15 @@ function renderProduct(data) {
   }
   if (els.badge) els.badge.textContent = data.badge;
   if (els.cotton) els.cotton.textContent = data.cotton;
+  const designPoints = Array.isArray(data.designPoints)
+    ? data.designPoints.filter(Boolean)
+    : String(data.designPoints || "")
+        .split("|")
+        .map((point) => point.trim())
+        .filter(Boolean);
   if (els.designList) {
-    const points = data.designPoints.length
-      ? data.designPoints
+    const points = designPoints.length
+      ? designPoints
       : ["add details", "add details", "add details"];
     els.designList.innerHTML = points
       .slice(0, 6)
