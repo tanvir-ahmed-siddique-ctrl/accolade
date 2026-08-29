@@ -3002,9 +3002,10 @@
               item.size && item.size !== "SELECT SIZE"
                 ? ` · Size ${item.size}`
                 : "";
+            const colorLabel = item.color ? ` · ${item.color}` : "";
             return `<div class="flex justify-between border-b border-dashed border-[#d6c8b4] pb-2 text-sm">
                     <div class="flex flex-wrap items-center gap-2">
-                      <span>${item.name}${qtyLabel}${sizeLabel}</span>
+                      <span>${item.name}${qtyLabel}${sizeLabel}${colorLabel}</span>
                     </div>
                     <span class="font-semibold price-text">${item.price} Tk</span>
                 </div>`;
@@ -3031,9 +3032,10 @@
               item.size && item.size !== "SELECT SIZE"
                 ? ` · ${item.size}`
                 : "";
+            const colorLabel = item.color ? ` · ${item.color}` : "";
             return `<div class="cart-item">
                   <div>
-                    <div class="cart-item-name">${item.name}${qtyLabel}${sizeLabel}</div>
+                    <div class="cart-item-name">${item.name}${qtyLabel}${sizeLabel}${colorLabel}</div>
                     <div class="cart-item-price price-text">${item.price} Tk</div>
                   </div>
                   <button class="cart-remove" data-index="${index}">Remove</button>
@@ -3178,8 +3180,9 @@
           finalCartItems.value = cart
             .map((i) => {
               const sizeLabel = i.size ? ` (Size: ${i.size})` : "";
+              const colorLabel = i.color ? ` (Color: ${i.color})` : "";
               const qtyLabel = i.quantity > 1 ? ` x${i.quantity}` : "";
-              return `${i.name}${sizeLabel}${qtyLabel}`;
+              return `${i.name}${sizeLabel}${colorLabel}${qtyLabel}`;
             })
             .join(", ");
         }

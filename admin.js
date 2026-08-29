@@ -359,6 +359,8 @@ function getFormData() {
   const cotton = document.getElementById("product-cotton").value.trim();
   const quality = document.getElementById("product-quality").value.trim();
   const fabric = document.getElementById("product-fabric").value.trim();
+  const rawColors = (document.getElementById("product-colors")?.value || "").trim();
+  const colors = parseList(rawColors.replace(/,/g, "\n"));
   const imageUrls = parseList(document.getElementById("product-images").value);
   const designPoints = parseList(document.getElementById("product-design").value);
   const sortOrder = Number.parseInt(
@@ -387,6 +389,7 @@ function getFormData() {
     cotton: cotton || "add details",
     quality: quality || "add details",
     fabric: fabric || "add details",
+    colors: colors,
     images: imageUrls,
     designPoints: designPoints.slice(0, 3),
     categories,
@@ -453,6 +456,12 @@ function renderProductList() {
       document.getElementById("product-cotton").value = selected.cotton || "";
       document.getElementById("product-quality").value = selected.quality || "";
       document.getElementById("product-fabric").value = selected.fabric || "";
+      const colorsField = document.getElementById("product-colors");
+      if (colorsField) {
+        colorsField.value = Array.isArray(selected.colors)
+          ? selected.colors.join(", ")
+          : (selected.colors || "");
+      }
       document.getElementById("product-images").value = (
         selected.images || []
       ).join("\n");

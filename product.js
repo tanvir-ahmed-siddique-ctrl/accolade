@@ -36,6 +36,10 @@ const els = {
   designList: document.getElementById("pd-design-list"),
   sizeOptions: document.getElementById("pd-size-options"),
   sizeHint: document.getElementById("pd-size-hint"),
+  colorSection: document.getElementById("pd-color-section"),
+  colorOptions: document.getElementById("pd-color-options"),
+  colorHint: document.getElementById("pd-color-hint"),
+  selectedColorName: document.getElementById("pd-selected-color-name"),
   qtyValue: document.getElementById("pd-qty-value"),
   qtyMinus: document.getElementById("pd-qty-minus"),
   qtyPlus: document.getElementById("pd-qty-plus"),
@@ -54,6 +58,7 @@ const els = {
 let product = null;
 let quantity = 1;
 let selectedSize = "";
+let selectedColor = "";
 let slideIndex = 0;
 let slidesCount = 0;
 let unitPrice = 0;
@@ -100,6 +105,12 @@ function normalizeProduct(docSnap) {
     cotton: String(data.cotton || "add details"),
     quality: String(data.quality || "add details"),
     fabric: String(data.fabric || "add details"),
+    colors: Array.isArray(data.colors)
+      ? data.colors.filter(Boolean)
+      : String(data.colors || "")
+          .split(/,|\n|\|/)
+          .map((item) => item.trim())
+          .filter(Boolean),
     images,
     designPoints,
     isPublished: data.isPublished !== false,
@@ -141,7 +152,7 @@ function saveCart(cart) {
   updateCartBadge();
 }
 
-function addToCart(name, price, qty, size) {
+function addToCart(name, price, qty, size, color = "") {
   const cart = loadCart();
   const safeQty = Math.max(1, parseInt(qty, 10) || 1);
   cart.push({
@@ -150,6 +161,7 @@ function addToCart(name, price, qty, size) {
     unitPrice: price,
     quantity: safeQty,
     size,
+    color: color || "",
   });
   saveCart(cart);
   showToast("Added successfully");
@@ -242,6 +254,58 @@ function buildSizeOptions() {
   });
 }
 
+function buildColorOptions(colors = []) {
+  if (!els.colorSection || !els.colorOptions) return;
+  const list = Array.isArray(colors) ? colors.filter(Boolean) : [];
+  if (list.length === 0) {
+    els.colorSection.hidden = true;
+    selectedColor = "";
+    if (els.selectedColorName) els.selectedColorName.textContent = "";
+    return;
+  }
+
+  els.colorSection.hidden = false;
+  els.colorOptions.innerHTML = "";
+
+  // Select the first color by default
+  selectedColor = list[0];
+  if (els.selectedColorName) {
+    els.selectedColorName.textContent = `· ${selectedColor}`;
+  }
+
+  list.forEach((col, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pd-color-btn" + (index === 0 ? " is-selected" : "");
+    btn.textContent = col;
+    btn.dataset.color = col;
+    btn.addEventListener("click", () => {
+      selectedColor = col;
+      els.colorOptions.querySelectorAll(".pd-color-btn").forEach((el) => {
+        el.classList.toggle("is-selected", el.dataset.color === col);
+      });
+      if (els.selectedColorName) {
+        els.selectedColorName.textContent = `· ${col}`;
+      }
+      if (els.colorHint) {
+        els.colorHint.textContent = "";
+        els.colorHint.hidden = true;
+      }
+    });
+    els.colorOptions.appendChild(btn);
+  });
+}
+
+function requireColor() {
+  if (!product?.colors?.length || selectedColor) return true;
+  if (els.colorHint) {
+    els.colorHint.textContent = "Please select a color";
+    els.colorHint.hidden = false;
+  }
+  showToast("Please select a color");
+  return false;
+}
+
 function requireSize() {
   if (selectedSize) return true;
   if (els.sizeHint) {
@@ -257,6 +321,7 @@ function renderProduct(data) {
   unitPrice = data.priceCurrent;
   quantity = 1;
   selectedSize = "";
+  selectedColor = "";
 
   document.title = `${data.name} | Accolade`;
 
@@ -283,6 +348,7 @@ function renderProduct(data) {
 
   buildGallery(data.images);
   buildSizeOptions();
+  buildColorOptions(data.colors);
   updateTotals();
 
   if (els.status) els.status.hidden = true;
@@ -529,14 +595,14 @@ function bindActions() {
   }
   if (els.addBtn) {
     els.addBtn.addEventListener("click", () => {
-      if (!product || !requireSize()) return;
-      addToCart(product.name.toLowerCase(), unitPrice, quantity, selectedSize);
+      if (!product || !requireSize() || !requireColor()) return;
+      addToCart(product.name.toLowerCase(), unitPrice, quantity, selectedSize, selectedColor);
     });
   }
   if (els.buyBtn) {
     els.buyBtn.addEventListener("click", () => {
-      if (!product || !requireSize()) return;
-      addToCart(product.name.toLowerCase(), unitPrice, quantity, selectedSize);
+      if (!product || !requireSize() || !requireColor()) return;
+      addToCart(product.name.toLowerCase(), unitPrice, quantity, selectedSize, selectedColor);
       window.location.href = "shop.html?checkout=true";
     });
   }

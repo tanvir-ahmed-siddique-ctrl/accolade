@@ -153,6 +153,12 @@ function normalizeProduct(docSnap) {
     cotton: String(data.cotton || "add details"),
     quality: String(data.quality || "add details"),
     fabric: String(data.fabric || "add details"),
+    colors: Array.isArray(data.colors)
+      ? data.colors.filter(Boolean)
+      : String(data.colors || "")
+          .split(/,|\n|\|/)
+          .map((item) => item.trim())
+          .filter(Boolean),
     sizeChartUrl: String(data.sizeChartUrl || data.sizechart || "photos/chart.jpeg"),
     images,
     designPoints,
