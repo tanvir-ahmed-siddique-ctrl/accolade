@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Accolade.clo</title>
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="image" href="photos/main_bg.jpeg" />
     <style>
       html, body {
@@ -11,7 +17,12 @@
       }
     </style>
     <script>
-      document.documentElement.classList.add("firebase-products-loading");
+      try {
+        var rawCache = sessionStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_cache");
+        if (!rawCache) {
+          document.documentElement.classList.add("firebase-products-loading");
+        }
+      } catch(e) {}
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
@@ -401,40 +412,12 @@
       .product-image {
         position: relative;
         overflow: hidden;
-      }
-      .hero-poster::after,
-      .product-image::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          110deg,
-          rgba(255, 255, 255, 0.15) 0%,
-          rgba(255, 255, 255, 0.6) 45%,
-          rgba(255, 255, 255, 0.15) 100%
-        );
-        background-size: 200% 100%;
-        animation: glassy-shimmer 1.6s ease-in-out infinite;
-        opacity: 0.55;
-        pointer-events: none;
-      }
-      .hero-poster.is-loaded::after,
-      .product-image.is-loaded::after {
-        opacity: 0;
-        animation: none;
+        background: rgba(255, 255, 255, 0.04);
       }
       .hero-poster > *,
       .product-image > * {
         position: relative;
         z-index: 1;
-      }
-      @keyframes glassy-shimmer {
-        0% {
-          background-position: -200% 0;
-        }
-        100% {
-          background-position: 200% 0;
-        }
       }
       .info-card {
         position: relative;

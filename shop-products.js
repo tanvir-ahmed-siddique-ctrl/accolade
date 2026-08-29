@@ -222,7 +222,7 @@ function normalizeProduct(docSnap) {
   };
 }
 
-// Prefetch and pre-decode images on hover/touch
+// Prefetch and pre-decode images + document on hover/touch
 const prefetchedProductIds = new Set();
 function prefetchProductAssets(product) {
   if (!product || prefetchedProductIds.has(product.id)) return;
@@ -233,6 +233,16 @@ function prefetchProductAssets(product) {
     localStorage.setItem(ACTIVE_PRODUCT_KEY, JSON.stringify(product));
   } catch (e) {}
 
+  // 1. Predictive document HTML prefetch for 0.00s instant navigation
+  try {
+    const docPrefetch = document.createElement("link");
+    docPrefetch.rel = "prefetch";
+    docPrefetch.as = "document";
+    docPrefetch.href = `product.html?id=${encodeURIComponent(product.id)}`;
+    document.head.appendChild(docPrefetch);
+  } catch (e) {}
+
+  // 2. Pre-decode top gallery images
   const images = Array.isArray(product.images) ? product.images : [];
   images.slice(0, 3).forEach((imgSrc) => {
     if (!imgSrc) return;
