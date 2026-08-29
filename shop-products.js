@@ -145,21 +145,24 @@ function normalizeProduct(docSnap) {
   return {
     id: docSnap.id,
     name: String(data.name || "Unnamed product"),
-    subtitle: String(data.subtitle || "Premium collection"),
     priceCurrent,
     priceOriginal,
     badge:
       String(data.badge || "").trim() || (discount ? `${discount}% OFF` : "NEW"),
     cotton: String(data.cotton || "add details"),
-    quality: String(data.quality || "add details"),
-    fabric: String(data.fabric || "add details"),
+    sizes: Array.isArray(data.sizes)
+      ? data.sizes.filter(Boolean)
+      : String(data.sizes || "")
+          .split(/,|\n|\|/)
+          .map((item) => item.trim())
+          .filter(Boolean),
     colors: Array.isArray(data.colors)
       ? data.colors.filter(Boolean)
       : String(data.colors || "")
           .split(/,|\n|\|/)
           .map((item) => item.trim())
           .filter(Boolean),
-    sizeChartUrl: String(data.sizeChartUrl || data.sizechart || "photos/chart.jpeg"),
+    sizeChartText: String(data.sizeChartText || ""),
     images,
     designPoints,
     categories,
@@ -188,16 +191,14 @@ function createProductCard(product) {
 
   card.dataset.id = product.id;
   card.dataset.name = product.name;
-  card.dataset.subtitle = product.subtitle;
   card.dataset.price = `BDT ${product.priceCurrent}`;
   card.dataset.priceValue = `${product.priceCurrent}`;
   card.dataset.offer = `${product.priceOriginal}`;
   card.dataset.badge = product.badge;
   card.dataset.cotton = product.cotton;
-  card.dataset.quality = product.quality;
-  card.dataset.fabric = product.fabric;
+  card.dataset.sizes = product.sizes.join(",");
+  card.dataset.colors = product.colors.join(",");
   card.dataset.design = product.designPoints.join("|");
-  card.dataset.sizechart = product.sizeChartUrl;
   card.dataset.images = product.images.join(",");
 
   card.innerHTML = `
@@ -208,7 +209,6 @@ function createProductCard(product) {
     </div>
     <div class="mt-4 space-y-2">
       <h3 class="font-bold text-sm uppercase tracking-wider">${product.name}</h3>
-      <p class="text-xs uppercase tracking-[0.3em] text-[#3A3A3A]">${product.subtitle}</p>
       <div class="price-display">
         <span class="price-currency">BDT</span>
         <span class="price-original">${product.priceOriginal}</span>

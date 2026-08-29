@@ -37,7 +37,6 @@ const publishedCountLabel = document.getElementById("published-count");
 const editorModeLabel = document.getElementById("editor-mode");
 const previewImage = document.getElementById("preview-image");
 const previewName = document.getElementById("preview-name");
-const previewSubtitle = document.getElementById("preview-subtitle");
 const previewCurrent = document.getElementById("preview-current");
 const previewOriginal = document.getElementById("preview-original");
 const previewBadge = document.getElementById("preview-badge");
@@ -139,7 +138,6 @@ function updateDashboardStats() {
 
 function getPreviewFields() {
   const name = document.getElementById("product-name")?.value.trim();
-  const subtitle = document.getElementById("product-subtitle")?.value.trim();
   const priceCurrent = toNumber(document.getElementById("price-current")?.value);
   const priceOriginal = toNumber(
     document.getElementById("price-original")?.value || `${priceCurrent}`,
@@ -152,7 +150,6 @@ function getPreviewFields() {
 
   return {
     name: name || "Product name",
-    subtitle: subtitle || "Premium collection",
     priceCurrent,
     priceOriginal: priceOriginal || priceCurrent,
     badge: badge || "NEW",
@@ -173,7 +170,6 @@ function updatePreview() {
     previewImage.alt = `${preview.name} preview`;
   }
   setText(previewName, preview.name);
-  setText(previewSubtitle, preview.subtitle);
   setText(previewCurrent, preview.priceCurrent || 0);
   setText(previewOriginal, preview.priceOriginal || preview.priceCurrent || 0);
   setText(previewBadge, preview.badge);
@@ -350,17 +346,17 @@ function getCategoriesFromForm() {
 
 function getFormData() {
   const name = document.getElementById("product-name").value.trim();
-  const subtitle = document.getElementById("product-subtitle").value.trim();
   const priceCurrent = toNumber(document.getElementById("price-current").value);
   const priceOriginal = toNumber(
     document.getElementById("price-original").value || `${priceCurrent}`,
   );
   const badge = document.getElementById("product-badge").value.trim();
   const cotton = document.getElementById("product-cotton").value.trim();
-  const quality = document.getElementById("product-quality").value.trim();
-  const fabric = document.getElementById("product-fabric").value.trim();
+  const rawSizes = (document.getElementById("product-sizes")?.value || "").trim();
+  const sizes = parseList(rawSizes.replace(/,/g, "\n"));
   const rawColors = (document.getElementById("product-colors")?.value || "").trim();
   const colors = parseList(rawColors.replace(/,/g, "\n"));
+  const sizeChartText = (document.getElementById("product-size-chart")?.value || "").trim();
   const imageUrls = parseList(document.getElementById("product-images").value);
   const designPoints = parseList(document.getElementById("product-design").value);
   const sortOrder = Number.parseInt(
@@ -382,14 +378,13 @@ function getFormData() {
 
   return {
     name,
-    subtitle: subtitle || "Premium collection",
     priceCurrent,
     priceOriginal: priceOriginal || priceCurrent,
     badge: badge || "NEW",
     cotton: cotton || "add details",
-    quality: quality || "add details",
-    fabric: fabric || "add details",
+    sizes: sizes,
     colors: colors,
+    sizeChartText: sizeChartText,
     images: imageUrls,
     designPoints: designPoints.slice(0, 3),
     categories,
@@ -421,7 +416,6 @@ function renderProductList() {
           <img src="${escapeHtml(product.images?.[0] || "photos/any.jpeg")}" alt="${escapeHtml(product.name)}" />
           <div class="product-row-info">
             <h3>${escapeHtml(product.name)}</h3>
-            <p>${escapeHtml(product.subtitle)}</p>
             <p class="meta">BDT ${escapeHtml(product.priceCurrent)} | ${escapeHtml(categories)} | ${visibility}</p>
             <div class="product-row-actions">
               <button type="button" data-edit-id="${escapeHtml(product.id)}">Edit</button>
@@ -449,18 +443,25 @@ function renderProductList() {
       }
 
       document.getElementById("product-name").value = selected.name || "";
-      document.getElementById("product-subtitle").value = selected.subtitle || "";
       document.getElementById("price-current").value = selected.priceCurrent || "";
       document.getElementById("price-original").value = selected.priceOriginal || "";
       document.getElementById("product-badge").value = selected.badge || "";
       document.getElementById("product-cotton").value = selected.cotton || "";
-      document.getElementById("product-quality").value = selected.quality || "";
-      document.getElementById("product-fabric").value = selected.fabric || "";
+      const sizesField = document.getElementById("product-sizes");
+      if (sizesField) {
+        sizesField.value = Array.isArray(selected.sizes)
+          ? selected.sizes.join(", ")
+          : (selected.sizes || "");
+      }
       const colorsField = document.getElementById("product-colors");
       if (colorsField) {
         colorsField.value = Array.isArray(selected.colors)
           ? selected.colors.join(", ")
           : (selected.colors || "");
+      }
+      const sizeChartField = document.getElementById("product-size-chart");
+      if (sizeChartField) {
+        sizeChartField.value = selected.sizeChartText || "";
       }
       document.getElementById("product-images").value = (
         selected.images || []

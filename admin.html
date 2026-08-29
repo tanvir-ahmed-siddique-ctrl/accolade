@@ -851,17 +851,10 @@
                   <span class="step-badge">1</span>
                 </div>
 
-                <div class="input-grid two">
-                  <div>
-                    <label for="product-name">Product name</label>
-                    <input id="product-name" type="text" placeholder="Accolade Classic Tee" required />
-                    <p class="field-hint">Write the product title clearly. Example: “Oversized Black Tee”.</p>
-                  </div>
-                  <div>
-                    <label for="product-subtitle">Short subtitle</label>
-                    <input id="product-subtitle" type="text" placeholder="Premium collection" />
-                    <p class="field-hint">One short line under the name. Example: “Heavyweight cotton”.</p>
-                  </div>
+                <div>
+                  <label for="product-name">Product name</label>
+                  <input id="product-name" type="text" placeholder="Accolade Classic Tee" required />
+                  <p class="field-hint">Write the product title clearly. Example: “Oversized Black Tee”.</p>
                 </div>
 
                 <div class="input-grid two">
@@ -902,27 +895,29 @@
 
                 <div class="input-grid two">
                   <div>
-                    <label for="product-cotton">Cotton / material</label>
+                    <label for="product-cotton">Material / fabric details</label>
                     <input id="product-cotton" type="text" placeholder="220 GSM cotton blend" />
-                    <p class="field-hint">What the fabric is made of. Example: “100% cotton, 220 GSM”.</p>
+                    <p class="field-hint">Example: “100% combed cotton, 220 GSM”.</p>
                   </div>
                   <div>
-                    <label for="product-quality">Quality note</label>
-                    <input id="product-quality" type="text" placeholder="Premium print and stitching" />
-                    <p class="field-hint">One quality highlight. Example: “Double-stitched seams”.</p>
+                    <label for="product-sizes">Available sizes (optional)</label>
+                    <input id="product-sizes" type="text" placeholder="S, M, L, XL or 28, 30, 32, 34" />
+                    <p class="field-hint">Comma-separated. Leave blank to default to S, M, L, XL.</p>
                   </div>
                 </div>
 
                 <div>
-                  <label for="product-fabric">Fit / style note</label>
-                  <input id="product-fabric" type="text" placeholder="Oversized fit with front artwork" />
-                  <p class="field-hint">Describe fit or style. Example: “Relaxed oversized fit”.</p>
+                  <label for="product-colors">Available colors (optional)</label>
+                  <input id="product-colors" type="text" placeholder="Black, Olive Green, Vintage Charcoal" />
+                  <p class="field-hint">Comma-separated (e.g. Black, White, Charcoal). Shown as clickable buttons under quantity.</p>
                 </div>
 
                 <div>
-                  <label for="product-colors">Available Colors (optional)</label>
-                  <input id="product-colors" type="text" placeholder="Black, Olive Green, Vintage Charcoal" />
-                  <p class="field-hint">Enter colors separated by commas (e.g. Black, White, Charcoal). As many as you enter will appear on the product page.</p>
+                  <label for="product-size-chart">Size chart table (optional custom rows)</label>
+                  <textarea id="product-size-chart" rows="6" placeholder="Size | Length | Chest | Sleeve&#10;S | 68 cm (26.8&quot;) | 55 cm (21.7&quot;) | 26 cm (10.2&quot;)&#10;M | 70 cm (27.6&quot;) | 57 cm (22.4&quot;) | 27 cm (10.6&quot;)&#10;L | 72 cm (28.3&quot;) | 59 cm (23.2&quot;) | 28 cm (11.0&quot;)&#10;XL | 74 cm (29.1&quot;) | 61 cm (24.0&quot;) | 29 cm (11.4&quot;)"></textarea>
+                  <p class="field-hint">
+                    Separate columns with <strong>|</strong> or comma. First row = header. Leave blank to automatically show standard default size chart.
+                  </p>
                 </div>
 
                 <div>
@@ -1017,7 +1012,7 @@
             <section class="card panel-pad preview-card" aria-labelledby="preview-heading">
               <p class="eyebrow">What customers see</p>
               <h2 id="preview-heading" class="section-title">Product box preview</h2>
-              <p class="helper-note">This is how the shop card will look. First photo, name, subtitle, badge, and prices appear here.</p>
+              <p class="helper-note">This is how the shop card will look. First photo, name, badge, and prices appear here.</p>
               <div class="preview-image" style="margin-top: 16px;">
                 <img id="preview-image" src="photos/any.jpeg" alt="Product preview" />
                 <span id="preview-chip" class="preview-chip">Product</span>
@@ -1025,7 +1020,6 @@
               </div>
               <div class="preview-copy">
                 <h3 id="preview-name">Product name</h3>
-                <p id="preview-subtitle">Premium collection</p>
                 <div class="price-line">
                   <span>BDT</span>
                   <del id="preview-original">0</del>
@@ -1040,7 +1034,7 @@
               <div class="map-list" style="margin-top: 14px;">
                 <div class="map-item">
                   <strong>Shop card means</strong>
-                  <span id="map-card-fields">Name, subtitle, first photo, badge, and prices in the shop grid.</span>
+                  <span id="map-card-fields">Name, first photo, badge, and prices in the shop grid.</span>
                 </div>
                 <div class="map-item">
                   <strong>Product page means</strong>

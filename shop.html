@@ -2592,7 +2592,6 @@
             </button>
           </div>
           <div class="modal-info">
-            <p id="modal-subtitle" class="info-subtitle"></p>
             <h3 id="modal-title" class="info-title"></h3>
             <div class="info-price-row price-display">
               <span class="price-currency">BDT</span>
@@ -3960,15 +3959,15 @@
         modalQuantity = 1;
 
         modalTitle.textContent = modalProductName;
-        modalSubtitle.textContent = (subtitle || "").toLowerCase();
+        if (modalSubtitle) modalSubtitle.textContent = (subtitle || "").toLowerCase();
         modalOffer.textContent = offer;
         modalOffer.style.display = offer ? "inline-flex" : "none";
         if (modalBadge) {
           modalBadge.textContent = (card.dataset.badge || "10% OFF").toLowerCase();
         }
-        modalCotton.textContent = (card.dataset.cotton || "add details").toLowerCase();
-        modalQuality.textContent = (card.dataset.quality || "add details").toLowerCase();
-        modalFabric.textContent = (card.dataset.fabric || "add details").toLowerCase();
+        if (modalCotton) modalCotton.textContent = (card.dataset.cotton || "add details").toLowerCase();
+        if (modalQuality) modalQuality.textContent = (card.dataset.quality || "add details").toLowerCase();
+        if (modalFabric) modalFabric.textContent = (card.dataset.fabric || "add details").toLowerCase();
 
         buildSlides(images);
         applyDesignItems(designItems);

@@ -2,7 +2,25 @@ import { db, doc, getDoc } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
 const CACHE_KEY = "accolade_products_cache";
-const SIZES = ["S", "M", "L", "XL"];
+const DEFAULT_SIZES = ["S", "M", "L", "XL"];
+const DEFAULT_SIZE_CHART = {
+  headers: ["Size", "Length", "Chest", "Sleeve"],
+  rows: [
+    ["S", "68 cm (26.8\")", "55 cm (21.7\")", "26 cm (10.2\")"],
+    ["M", "70 cm (27.6\")", "57 cm (22.4\")", "27 cm (10.6\")"],
+    ["L", "72 cm (28.3\")", "59 cm (23.2\")", "28 cm (11.0\")"],
+    ["XL", "74 cm (29.1\")", "61 cm (24.0\")", "29 cm (11.4\")"],
+  ],
+};
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 function getCachedProduct(id) {
   try {
@@ -25,14 +43,11 @@ const els = {
   track: document.getElementById("pd-track"),
   thumbs: document.getElementById("pd-thumbs"),
   title: document.getElementById("pd-title"),
-  subtitle: document.getElementById("pd-subtitle"),
   offer: document.getElementById("pd-offer"),
   price: document.getElementById("pd-price"),
   badge: document.getElementById("pd-badge"),
   unit: document.getElementById("pd-unit"),
   cotton: document.getElementById("pd-cotton"),
-  quality: document.getElementById("pd-quality"),
-  fabric: document.getElementById("pd-fabric"),
   designList: document.getElementById("pd-design-list"),
   sizeOptions: document.getElementById("pd-size-options"),
   sizeHint: document.getElementById("pd-size-hint"),
@@ -97,20 +112,24 @@ function normalizeProduct(docSnap) {
   return {
     id: docSnap.id,
     name: String(data.name || "Unnamed product"),
-    subtitle: String(data.subtitle || "Premium collection"),
     priceCurrent,
     priceOriginal,
     badge:
       String(data.badge || "").trim() || (discount ? `${discount}% OFF` : "NEW"),
     cotton: String(data.cotton || "add details"),
-    quality: String(data.quality || "add details"),
-    fabric: String(data.fabric || "add details"),
+    sizes: Array.isArray(data.sizes)
+      ? data.sizes.filter(Boolean)
+      : String(data.sizes || "")
+          .split(/,|\n|\|/)
+          .map((item) => item.trim())
+          .filter(Boolean),
     colors: Array.isArray(data.colors)
       ? data.colors.filter(Boolean)
       : String(data.colors || "")
           .split(/,|\n|\|/)
           .map((item) => item.trim())
           .filter(Boolean),
+    sizeChartText: String(data.sizeChartText || ""),
     images,
     designPoints,
     isPublished: data.isPublished !== false,
@@ -231,10 +250,15 @@ function buildGallery(images) {
   updateSlider();
 }
 
-function buildSizeOptions() {
+function buildSizeOptions(productSizes = []) {
   if (!els.sizeOptions) return;
   els.sizeOptions.innerHTML = "";
-  SIZES.forEach((size) => {
+  const list =
+    Array.isArray(productSizes) && productSizes.length > 0
+      ? productSizes.filter(Boolean)
+      : DEFAULT_SIZES;
+
+  list.forEach((size) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "pd-size-btn";
@@ -252,6 +276,72 @@ function buildSizeOptions() {
     });
     els.sizeOptions.appendChild(btn);
   });
+}
+
+function parseSizeChart(rawText) {
+  if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
+    return DEFAULT_SIZE_CHART;
+  }
+  const lines = rawText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length < 2) {
+    return DEFAULT_SIZE_CHART;
+  }
+
+  const parseLine = (line) => {
+    const delimiter = line.includes("|") ? "|" : ",";
+    return line
+      .split(delimiter)
+      .map((cell) => cell.trim())
+      .filter(Boolean);
+  };
+
+  const headers = parseLine(lines[0]);
+  const rows = lines
+    .slice(1)
+    .map(parseLine)
+    .filter((row) => row.length > 0);
+
+  if (headers.length === 0 || rows.length === 0) {
+    return DEFAULT_SIZE_CHART;
+  }
+
+  return { headers, rows };
+}
+
+function buildSizeChart(sizeChartText) {
+  const container = document.getElementById("pd-size-chart-container");
+  if (!container) return;
+
+  const chart = parseSizeChart(sizeChartText);
+
+  container.innerHTML = `
+    <table class="size-chart-table">
+      <thead>
+        <tr>
+          ${chart.headers.map((h) => `<th scope="col">${escapeHtml(h)}</th>`).join("")}
+        </tr>
+      </thead>
+      <tbody>
+        ${chart.rows
+          .map(
+            (row) => `
+          <tr>
+            <th scope="row">${escapeHtml(row[0] || "")}</th>
+            ${row
+              .slice(1)
+              .map((cell) => `<td>${escapeHtml(cell || "")}</td>`)
+              .join("")}
+          </tr>
+        `,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
 }
 
 function buildColorOptions(colors = []) {
@@ -326,7 +416,6 @@ function renderProduct(data) {
   document.title = `${data.name} | Accolade`;
 
   if (els.title) els.title.textContent = data.name;
-  if (els.subtitle) els.subtitle.textContent = data.subtitle;
   if (els.offer) {
     els.offer.textContent = data.priceOriginal;
     els.offer.style.display =
@@ -334,8 +423,6 @@ function renderProduct(data) {
   }
   if (els.badge) els.badge.textContent = data.badge;
   if (els.cotton) els.cotton.textContent = data.cotton;
-  if (els.quality) els.quality.textContent = data.quality;
-  if (els.fabric) els.fabric.textContent = data.fabric;
   if (els.designList) {
     const points = data.designPoints.length
       ? data.designPoints
@@ -347,8 +434,9 @@ function renderProduct(data) {
   }
 
   buildGallery(data.images);
-  buildSizeOptions();
+  buildSizeOptions(data.sizes);
   buildColorOptions(data.colors);
+  buildSizeChart(data.sizeChartText);
   updateTotals();
 
   if (els.status) els.status.hidden = true;

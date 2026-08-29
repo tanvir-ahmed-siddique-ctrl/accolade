@@ -392,12 +392,6 @@
         padding: 4px 0 24px;
       }
 
-      .pd-subtitle {
-        font-size: 11px;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-        color: var(--muted);
-      }
       .pd-title {
         font-size: clamp(1.4rem, 3vw, 2rem);
         font-weight: 700;
@@ -960,7 +954,6 @@
         </div>
 
         <div class="pd-info">
-          <p id="pd-subtitle" class="pd-subtitle"></p>
           <h1 id="pd-title" class="pd-title"></h1>
 
           <div class="price-display">
@@ -1001,16 +994,8 @@
               <div class="info-details">
                 <ul>
                   <li>
-                    <span class="info-key">Cotton</span>
+                    <span class="info-key">Material</span>
                     <span id="pd-cotton" class="info-value">Add details</span>
-                  </li>
-                  <li>
-                    <span class="info-key">Quality</span>
-                    <span id="pd-quality" class="info-value">Add details</span>
-                  </li>
-                  <li>
-                    <span class="info-key">Fabric</span>
-                    <span id="pd-fabric" class="info-value">Add details</span>
                   </li>
                 </ul>
               </div>
@@ -1028,44 +1013,7 @@
 
           <div class="size-chart-box" aria-label="Size chart">
             <p class="size-chart-title">Size chart</p>
-            <div style="overflow-x: auto;">
-              <table class="size-chart-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Size</th>
-                    <th scope="col">Length</th>
-                    <th scope="col">Chest</th>
-                    <th scope="col">Sleeve</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">S</th>
-                    <td>68 cm (26.8")</td>
-                    <td>55 cm (21.7")</td>
-                    <td>26 cm (10.2")</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">M</th>
-                    <td>70 cm (27.6")</td>
-                    <td>57 cm (22.4")</td>
-                    <td>27 cm (10.6")</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">L</th>
-                    <td>72 cm (28.3")</td>
-                    <td>59 cm (23.2")</td>
-                    <td>28 cm (11.0")</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">XL</th>
-                    <td>74 cm (29.1")</td>
-                    <td>61 cm (24.0")</td>
-                    <td>29 cm (11.4")</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <div id="pd-size-chart-container" style="overflow-x: auto;"></div>
           </div>
 
           <div class="pd-actions">
