@@ -72,9 +72,12 @@
         position: fixed;
         top: 0; left: 0; right: 0;
         z-index: 60;
-        background: transparent;
+        background: rgba(15, 15, 15, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--card-border);
+        width: 100%;
         max-width: 100vw;
-        contain: paint;
       }
       .nav-inner {
         display: grid;
@@ -108,6 +111,7 @@
         justify-content: center;
         overflow: hidden;
         background: transparent;
+        flex-shrink: 0;
       }
       .brand-mark img {
         width: 100%; height: 100%;
@@ -122,6 +126,7 @@
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: #fff;
+        line-height: 1;
       }
       .nav-link {
         font-size: 12px;
@@ -133,6 +138,43 @@
         transition: color 0.2s ease;
       }
       .nav-link:hover { color: #fff; }
+      .cart-btn-header {
+        position: relative;
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 16px;
+        cursor: pointer;
+        padding: 6px 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease, transform 0.2s ease;
+        text-decoration: none;
+        line-height: 1;
+      }
+      .cart-btn-header:hover {
+        color: #fff;
+        transform: translateY(-1px);
+      }
+      .cart-btn-header .cart-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--badge);
+        color: #ffffff !important;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        line-height: 1;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+      }
 
       /* Hamburger */
       .hamburger {
@@ -312,9 +354,13 @@
           <span class="brand-text">ACCOLADE</span>
         </a>
 
-        <!-- RIGHT: Shop link -->
+        <!-- RIGHT: Shop + Cart -->
         <div class="nav-right">
           <a class="nav-link" href="shop.html">Shop</a>
+          <a id="cart-button" class="cart-btn-header" href="shop.html?checkout=true" aria-label="Cart">
+            <i class="fas fa-shopping-bag"></i>
+            <span id="cart-badge" class="cart-badge">0</span>
+          </a>
         </div>
 
       </nav>
@@ -350,7 +396,17 @@
     </footer>
 
     <script>
+      function updateHeaderCartBadge() {
+        try {
+          const cart = JSON.parse(localStorage.getItem("accolade_cart") || "[]");
+          const count = Array.isArray(cart) ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
+          const badge = document.getElementById("cart-badge");
+          if (badge) badge.textContent = String(count);
+        } catch (e) {}
+      }
+
       document.addEventListener('DOMContentLoaded', () => {
+        updateHeaderCartBadge();
         const hamburger = document.querySelector('.hamburger');
         const mobileMenu = document.getElementById('mobile-menu');
 

@@ -1404,12 +1404,6 @@
           height: 44px;
           padding: 12px 16px;
         }
-        .cart-fab {
-          width: 44px;
-          height: 44px;
-          right: 16px;
-          bottom: 16px;
-        }
         .scroll-featured {
           right: 16px;
           bottom: 68px;
@@ -1827,9 +1821,12 @@
         left: 0;
         right: 0;
         z-index: 60;
-        background: transparent;
+        background: rgba(15, 15, 15, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--card-border);
+        width: 100%;
         max-width: 100vw;
-        contain: paint;
       }
       .announcement-bar {
         position: fixed;
@@ -1867,15 +1864,6 @@
         100% {
           transform: translateX(-50%);
         }
-      }
-      .cart-fab {
-        position: fixed;
-        right: 24px;
-        bottom: 24px;
-        width: 52px;
-        height: 52px;
-        z-index: 70;
-        box-shadow: var(--shadow-soft);
       }
       .scroll-featured {
         position: fixed;
@@ -1937,9 +1925,12 @@
         align-items: center;
         min-height: var(--header-height);
         width: 100%;
+        padding: 0 2rem;
       }
       .nav-left {
         justify-self: start;
+        display: flex;
+        align-items: center;
       }
       /* Hamburger */
       .hamburger {
@@ -1957,31 +1948,92 @@
         justify-self: center;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .brand-mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 2px solid var(--brown);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: transparent;
+        flex-shrink: 0;
+      }
+      .brand-mark img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        border-radius: 50%;
+      }
+      .brand-text {
+        font-family: "Cinzel", "Sansation", "Inter", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #fff;
+        line-height: 1;
       }
       .nav-right {
         justify-self: end;
         display: inline-flex;
         align-items: center;
-        gap: 20px;
+        gap: 1rem;
       }
-      .site-header .nav-link,
-      .site-header .brand-mark,
-      .site-header .brand-text,
-      .site-header .icon-button {
-        color: #faf7f2;
+      .nav-link {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.2s ease;
       }
-      .site-header .brand-mark {
-        border-color: #faf7f2;
+      .nav-link:hover {
+        color: #fff;
       }
-      .site-header .icon-button {
-        background: rgba(250, 247, 242, 0.12);
-        border-color: rgba(250, 247, 242, 0.4);
+      .cart-btn-header {
+        position: relative;
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 16px;
+        cursor: pointer;
+        padding: 6px 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease, transform 0.2s ease;
+        text-decoration: none;
+        line-height: 1;
       }
-      .site-header .icon-button:hover {
-        background: rgba(250, 247, 242, 0.22);
-        border-color: #faf7f2;
-        color: #faf7f2;
+      .cart-btn-header:hover {
+        color: #fff;
+        transform: translateY(-1px);
+      }
+      .cart-btn-header .cart-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--badge);
+        color: #ffffff !important;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        line-height: 1;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
       }
       .hero-actions {
         position: relative;
@@ -2227,38 +2279,33 @@
   <body id="top" class="text-white">
     <!-- Header -->
     <header class="site-header">
-      <nav class="nav-inner w-full px-6 md:px-12 py-4">
+      <nav class="nav-inner">
 
-  <!-- LEFT: Hamburger -->
-  <div class="nav-left">
-    <button class="hamburger" aria-label="Menu">
-      <i class="fas fa-bars"></i>
-    </button>
-  </div>
+        <!-- LEFT: Hamburger -->
+        <div class="nav-left">
+          <button class="hamburger" aria-label="Menu">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
 
-  <!-- CENTER: Brand -->
-  <a href="index.html" class="brand-center">
-    <div class="brand-mark">
-      <img src="favicon.ico" alt="Accolade logo" />
-    </div>
-    <p class="text-lg font-black uppercase tracking-[0.2em] brand-text">
-      ACCOLADE
-    </p>
-  </a>
+        <!-- CENTER: Brand -->
+        <a href="index.html" class="brand-center">
+          <div class="brand-mark">
+            <img src="favicon.ico" alt="Accolade logo" />
+          </div>
+          <span class="brand-text">ACCOLADE</span>
+        </a>
 
-  <!-- RIGHT: Shop + Cart -->
-  <div class="nav-right flex items-center gap-4">
-    <a class="nav-link inline-flex" href="shop.html">Shop</a>
+        <!-- RIGHT: Shop + Cart -->
+        <div class="nav-right">
+          <a class="nav-link" href="shop.html">Shop</a>
+          <button id="cart-button" class="cart-btn-header" aria-label="Cart">
+            <i class="fas fa-shopping-bag"></i>
+            <span id="cart-badge" class="cart-badge">0</span>
+          </button>
+        </div>
 
-    <!-- <div class="relative">
-      <button id="cart-button" class="icon-button" aria-label="Cart">
-        <i class="fas fa-shopping-bag"></i>
-      </button>
-      <span id="cart-badge" class="cart-badge">0</span>
-    </div> -->
-  </div>
-  
-</nav>
+      </nav>
     </header>
 
     <!-- Mobile menu (outside header to avoid contain:paint clipping) -->
@@ -2700,12 +2747,6 @@
 
     <div id="modal-scroll-indicator" aria-hidden="true"></div>
 
-    <!-- Floating cart button -->
-    <button id="cart-fab" class="icon-button cart-fab" aria-label="Cart">
-      <img src="photos/shopping-bag (1).png" alt="Cart icon" class="w-7 h-7" />
-      <span id="cart-fab-badge" class="cart-badge">0</span>
-    </button>
-
     <button
       id="scroll-featured"
       class="icon-button scroll-featured transition-all md:hidden"
@@ -2768,8 +2809,6 @@
       }
       const cartModal = document.getElementById("cart-modal");
       const cartButton = document.getElementById("cart-button");
-      const cartFab = document.getElementById("cart-fab");
-      const cartFabBadge = document.getElementById("cart-fab-badge");
       const cartModalItems = document.getElementById("cart-modal-items");
       const cartModalSubtotal = document.getElementById("cart-modal-subtotal");
       const toast = document.getElementById("toast");
@@ -2839,7 +2878,6 @@
         }
         scrollFeaturedButton.classList.add("is-visible");
         triggerSoftBounce(scrollFeaturedButton);
-        triggerSoftBounce(cartFab);
         scrollButtonVisible = true;
       }
 
@@ -2929,9 +2967,6 @@
         const headerBadge = document.getElementById("cart-badge");
         if (headerBadge) {
           headerBadge.innerText = count;
-        }
-        if (cartFabBadge) {
-          cartFabBadge.innerText = count;
         }
       }
 
@@ -3061,12 +3096,6 @@
 
       if (cartButton) {
         cartButton.addEventListener("click", (event) => {
-          event.stopPropagation();
-          openCartModal();
-        });
-      }
-      if (cartFab) {
-        cartFab.addEventListener("click", (event) => {
           event.stopPropagation();
           openCartModal();
         });

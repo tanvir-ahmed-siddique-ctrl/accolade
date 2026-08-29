@@ -61,9 +61,12 @@
         left: 0;
         right: 0;
         z-index: 60;
-        background: rgba(15, 15, 15, 0.7);
+        background: rgba(15, 15, 15, 0.75);
         backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--card-border);
+        width: 100%;
+        max-width: 100vw;
       }
       .nav-inner {
         display: grid;
@@ -75,6 +78,8 @@
       }
       .nav-left {
         justify-self: start;
+        display: flex;
+        align-items: center;
       }
       .nav-right {
         justify-self: end;
@@ -95,19 +100,28 @@
         height: 28px;
         border-radius: 999px;
         border: 2px solid #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
+        background: transparent;
+        flex-shrink: 0;
       }
       .brand-mark img {
         width: 100%;
         height: 100%;
         object-fit: contain;
+        display: block;
+        border-radius: 50%;
       }
       .brand-text {
+        font-family: "Cinzel", "Sansation", "Inter", sans-serif;
         font-size: 14px;
         font-weight: 700;
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: #fff;
+        line-height: 1;
       }
       .nav-link {
         font-size: 12px;
@@ -116,9 +130,47 @@
         letter-spacing: 0.22em;
         color: var(--muted);
         text-decoration: none;
+        transition: color 0.2s ease;
       }
       .nav-link:hover {
         color: #fff;
+      }
+      .cart-btn-header {
+        position: relative;
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 16px;
+        cursor: pointer;
+        padding: 6px 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease, transform 0.2s ease;
+        text-decoration: none;
+        line-height: 1;
+      }
+      .cart-btn-header:hover {
+        color: #fff;
+        transform: translateY(-1px);
+      }
+      .cart-btn-header .cart-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--badge);
+        color: #ffffff !important;
+        font-size: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        line-height: 1;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
       }
       .hamburger {
         background: transparent;
@@ -660,39 +712,6 @@
         color: #fff;
       }
 
-      .cart-fab {
-        position: fixed;
-        right: 18px;
-        bottom: 22px;
-        z-index: 70;
-        width: 56px;
-        height: 56px;
-        border-radius: 999px;
-        border: 1px solid var(--card-border);
-        background: rgba(15, 15, 15, 0.85);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-      }
-      .cart-badge {
-        position: absolute;
-        top: -4px;
-        right: -4px;
-        min-width: 20px;
-        height: 20px;
-        border-radius: 999px;
-        background: var(--badge);
-        color: #fff;
-        font-size: 10px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 5px;
-      }
-
       .toast {
         position: fixed;
         left: 50%;
@@ -848,6 +867,10 @@
         </a>
         <div class="nav-right">
           <a class="nav-link" href="shop.html">Shop</a>
+          <button id="cart-button" class="cart-btn-header" aria-label="Cart">
+            <i class="fas fa-shopping-bag"></i>
+            <span id="cart-badge" class="cart-badge">0</span>
+          </button>
         </div>
       </nav>
     </header>
@@ -1015,11 +1038,6 @@
       <img src="" alt="Full size product image" draggable="false" />
       <p id="lb-zoom-hint">Scroll to zoom · Drag to pan · Double-tap to reset</p>
     </div>
-
-    <button id="cart-fab" class="cart-fab" aria-label="Cart">
-      <img src="photos/shopping-bag (1).png" alt="Cart icon" class="w-7 h-7" />
-      <span id="cart-fab-badge" class="cart-badge">0</span>
-    </button>
 
     <div id="toast" class="toast" aria-live="polite"></div>
 

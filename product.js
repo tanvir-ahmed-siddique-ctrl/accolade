@@ -32,8 +32,8 @@ const els = {
   prev: document.querySelector("[data-pd-prev]"),
   next: document.querySelector("[data-pd-next]"),
   toast: document.getElementById("toast"),
-  cartFabBadge: document.getElementById("cart-fab-badge"),
-  cartFab: document.getElementById("cart-fab"),
+  cartBadge: document.getElementById("cart-badge"),
+  cartButton: document.getElementById("cart-button"),
   lightbox: document.getElementById("img-lightbox"),
   lbClose: document.getElementById("lb-close"),
 };
@@ -118,7 +118,7 @@ function getCartCount(cart) {
 
 function updateCartBadge() {
   const count = getCartCount(loadCart());
-  if (els.cartFabBadge) els.cartFabBadge.textContent = String(count);
+  if (els.cartBadge) els.cartBadge.textContent = String(count);
 }
 
 function saveCart(cart) {
@@ -521,8 +521,8 @@ function bindActions() {
       window.location.href = "shop.html?checkout=true";
     });
   }
-  if (els.cartFab) {
-    els.cartFab.addEventListener("click", () => {
+  if (els.cartButton) {
+    els.cartButton.addEventListener("click", () => {
       window.location.href = "shop.html?checkout=true";
     });
   }

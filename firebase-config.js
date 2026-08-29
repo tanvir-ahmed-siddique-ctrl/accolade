@@ -18,14 +18,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBHZfsYdmWvtacR6QmeWKcV70t0BTek24U",
-  authDomain: "accolade-clo.firebaseapp.com",
-  projectId: "accolade-clo",
-  storageBucket: "accolade-clo.firebasestorage.app",
-  messagingSenderId: "467911820664",
-  appId: "1:467911820664:web:fa7b3062c7c33c1276748d",
-  measurementId: "G-HS0KR9DZR8",
+  apiKey: "AIzaSyBetOxdCsPktBSw741-xkLtV0lpkF51ZVw",
+  authDomain: "accolade-e431c.firebaseapp.com",
+  projectId: "accolade-e431c",
+  storageBucket: "accolade-e431c.firebasestorage.app",
+  messagingSenderId: "802057129966",
+  appId: "1:802057129966:web:a3f34af5990b8556fac8ff",
+  measurementId: "G-2QWYB7DLBE"
 };
+
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
