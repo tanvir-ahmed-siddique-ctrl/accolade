@@ -1,7 +1,9 @@
 import { db, doc, getDoc } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
-const CACHE_KEY = "accolade_products_cache";
+const CACHE_KEY_V2 = "accolade_products_v2";
+const CACHE_KEY_LEGACY = "accolade_products_cache";
+const ACTIVE_PRODUCT_KEY = "accolade_selected_product_v2";
 const DEFAULT_SIZES = ["S", "M", "L", "XL"];
 const DEFAULT_SIZE_CHART = {
   headers: ["Size", "Length", "Chest", "Sleeve"],
@@ -12,6 +14,30 @@ const DEFAULT_SIZE_CHART = {
     ["XL", "74 cm (29.1\")", "61 cm (24.0\")", "29 cm (11.4\")"],
   ],
 };
+
+let currentProductFingerprint = "";
+
+export function getOptimizedCloudinaryUrl(url, mode = "gallery") {
+  if (!url || typeof url !== "string") return url || "photos/any.jpeg";
+  if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) {
+    return url;
+  }
+
+  let transform = "f_auto,q_auto,w_1000,c_limit";
+  if (mode === "lqip") {
+    transform = "f_auto,q_10,w_80,e_blur:200,c_limit";
+  } else if (mode === "thumb") {
+    transform = "f_auto,q_auto,w_200,c_limit";
+  } else if (mode === "gallery") {
+    transform = "f_auto,q_auto,w_1000,c_limit";
+  } else if (mode === "zoom") {
+    transform = "f_auto,q_auto,w_1800,c_limit";
+  } else if (mode === "card") {
+    transform = "f_auto,q_auto,w_600,c_limit";
+  }
+
+  return url.replace(/\/upload\/(?:[^\/]+\/)?/, `/upload/${transform}/`);
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -24,12 +50,28 @@ function escapeHtml(value) {
 
 function getCachedProduct(id) {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    // 1. Check direct active item in sessionStorage / localStorage
+    const activeRaw =
+      sessionStorage.getItem(ACTIVE_PRODUCT_KEY) ||
+      localStorage.getItem(ACTIVE_PRODUCT_KEY);
+    if (activeRaw) {
+      const active = JSON.parse(activeRaw);
+      if (active && active.id === id) return active;
+    }
+
+    // 2. Check cached product lists
+    const raw =
+      sessionStorage.getItem(CACHE_KEY_V2) ||
+      localStorage.getItem(CACHE_KEY_V2) ||
+      localStorage.getItem(CACHE_KEY_LEGACY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed?.products)) {
-      return parsed.products.find((p) => p.id === id) || null;
-    }
+    const list = Array.isArray(parsed?.products)
+      ? parsed.products
+      : Array.isArray(parsed)
+        ? parsed
+        : [];
+    return list.find((p) => p.id === id) || null;
   } catch (e) {}
   return null;
 }
@@ -38,6 +80,7 @@ const params = new URLSearchParams(window.location.search);
 const productId = params.get("id");
 
 const els = {
+  skeleton: document.getElementById("product-skeleton"),
   status: document.getElementById("product-status"),
   page: document.getElementById("product-page"),
   track: document.getElementById("pd-track"),
@@ -89,6 +132,15 @@ function calculateDiscount(priceCurrent, priceOriginal) {
     return null;
   }
   return Math.round(((priceOriginal - priceCurrent) / priceOriginal) * 100);
+}
+
+function generateSingleProductFingerprint(p) {
+  if (!p) return "";
+  const images = Array.isArray(p.images) ? p.images.join(",") : "";
+  const sizes = Array.isArray(p.sizes) ? p.sizes.join(",") : "";
+  const colors = Array.isArray(p.colors) ? p.colors.join(",") : "";
+  const design = Array.isArray(p.designPoints) ? p.designPoints.join("|") : "";
+  return `${p.id}:${p.name}:${p.priceCurrent}:${p.priceOriginal}:${p.badge}:${p.cotton}:${images}:${sizes}:${colors}:${design}:${p.sizeChartText || ""}`;
 }
 
 function normalizeProduct(docSnap) {
@@ -148,15 +200,16 @@ function showToast(message) {
 
 function loadCart() {
   try {
-    const saved = JSON.parse(localStorage.getItem("accolade_cart") || "[]");
-    return Array.isArray(saved) ? saved : [];
-  } catch {
+    return JSON.parse(localStorage.getItem("accolade_cart") || "[]");
+  } catch (e) {
     return [];
   }
 }
 
 function getCartCount(cart) {
-  return cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  return Array.isArray(cart)
+    ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0)
+    : 0;
 }
 
 function updateCartBadge() {
@@ -228,14 +281,19 @@ function buildGallery(images) {
   slidesCount = items.length;
   slideIndex = 0;
 
-  items.forEach((src, index) => {
+  items.forEach((rawSrc, index) => {
+    const gallerySrc = getOptimizedCloudinaryUrl(rawSrc, "gallery");
+    const thumbSrc = getOptimizedCloudinaryUrl(rawSrc, "thumb");
+    const zoomSrc = getOptimizedCloudinaryUrl(rawSrc, "zoom");
+
     const slide = document.createElement("div");
     slide.className = "pd-slide";
     const img = document.createElement("img");
-    img.src = src;
+    img.src = gallerySrc;
     img.alt = `Product image ${index + 1}`;
     img.loading = index === 0 ? "eager" : "lazy";
-    img.addEventListener("click", () => openLightbox(src));
+    img.decoding = "async";
+    img.addEventListener("click", () => openLightbox(zoomSrc));
     slide.appendChild(img);
     els.track.appendChild(slide);
 
@@ -245,8 +303,10 @@ function buildGallery(images) {
       thumb.className = "pd-thumb";
       thumb.setAttribute("aria-label", `View image ${index + 1}`);
       const thumbImg = document.createElement("img");
-      thumbImg.src = src;
+      thumbImg.src = thumbSrc;
       thumbImg.alt = `Thumbnail ${index + 1}`;
+      thumbImg.loading = "lazy";
+      thumbImg.decoding = "async";
       thumb.appendChild(thumbImg);
       thumb.addEventListener("click", () => setSlide(index));
       els.thumbs.appendChild(thumb);
@@ -270,6 +330,9 @@ function buildSizeOptions(productSizes = []) {
     btn.className = "pd-size-btn";
     btn.textContent = size;
     btn.dataset.size = size;
+    if (selectedSize === size) {
+      btn.classList.add("is-selected");
+    }
     btn.addEventListener("click", () => {
       selectedSize = size;
       els.sizeOptions.querySelectorAll(".pd-size-btn").forEach((el) => {
@@ -353,71 +416,90 @@ function buildSizeChart(sizeChartText) {
 function buildColorOptions(colors = []) {
   if (!els.colorSection || !els.colorOptions) return;
   const list = Array.isArray(colors) ? colors.filter(Boolean) : [];
+
   if (list.length === 0) {
     els.colorSection.hidden = true;
     selectedColor = "";
-    if (els.selectedColorName) els.selectedColorName.textContent = "";
     return;
   }
 
   els.colorSection.hidden = false;
   els.colorOptions.innerHTML = "";
 
-  // Select the first color by default
-  selectedColor = list[0];
+  if (!selectedColor || !list.includes(selectedColor)) {
+    selectedColor = list[0];
+  }
   if (els.selectedColorName) {
-    els.selectedColorName.textContent = `· ${selectedColor}`;
+    els.selectedColorName.textContent = selectedColor ? `— ${selectedColor}` : "";
   }
 
-  list.forEach((col, index) => {
+  list.forEach((color) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "pd-color-btn" + (index === 0 ? " is-selected" : "");
-    btn.textContent = col;
-    btn.dataset.color = col;
+    btn.className = "pd-color-btn";
+    btn.textContent = color;
+    btn.dataset.color = color;
+    if (color === selectedColor) {
+      btn.classList.add("is-selected");
+    }
+
     btn.addEventListener("click", () => {
-      selectedColor = col;
-      els.colorOptions.querySelectorAll(".pd-color-btn").forEach((el) => {
-        el.classList.toggle("is-selected", el.dataset.color === col);
-      });
+      selectedColor = color;
       if (els.selectedColorName) {
-        els.selectedColorName.textContent = `· ${col}`;
+        els.selectedColorName.textContent = `— ${color}`;
       }
+      els.colorOptions.querySelectorAll(".pd-color-btn").forEach((el) => {
+        el.classList.toggle("is-selected", el.dataset.color === color);
+      });
       if (els.colorHint) {
         els.colorHint.textContent = "";
         els.colorHint.hidden = true;
       }
     });
+
     els.colorOptions.appendChild(btn);
   });
 }
 
 function requireColor() {
-  if (!product?.colors?.length || selectedColor) return true;
-  if (els.colorHint) {
-    els.colorHint.textContent = "Please select a color";
-    els.colorHint.hidden = false;
+  if (els.colorSection && !els.colorSection.hidden) {
+    if (selectedColor) return true;
+    if (els.colorHint) {
+      els.colorHint.textContent = "Please select a color.";
+      els.colorHint.hidden = false;
+    }
+    showToast("Please select a color");
+    return false;
   }
-  showToast("Please select a color");
-  return false;
+  return true;
 }
 
 function requireSize() {
   if (selectedSize) return true;
   if (els.sizeHint) {
-    els.sizeHint.textContent = "Please select a size";
+    els.sizeHint.textContent = "Please select a size.";
     els.sizeHint.hidden = false;
   }
   showToast("Please select a size");
   return false;
 }
 
-function renderProduct(data) {
+function renderProduct(data, preserveSelection = false) {
+  if (!data) return;
+
+  const fp = generateSingleProductFingerprint(data);
+  if (fp === currentProductFingerprint && currentProductFingerprint !== "") {
+    return;
+  }
+  currentProductFingerprint = fp;
+
   product = data;
   unitPrice = data.priceCurrent;
-  quantity = 1;
-  selectedSize = "";
-  selectedColor = "";
+  if (!preserveSelection) {
+    quantity = 1;
+    selectedSize = "";
+    selectedColor = "";
+  }
 
   document.title = `${data.name} | Accolade`;
 
@@ -429,19 +511,21 @@ function renderProduct(data) {
   }
   if (els.badge) els.badge.textContent = data.badge;
   if (els.cotton) els.cotton.textContent = data.cotton;
+
   const designPoints = Array.isArray(data.designPoints)
     ? data.designPoints.filter(Boolean)
     : String(data.designPoints || "")
         .split("|")
         .map((point) => point.trim())
         .filter(Boolean);
+
   if (els.designList) {
     const points = designPoints.length
       ? designPoints
-      : ["add details", "add details", "add details"];
+      : ["Premium craftsmanship", "Refined silhouette", "Signature Accolade detailing"];
     els.designList.innerHTML = points
       .slice(0, 6)
-      .map((point) => `<li><span class="info-value">${point}</span></li>`)
+      .map((point) => `<li><span class="info-value">${escapeHtml(point)}</span></li>`)
       .join("");
   }
 
@@ -451,11 +535,13 @@ function renderProduct(data) {
   buildSizeChart(data.sizeChartText);
   updateTotals();
 
+  if (els.skeleton) els.skeleton.hidden = true;
   if (els.status) els.status.hidden = true;
   if (els.page) els.page.hidden = false;
 }
 
 function showError(message) {
+  if (els.skeleton) els.skeleton.hidden = true;
   if (els.status) {
     els.status.textContent = message;
     els.status.hidden = false;
@@ -468,10 +554,12 @@ async function loadProduct() {
     showError("Product not found. Go back to shop and try again.");
     return;
   }
+
   const cached = getCachedProduct(productId);
   if (cached) {
-    renderProduct(cached);
+    renderProduct(cached, false);
   }
+
   try {
     const snap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
     if (!snap.exists()) {
@@ -483,7 +571,7 @@ async function loadProduct() {
       if (!cached) showError("This product is no longer available.");
       return;
     }
-    renderProduct(data);
+    renderProduct(data, Boolean(cached));
   } catch (error) {
     console.error("Failed to load product", error);
     if (!cached) {
@@ -511,7 +599,8 @@ function setupLightbox() {
   }
 
   window.openLightbox = function openLightbox(src) {
-    lbImg.src = src;
+    const zoomUrl = getOptimizedCloudinaryUrl(src, "zoom");
+    lbImg.src = zoomUrl;
     lbScale = 1;
     lbX = 0;
     lbY = 0;

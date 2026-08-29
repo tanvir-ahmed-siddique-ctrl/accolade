@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Product | Accolade</title>
+    <link rel="preload" as="image" href="photos/main_bg.jpeg" />
+    <style>
+      html, body {
+        background-color: #14110e;
+      }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -42,17 +48,27 @@
 
       body {
         font-family: "Cinzel", "Inter", sans-serif;
-        background-color: #1a1510;
-        background-image: url("photos/main_bg.jpeg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background-color: #14110e;
         color: #ffffff;
         padding-top: var(--header-height);
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        position: relative;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-image: url("photos/main_bg.jpeg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        transform: translateZ(0);
+        will-change: transform;
       }
 
       .site-header {
@@ -228,10 +244,30 @@
 
       #product-status {
         text-align: center;
-        padding: 80px 24px;
+        padding: 40px 24px;
         font-size: 14px;
         letter-spacing: 0.12em;
-        color: var(--muted);
+        color: #f0a0a0;
+        background: rgba(255, 100, 100, 0.08);
+        border: 1px solid rgba(255, 100, 100, 0.2);
+        border-radius: 12px;
+        max-width: 500px;
+        margin: 40px auto;
+      }
+      .pd-skeleton-shimmer {
+        position: relative;
+        overflow: hidden;
+      }
+      .pd-skeleton-shimmer::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+        animation: pdShimmer 1.5s infinite;
+      }
+      @keyframes pdShimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
       }
 
       .pd-layout {
@@ -928,7 +964,33 @@
         </a>
       </div>
 
-      <p id="product-status">Loading product...</p>
+      <!-- Animated Shimmer Skeleton (Zero Static Text) -->
+      <div id="product-skeleton" class="pd-layout">
+        <div class="pd-media">
+          <div class="pd-skeleton-shimmer" style="background:rgba(255,255,255,0.05);aspect-ratio:4/5;min-height:380px;border-radius:16px;"></div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <div class="pd-skeleton-shimmer" style="width:72px;height:90px;background:rgba(255,255,255,0.04);border-radius:10px;"></div>
+            <div class="pd-skeleton-shimmer" style="width:72px;height:90px;background:rgba(255,255,255,0.04);border-radius:10px;"></div>
+            <div class="pd-skeleton-shimmer" style="width:72px;height:90px;background:rgba(255,255,255,0.04);border-radius:10px;"></div>
+          </div>
+        </div>
+        <div class="pd-info" style="gap:20px;">
+          <div class="pd-skeleton-shimmer" style="height:36px;background:rgba(255,255,255,0.07);border-radius:6px;width:75%;"></div>
+          <div class="pd-skeleton-shimmer" style="height:24px;background:rgba(255,255,255,0.05);border-radius:6px;width:35%;"></div>
+          <div style="margin-top:10px;">
+            <div class="pd-skeleton-shimmer" style="height:14px;background:rgba(255,255,255,0.04);border-radius:4px;width:50px;margin-bottom:8px;"></div>
+            <div style="display:flex;gap:10px;">
+              <div class="pd-skeleton-shimmer" style="width:54px;height:42px;background:rgba(255,255,255,0.05);border-radius:999px;"></div>
+              <div class="pd-skeleton-shimmer" style="width:54px;height:42px;background:rgba(255,255,255,0.05);border-radius:999px;"></div>
+              <div class="pd-skeleton-shimmer" style="width:54px;height:42px;background:rgba(255,255,255,0.05);border-radius:999px;"></div>
+              <div class="pd-skeleton-shimmer" style="width:54px;height:42px;background:rgba(255,255,255,0.05);border-radius:999px;"></div>
+            </div>
+          </div>
+          <div class="pd-skeleton-shimmer" style="height:48px;background:rgba(255,255,255,0.08);border-radius:8px;margin-top:20px;"></div>
+        </div>
+      </div>
+
+      <p id="product-status" hidden></p>
 
       <div id="product-page" class="pd-layout" hidden>
         <div class="pd-media">
@@ -1027,6 +1089,77 @@
           </div>
         </div>
       </div>
+
+      <!-- Synchronous Client-Side Hydrator (0ms Blank Prevention) -->
+      <script>
+        (function() {
+          try {
+            var params = new URLSearchParams(window.location.search);
+            var id = params.get("id");
+            if (!id) return;
+
+            var product = null;
+            var activeRaw = sessionStorage.getItem("accolade_selected_product_v2") || localStorage.getItem("accolade_selected_product_v2");
+            if (activeRaw) {
+              var candidate = JSON.parse(activeRaw);
+              if (candidate && candidate.id === id) product = candidate;
+            }
+            if (!product) {
+              var cacheRaw = sessionStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_cache");
+              if (cacheRaw) {
+                var cacheParsed = JSON.parse(cacheRaw);
+                var list = Array.isArray(cacheParsed.products) ? cacheParsed.products : (Array.isArray(cacheParsed) ? cacheParsed : []);
+                for (var i = 0; i < list.length; i++) {
+                  if (list[i] && list[i].id === id) { product = list[i]; break; }
+                }
+              }
+            }
+            if (!product) return;
+
+            document.title = (product.name || "Product") + " | Accolade";
+            var elTitle = document.getElementById("pd-title");
+            if (elTitle) elTitle.textContent = product.name || "";
+
+            var priceCur = Number(product.priceCurrent || product.price || 0);
+            var priceOrig = Number(product.priceOriginal || product.offer || priceCur);
+
+            var elPrice = document.getElementById("pd-price");
+            if (elPrice) elPrice.textContent = String(priceCur);
+
+            var elOffer = document.getElementById("pd-offer");
+            if (elOffer) {
+              elOffer.textContent = String(priceOrig);
+              elOffer.style.display = priceOrig > priceCur ? "inline-flex" : "none";
+            }
+
+            var elBadge = document.getElementById("pd-badge");
+            if (elBadge) elBadge.textContent = product.badge || (priceOrig > priceCur ? Math.round(((priceOrig - priceCur)/priceOrig)*100) + "% OFF" : "NEW");
+
+            var elUnit = document.getElementById("pd-unit");
+            if (elUnit) elUnit.textContent = "Unit: BDT " + priceCur;
+
+            var elCotton = document.getElementById("pd-cotton");
+            if (elCotton && product.cotton) elCotton.textContent = product.cotton;
+
+            var images = Array.isArray(product.images) ? product.images : (typeof product.images === 'string' ? product.images.split(',') : []);
+            var firstImg = images[0] || 'photos/any.jpeg';
+            if (firstImg.indexOf('res.cloudinary.com') !== -1 && firstImg.indexOf('/upload/') !== -1) {
+              firstImg = firstImg.replace(/\/upload\/(?:[^\/]+\/)?/, '/upload/f_auto,q_auto,w_1000,c_limit/');
+            }
+            var track = document.getElementById("pd-track");
+            if (track && images.length) {
+              track.innerHTML = '<div class="pd-slide is-active"><img src="' + firstImg + '" alt="' + (product.name||"Product") + '" decoding="async" /></div>';
+            }
+
+            var skeletonEl = document.getElementById("product-skeleton");
+            if (skeletonEl) skeletonEl.hidden = true;
+            var statusEl = document.getElementById("product-status");
+            if (statusEl) statusEl.hidden = true;
+            var pageEl = document.getElementById("product-page");
+            if (pageEl) pageEl.hidden = false;
+          } catch(e) {}
+        })();
+      </script>
     </main>
 
     <div id="img-lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">

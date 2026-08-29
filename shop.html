@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Accolade.clo</title>
+    <link rel="preload" as="image" href="photos/main_bg.jpeg" />
+    <style>
+      html, body {
+        background-color: #14110e;
+      }
+    </style>
     <script>
       document.documentElement.classList.add("firebase-products-loading");
     </script>
@@ -49,17 +55,31 @@
       }
       body {
         font-family: "Cinzel", "Sansation", "Inter", sans-serif;
-        background-color: var(--sand);
-        background-image: url('photos/main_bg.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background-color: #14110e;
         color: var(--brown);
         padding-top: var(--header-height);
         width: 100%;
         max-width: 100vw;
         overflow-x: hidden;
+        position: relative;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-image: url('photos/main_bg.jpeg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        transform: translateZ(0);
+        will-change: transform;
+      }
+      @keyframes skeletonShimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
       }
       html {
         scroll-behavior: smooth;
@@ -383,8 +403,8 @@
       .product-grid {
         display: grid;
       }
-      .firebase-products-loading .product-grid > .product-card,
-      .firebase-products-loading .product-grid > .info-card {
+      .firebase-products-loading .product-grid > .product-card:not(.skeleton-card),
+      .firebase-products-loading .product-grid > .info-card:not(.skeleton-card) {
         display: none !important;
       }
       .hero-poster,

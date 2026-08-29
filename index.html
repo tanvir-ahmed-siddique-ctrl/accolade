@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Accolade</title>
+    <link rel="preload" as="image" href="photos/main_bg.jpeg" />
+    <style>
+      html, body {
+        background-color: #14110e;
+      }
+    </style>
     <meta name="description" content="Accolade.clo — Premium clothing label based in Dhaka. Wear your Accolade." />
     <script src="https://cdn.tailwindcss.com"></script>
     <link
@@ -55,16 +61,25 @@
       }
       body {
         font-family: "Cinzel", "Sansation", "Inter", sans-serif;
-        background-color: #1a1510;
-        background-image: url('photos/main_bg.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background-color: #14110e;
         color: var(--brown);
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        position: relative;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-image: url('photos/main_bg.jpeg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        transform: translateZ(0);
+        will-change: transform;
       }
 
       /* ── Header ─────────────────────────────── */

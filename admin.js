@@ -506,9 +506,7 @@ function renderProductList() {
       }
       try {
         await deleteDoc(doc(db, PRODUCTS_COLLECTION, product.id));
-        try {
-          localStorage.removeItem("accolade_products_cache");
-        } catch (e) {}
+        clearClientCaches();
         setStatus("Product deleted", "success");
         await loadProducts();
       } catch (error) {
@@ -517,6 +515,15 @@ function renderProductList() {
       }
     });
   });
+}
+
+function clearClientCaches() {
+  try {
+    localStorage.removeItem("accolade_products_v2");
+    localStorage.removeItem("accolade_products_cache");
+    localStorage.removeItem("accolade_selected_product_v2");
+    sessionStorage.clear();
+  } catch (e) {}
 }
 
 async function loadProducts() {
@@ -595,9 +602,7 @@ if (productForm) {
           ...payload,
           updatedAt: serverTimestamp(),
         });
-        try {
-          localStorage.removeItem("accolade_products_cache");
-        } catch (e) {}
+        clearClientCaches();
         await loadProducts();
         resetForm("Product updated successfully", "success");
       } else {
@@ -606,9 +611,7 @@ if (productForm) {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
-        try {
-          localStorage.removeItem("accolade_products_cache");
-        } catch (e) {}
+        clearClientCaches();
         await loadProducts();
         resetForm("Product added successfully", "success");
       }
