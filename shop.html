@@ -766,13 +766,16 @@
       }
       .modal-thumbs {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
         gap: 6px;
         padding: 8px 10px 10px;
-        overflow: visible;
+        overflow-x: auto;
+        overflow-y: hidden;
         background: transparent;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
       }
       .modal-thumb {
         width: 62px;
@@ -1114,12 +1117,14 @@
         .modal-thumbs {
           display: flex;
           flex-wrap: nowrap;
-          justify-content: center;
+          justify-content: flex-start;
           gap: 6px;
           padding: 4px 6px;
           height: 56px;
           flex: 0 0 56px;
-          overflow: hidden;
+          overflow-x: auto;
+          overflow-y: hidden;
+          -webkit-overflow-scrolling: touch;
         }
         .modal-thumb {
           width: 52px;
@@ -2591,7 +2596,7 @@
               <span id="modal-offer" class="price-original"></span>
               <span id="modal-price" class="price-current"></span>
               <!-- -------------Product Modal Offer Badge-------------------- -->
-              <span id="modal-badge" class="price-badge">10% OFF</span>
+              <span id="modal-badge" class="price-badge" style="display: none;"></span>
             </div>
             <p id="modal-unit" class="modal-unit"></p>
             <div class="modal-quantity">
@@ -3956,7 +3961,14 @@
         modalOffer.textContent = offer;
         modalOffer.style.display = offer ? "inline-flex" : "none";
         if (modalBadge) {
-          modalBadge.textContent = (card.dataset.badge || "10% OFF").toLowerCase();
+          const bText = (card.dataset.badge || "").trim();
+          if (bText) {
+            modalBadge.textContent = bText;
+            modalBadge.style.display = "inline-flex";
+          } else {
+            modalBadge.textContent = "";
+            modalBadge.style.display = "none";
+          }
         }
         if (modalCotton) modalCotton.textContent = (card.dataset.cotton || "add details").toLowerCase();
         if (modalQuality) modalQuality.textContent = (card.dataset.quality || "add details").toLowerCase();

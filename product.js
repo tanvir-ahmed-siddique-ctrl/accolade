@@ -140,7 +140,7 @@ function generateSingleProductFingerprint(p) {
   const sizes = Array.isArray(p.sizes) ? p.sizes.join(",") : "";
   const colors = Array.isArray(p.colors) ? p.colors.join(",") : "";
   const design = Array.isArray(p.designPoints) ? p.designPoints.join("|") : "";
-  return `${p.id}:${p.name}:${p.priceCurrent}:${p.priceOriginal}:${p.badge}:${p.cotton}:${images}:${sizes}:${colors}:${design}:${p.sizeChartText || ""}`;
+  return `${p.id}:${p.name}:${p.priceCurrent}:${p.priceOriginal}:${p.badge || ""}:${p.cotton}:${images}:${sizes}:${colors}:${design}:${p.sizeChartText || ""}`;
 }
 
 function normalizeProduct(docSnap) {
@@ -166,8 +166,7 @@ function normalizeProduct(docSnap) {
     name: String(data.name || "Unnamed product"),
     priceCurrent,
     priceOriginal,
-    badge:
-      String(data.badge || "").trim() || (discount ? `${discount}% OFF` : "NEW"),
+    badge: String(data.badge || "").trim(),
     cotton: String(data.cotton || "add details"),
     sizes: Array.isArray(data.sizes)
       ? data.sizes.filter(Boolean)
@@ -254,8 +253,17 @@ function updateSlider() {
   });
   els.track.style.transform = `translateX(-${slideIndex * 100}%)`;
   if (els.thumbs) {
-    els.thumbs.querySelectorAll(".pd-thumb").forEach((thumb, index) => {
-      thumb.classList.toggle("is-active", index === slideIndex);
+    const thumbs = els.thumbs.querySelectorAll(".pd-thumb");
+    thumbs.forEach((thumb, index) => {
+      const isActive = index === slideIndex;
+      thumb.classList.toggle("is-active", isActive);
+      if (isActive) {
+        thumb.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
     });
   }
 }
@@ -281,6 +289,10 @@ function buildGallery(images) {
   slidesCount = items.length;
   slideIndex = 0;
 
+  if (els.prev) els.prev.style.display = slidesCount > 1 ? "flex" : "none";
+  if (els.next) els.next.style.display = slidesCount > 1 ? "flex" : "none";
+  if (els.thumbs) els.thumbs.style.display = slidesCount > 1 ? "flex" : "none";
+
   items.forEach((rawSrc, index) => {
     const gallerySrc = getOptimizedCloudinaryUrl(rawSrc, "gallery");
     const thumbSrc = getOptimizedCloudinaryUrl(rawSrc, "thumb");
@@ -297,7 +309,7 @@ function buildGallery(images) {
     slide.appendChild(img);
     els.track.appendChild(slide);
 
-    if (els.thumbs) {
+    if (els.thumbs && slidesCount > 1) {
       const thumb = document.createElement("button");
       thumb.type = "button";
       thumb.className = "pd-thumb";
@@ -509,7 +521,16 @@ function renderProduct(data, preserveSelection = false) {
     els.offer.style.display =
       data.priceOriginal > data.priceCurrent ? "inline-flex" : "none";
   }
-  if (els.badge) els.badge.textContent = data.badge;
+  if (els.badge) {
+    const bText = String(data.badge || "").trim();
+    if (bText) {
+      els.badge.textContent = bText;
+      els.badge.style.display = "inline-flex";
+    } else {
+      els.badge.textContent = "";
+      els.badge.style.display = "none";
+    }
+  }
   if (els.cotton) els.cotton.textContent = data.cotton;
 
   const designPoints = Array.isArray(data.designPoints)

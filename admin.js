@@ -152,7 +152,7 @@ function getPreviewFields() {
     name: name || "Product name",
     priceCurrent,
     priceOriginal: priceOriginal || priceCurrent,
-    badge: badge || "NEW",
+    badge: badge || "",
     primaryImage: images[0] || "photos/any.jpeg",
     designPoints: designPoints.slice(0, 3),
     chip: isFeatured ? "Featured" : isHot ? "Hot Selling" : "Product",
@@ -172,7 +172,15 @@ function updatePreview() {
   setText(previewName, preview.name);
   setText(previewCurrent, preview.priceCurrent || 0);
   setText(previewOriginal, preview.priceOriginal || preview.priceCurrent || 0);
-  setText(previewBadge, preview.badge);
+  if (previewBadge) {
+    if (preview.badge) {
+      previewBadge.textContent = preview.badge;
+      previewBadge.style.display = "inline-flex";
+    } else {
+      previewBadge.textContent = "";
+      previewBadge.style.display = "none";
+    }
+  }
   setText(previewChip, preview.chip);
 
   if (previewDesignList) {
@@ -380,7 +388,7 @@ function getFormData() {
     name,
     priceCurrent,
     priceOriginal: priceOriginal || priceCurrent,
-    badge: badge || "NEW",
+    badge: badge || "",
     cotton: cotton || "add details",
     sizes: sizes,
     colors: colors,

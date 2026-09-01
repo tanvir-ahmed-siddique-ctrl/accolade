@@ -195,8 +195,7 @@ function normalizeProduct(docSnap) {
     name: String(data.name || "Unnamed product"),
     priceCurrent,
     priceOriginal,
-    badge:
-      String(data.badge || "").trim() || (discount ? `${discount}% OFF` : "NEW"),
+    badge: String(data.badge || "").trim(),
     cotton: String(data.cotton || "add details"),
     sizes: Array.isArray(data.sizes)
       ? data.sizes.filter(Boolean)
@@ -322,7 +321,13 @@ function createProductCard(product) {
   card.dataset.design = designPoints.join("|");
   card.dataset.images = images.join(",");
 
-  const badgeText = product.badge || (discount ? `${discount}% OFF` : "NEW");
+  const badgeText = String(product.badge || "").trim();
+  const badgeHtml = badgeText
+    ? `<span class="badge">${escapeHtml(badgeText)}</span>`
+    : "";
+  const priceBadgeHtml = badgeText
+    ? `<span class="price-badge">${escapeHtml(badgeText)}</span>`
+    : "";
 
   card.innerHTML = `
     <div class="product-image" style="background:rgba(255,255,255,0.04);position:relative;overflow:hidden;">
@@ -336,7 +341,7 @@ function createProductCard(product) {
         onload="this.style.opacity='1'; this.parentElement.classList.add('is-loaded');"
       />
       <span class="label-chip">${escapeHtml(labelChip)}</span>
-      <span class="badge">${escapeHtml(badgeText)}</span>
+      ${badgeHtml}
     </div>
     <div class="mt-4 space-y-2">
       <h3 class="font-bold text-sm uppercase tracking-wider">${escapeHtml(product.name || "Product")}</h3>
@@ -344,7 +349,7 @@ function createProductCard(product) {
         <span class="price-currency">BDT</span>
         <span class="price-original">${priceOriginal}</span>
         <span class="price-current">${priceCurrent}</span>
-        <span class="price-badge">${escapeHtml(badgeText)}</span>
+        ${priceBadgeHtml}
       </div>
     </div>
   `;
