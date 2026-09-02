@@ -1,7 +1,7 @@
 import { db, doc, getDoc } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
-const CACHE_KEY_V2 = "accolade_products_v2";
+const CACHE_KEY_V2 = "accolade_products_v3";
 const CACHE_KEY_LEGACY = "accolade_products_cache";
 const ACTIVE_PRODUCT_KEY = "accolade_selected_product_v2";
 const DEFAULT_SIZES = ["S", "M", "L", "XL"];
@@ -170,7 +170,7 @@ function normalizeProduct(docSnap) {
     name: String(data.name || "Unnamed product"),
     priceCurrent,
     priceOriginal: validPriceOriginal,
-    badge: String(data.badge || "").trim(),
+    badge: String(data.badge || "").trim().toLowerCase() === "featured" ? "" : String(data.badge || "").trim(),
     cotton: String(data.cotton || "add details"),
     description,
     sizes: Array.isArray(data.sizes)
@@ -528,7 +528,7 @@ function renderProduct(data, preserveSelection = false) {
   }
   if (els.badge) {
     const bText = String(data.badge || "").trim();
-    if (bText) {
+    if (bText && bText.toLowerCase() !== "featured") {
       els.badge.textContent = bText;
       els.badge.style.display = "inline-flex";
     } else {

@@ -465,7 +465,7 @@
       .product-card .space-y-2 > :not([hidden]) ~ :not([hidden]) {
         margin-top: 0.35rem;
       }
-      /* .product-image .label-chip {
+      .product-image .label-chip {
         background: rgba(255, 255, 255, 0.85);
         padding: 6px 12px;
         border-radius: 999px;
@@ -478,7 +478,10 @@
         left: 10px;
         bottom: 10px;
         z-index: 2;
-      } */
+      }
+      .product-image .label-chip:empty {
+        display: none !important;
+      }
       .product-image img {
         width: 100%;
         height: 100%;
@@ -3919,7 +3922,7 @@
         modalOffer.style.display = offer ? "inline-flex" : "none";
         if (modalBadge) {
           const bText = (card.dataset.badge || "").trim();
-          if (bText) {
+          if (bText && bText.toLowerCase() !== "featured") {
             modalBadge.textContent = bText;
             modalBadge.style.display = "inline-flex";
           } else {

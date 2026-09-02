@@ -141,10 +141,10 @@ function getPreviewFields() {
   const priceCurrent = toNumber(document.getElementById("price-current")?.value);
   const priceOriginalVal = document.getElementById("price-original")?.value.trim();
   const priceOriginal = priceOriginalVal ? toNumber(priceOriginalVal) : 0;
-  const badge = document.getElementById("product-badge")?.value.trim();
+  const rawBadge = document.getElementById("product-badge")?.value.trim() || "";
+  const badge = rawBadge.toLowerCase() === "featured" ? "" : rawBadge;
   const images = parseList(document.getElementById("product-images")?.value);
   const description = document.getElementById("product-description")?.value.trim() || "";
-  const isFeatured = document.getElementById("category-featured")?.checked;
   const isHot = document.getElementById("category-hot")?.checked;
 
   return {
@@ -154,7 +154,7 @@ function getPreviewFields() {
     badge: badge || "",
     primaryImage: images[0] || "photos/any.jpeg",
     description,
-    chip: isFeatured ? "Featured" : isHot ? "Hot Selling" : "Product",
+    chip: isHot ? "Hot Selling" : "",
   };
 }
 
@@ -180,7 +180,7 @@ function updatePreview() {
     }
   }
   if (previewBadge) {
-    if (preview.badge) {
+    if (preview.badge && preview.badge.toLowerCase() !== "featured") {
       previewBadge.textContent = preview.badge;
       previewBadge.style.display = "inline-flex";
     } else {
@@ -188,7 +188,15 @@ function updatePreview() {
       previewBadge.style.display = "none";
     }
   }
-  setText(previewChip, preview.chip);
+  if (previewChip) {
+    if (preview.chip && preview.chip.toLowerCase() !== "featured") {
+      previewChip.textContent = preview.chip;
+      previewChip.style.display = "inline-flex";
+    } else {
+      previewChip.textContent = "";
+      previewChip.style.display = "none";
+    }
+  }
 
   if (previewDescription) {
     previewDescription.textContent = preview.description || "Add product description (optional).";
@@ -359,7 +367,8 @@ function getFormData() {
   const priceCurrent = toNumber(document.getElementById("price-current").value);
   const priceOriginalVal = document.getElementById("price-original").value.trim();
   const priceOriginal = priceOriginalVal ? toNumber(priceOriginalVal) : 0;
-  const badge = document.getElementById("product-badge").value.trim();
+  const rawBadge = document.getElementById("product-badge").value.trim();
+  const badge = rawBadge.toLowerCase() === "featured" ? "" : rawBadge;
   const cotton = document.getElementById("product-cotton").value.trim();
   const rawSizes = (document.getElementById("product-sizes")?.value || "").trim();
   const sizes = parseList(rawSizes.replace(/,/g, "\n"));

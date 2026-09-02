@@ -1173,7 +1173,7 @@
             var elBadge = document.getElementById("pd-badge");
             if (elBadge) {
               var bText = (product.badge || "").trim();
-              if (bText) {
+              if (bText && bText.toLowerCase() !== "featured") {
                 elBadge.textContent = bText;
                 elBadge.style.display = "inline-flex";
               } else {

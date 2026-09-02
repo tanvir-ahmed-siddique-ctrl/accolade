@@ -1,7 +1,7 @@
 import { collection, db, getDocs } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
-const CACHE_KEY_V2 = "accolade_products_v2";
+const CACHE_KEY_V2 = "accolade_products_v3";
 const CACHE_KEY_LEGACY = "accolade_products_cache";
 const ACTIVE_PRODUCT_KEY = "accolade_selected_product_v2";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour TTL
@@ -198,7 +198,7 @@ function normalizeProduct(docSnap) {
     name: String(data.name || "Unnamed product"),
     priceCurrent,
     priceOriginal: validPriceOriginal,
-    badge: String(data.badge || "").trim(),
+    badge: String(data.badge || "").trim().toLowerCase() === "featured" ? "" : String(data.badge || "").trim(),
     cotton: String(data.cotton || "add details"),
     description,
     sizes: Array.isArray(data.sizes)
@@ -280,11 +280,13 @@ function createProductCard(product) {
         .map((item) => item.trim())
         .filter(Boolean);
 
-  const labelChip = categories.includes("featured")
-    ? "Featured"
-    : categories.includes("hot-selling")
-      ? "Hot Selling"
-      : "Product";
+  const isHotSelling =
+    categories.includes("hot-selling") ||
+    categories.includes("hotselling") ||
+    product.hotSelling === true;
+
+  // Never show "Featured" badge on product boxes now or in the future
+  const labelChip = isHotSelling ? "Hot Selling" : "";
 
   const card = document.createElement("article");
   card.className = "product-card info-card";
@@ -306,25 +308,29 @@ function createProductCard(product) {
         .map((item) => item.trim())
         .filter(Boolean);
 
-  card.dataset.id = product.id || "";
-  card.dataset.name = product.name || "Product";
-  card.dataset.price = `BDT ${priceCurrent}`;
-  card.dataset.priceValue = `${priceCurrent}`;
-  card.dataset.offer = hasDiscount ? `${priceOriginal}` : "";
-  card.dataset.badge = product.badge || "";
-  card.dataset.cotton = product.cotton || "";
-  card.dataset.description = description;
-  card.dataset.sizes = sizes.join(",");
-  card.dataset.colors = colors.join(",");
-  card.dataset.images = images.join(",");
-
-  const badgeText = String(product.badge || "").trim();
+  const rawBadge = String(product.badge || "").trim();
+  const badgeText = rawBadge.toLowerCase() === "featured" ? "" : rawBadge;
   const badgeHtml = badgeText
     ? `<span class="badge">${escapeHtml(badgeText)}</span>`
     : "";
   const priceBadgeHtml = badgeText
     ? `<span class="price-badge">${escapeHtml(badgeText)}</span>`
     : "";
+  const labelChipHtml = labelChip
+    ? `<span class="label-chip">${escapeHtml(labelChip)}</span>`
+    : "";
+
+  card.dataset.id = product.id || "";
+  card.dataset.name = product.name || "Product";
+  card.dataset.price = `BDT ${priceCurrent}`;
+  card.dataset.priceValue = `${priceCurrent}`;
+  card.dataset.offer = hasDiscount ? `${priceOriginal}` : "";
+  card.dataset.badge = badgeText;
+  card.dataset.cotton = product.cotton || "";
+  card.dataset.description = description;
+  card.dataset.sizes = sizes.join(",");
+  card.dataset.colors = colors.join(",");
+  card.dataset.images = images.join(",");
 
   card.innerHTML = `
     <div class="product-image" style="background:rgba(255,255,255,0.04);position:relative;overflow:hidden;">
@@ -337,7 +343,7 @@ function createProductCard(product) {
         style="opacity: 0; transition: opacity 0.35s ease; width: 100%; height: 100%; object-fit: cover;"
         onload="this.style.opacity='1'; this.parentElement.classList.add('is-loaded');"
       />
-      <span class="label-chip">${escapeHtml(labelChip)}</span>
+      ${labelChipHtml}
       ${badgeHtml}
     </div>
     <div class="mt-4 space-y-2">
