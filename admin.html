@@ -866,7 +866,7 @@
                   <div>
                     <label for="price-original">Old / crossed price (BDT)</label>
                     <input id="price-original" type="number" min="0" placeholder="1200" />
-                    <p class="field-hint">Optional. Put a higher number if you want a discount look (old price crossed out).</p>
+                    <p class="field-hint">Optional. Put a higher number if you want a discount look (old price crossed out). Leave blank if no discount.</p>
                   </div>
                 </div>
 
@@ -921,9 +921,9 @@
                 </div>
 
                 <div>
-                  <label for="product-design">Design highlights (one per line, max 3)</label>
-                  <textarea id="product-design" placeholder="Limited drop artwork&#10;Relaxed silhouette&#10;Soft hand feel"></textarea>
-                  <p class="field-hint">Write up to 3 short bullet points. Press Enter after each line.</p>
+                  <label for="product-description">Product Description (optional)</label>
+                  <textarea id="product-description" rows="4" placeholder="Enter detailed product description here..."></textarea>
+                  <p class="field-hint">Optional product description. Customers can read this in the Description dropdown on the product page.</p>
                 </div>
               </section>
 
@@ -1038,13 +1038,11 @@
                 </div>
                 <div class="map-item">
                   <strong>Product page means</strong>
-                  <span id="map-modal-fields">Photo gallery, material/quality notes, design points, size options, and the built-in size chart table.</span>
+                  <span id="map-modal-fields">Photo gallery, material notes, description dropdown, size options, and size chart table.</span>
                 </div>
                 <div class="map-item">
-                  <strong>Design points preview</strong>
-                  <ul id="preview-design-list">
-                    <li>Add up to three product highlights.</li>
-                  </ul>
+                  <strong>Description preview</strong>
+                  <p id="preview-description" style="margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; white-space: pre-line;">Add product description (optional).</p>
                 </div>
               </div>
             </section>

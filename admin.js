@@ -41,7 +41,7 @@ const previewCurrent = document.getElementById("preview-current");
 const previewOriginal = document.getElementById("preview-original");
 const previewBadge = document.getElementById("preview-badge");
 const previewChip = document.getElementById("preview-chip");
-const previewDesignList = document.getElementById("preview-design-list");
+const previewDescription = document.getElementById("preview-description");
 const productImagesInput = document.getElementById("product-images");
 const imageFilesInput = document.getElementById("product-image-files");
 const uploadProductImagesButton = document.getElementById("upload-product-images");
@@ -139,22 +139,21 @@ function updateDashboardStats() {
 function getPreviewFields() {
   const name = document.getElementById("product-name")?.value.trim();
   const priceCurrent = toNumber(document.getElementById("price-current")?.value);
-  const priceOriginal = toNumber(
-    document.getElementById("price-original")?.value || `${priceCurrent}`,
-  );
+  const priceOriginalVal = document.getElementById("price-original")?.value.trim();
+  const priceOriginal = priceOriginalVal ? toNumber(priceOriginalVal) : 0;
   const badge = document.getElementById("product-badge")?.value.trim();
   const images = parseList(document.getElementById("product-images")?.value);
-  const designPoints = parseList(document.getElementById("product-design")?.value);
+  const description = document.getElementById("product-description")?.value.trim() || "";
   const isFeatured = document.getElementById("category-featured")?.checked;
   const isHot = document.getElementById("category-hot")?.checked;
 
   return {
     name: name || "Product name",
     priceCurrent,
-    priceOriginal: priceOriginal || priceCurrent,
+    priceOriginal: priceOriginal > priceCurrent ? priceOriginal : 0,
     badge: badge || "",
     primaryImage: images[0] || "photos/any.jpeg",
-    designPoints: designPoints.slice(0, 3),
+    description,
     chip: isFeatured ? "Featured" : isHot ? "Hot Selling" : "Product",
   };
 }
@@ -171,7 +170,15 @@ function updatePreview() {
   }
   setText(previewName, preview.name);
   setText(previewCurrent, preview.priceCurrent || 0);
-  setText(previewOriginal, preview.priceOriginal || preview.priceCurrent || 0);
+  if (previewOriginal) {
+    if (preview.priceOriginal > preview.priceCurrent) {
+      previewOriginal.textContent = preview.priceOriginal;
+      previewOriginal.style.display = "inline";
+    } else {
+      previewOriginal.textContent = "";
+      previewOriginal.style.display = "none";
+    }
+  }
   if (previewBadge) {
     if (preview.badge) {
       previewBadge.textContent = preview.badge;
@@ -183,13 +190,8 @@ function updatePreview() {
   }
   setText(previewChip, preview.chip);
 
-  if (previewDesignList) {
-    const items = preview.designPoints.length
-      ? preview.designPoints
-      : ["Add up to three product highlights."];
-    previewDesignList.innerHTML = items
-      .map((item) => `<li>${escapeHtml(item)}</li>`)
-      .join("");
+  if (previewDescription) {
+    previewDescription.textContent = preview.description || "Add product description (optional).";
   }
 }
 
@@ -355,9 +357,8 @@ function getCategoriesFromForm() {
 function getFormData() {
   const name = document.getElementById("product-name").value.trim();
   const priceCurrent = toNumber(document.getElementById("price-current").value);
-  const priceOriginal = toNumber(
-    document.getElementById("price-original").value || `${priceCurrent}`,
-  );
+  const priceOriginalVal = document.getElementById("price-original").value.trim();
+  const priceOriginal = priceOriginalVal ? toNumber(priceOriginalVal) : 0;
   const badge = document.getElementById("product-badge").value.trim();
   const cotton = document.getElementById("product-cotton").value.trim();
   const rawSizes = (document.getElementById("product-sizes")?.value || "").trim();
@@ -366,7 +367,7 @@ function getFormData() {
   const colors = parseList(rawColors.replace(/,/g, "\n"));
   const sizeChartText = (document.getElementById("product-size-chart")?.value || "").trim();
   const imageUrls = parseList(document.getElementById("product-images").value);
-  const designPoints = parseList(document.getElementById("product-design").value);
+  const description = (document.getElementById("product-description")?.value || "").trim();
   const sortOrder = Number.parseInt(
     document.getElementById("product-sort-order").value,
     10,
@@ -387,14 +388,14 @@ function getFormData() {
   return {
     name,
     priceCurrent,
-    priceOriginal: priceOriginal || priceCurrent,
+    priceOriginal: priceOriginal > priceCurrent ? priceOriginal : 0,
     badge: badge || "",
     cotton: cotton || "add details",
     sizes: sizes,
     colors: colors,
     sizeChartText: sizeChartText,
     images: imageUrls,
-    designPoints: designPoints.slice(0, 3),
+    description: description,
     categories,
     featured,
     hotSelling,
@@ -452,7 +453,7 @@ function renderProductList() {
 
       document.getElementById("product-name").value = selected.name || "";
       document.getElementById("price-current").value = selected.priceCurrent || "";
-      document.getElementById("price-original").value = selected.priceOriginal || "";
+      document.getElementById("price-original").value = (selected.priceOriginal && selected.priceOriginal > selected.priceCurrent) ? selected.priceOriginal : "";
       document.getElementById("product-badge").value = selected.badge || "";
       document.getElementById("product-cotton").value = selected.cotton || "";
       const sizesField = document.getElementById("product-sizes");
@@ -474,9 +475,10 @@ function renderProductList() {
       document.getElementById("product-images").value = (
         selected.images || []
       ).join("\n");
-      document.getElementById("product-design").value = (
-        selected.designPoints || []
-      ).join("\n");
+      const descField = document.getElementById("product-description");
+      if (descField) {
+        descField.value = selected.description || (Array.isArray(selected.designPoints) ? selected.designPoints.join("\n") : "");
+      }
       document.getElementById("product-sort-order").value = selected.sortOrder ?? "";
       document.getElementById("product-published").checked =
         selected.isPublished !== false;

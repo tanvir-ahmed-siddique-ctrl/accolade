@@ -2607,62 +2607,18 @@
                 <button id="qty-plus" class="qty-btn" type="button">+</button>
               </div>
             </div>
-            <!-- Modal accordion -->
             <div class="modal-accordion">
               <button
                 type="button"
                 class="modal-accordion-header"
-                data-accordion="info"
+                data-accordion="description"
               >
-                <span>Product Info</span>
+                <span>Product Description</span>
                 <i class="fas fa-chevron-down modal-accordion-icon"></i>
               </button>
-              <div class="modal-accordion-panel" data-accordion-panel="info">
+              <div class="modal-accordion-panel" data-accordion-panel="description">
                 <div class="info-details">
-                  <ul>
-                    <li>
-                      <span class="info-key">Cotton</span>
-                      <span id="modal-cotton" class="info-value"
-                        >Add details</span
-                      >
-                    </li>
-                    <li>
-                      <span class="info-key">Quality</span>
-                      <span id="modal-quality" class="info-value"
-                        >Add details</span
-                      >
-                    </li>
-                    <li>
-                      <span class="info-key">Fabric</span>
-                      <span id="modal-fabric" class="info-value"
-                        >Add details</span
-                      >
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <button
-                type="button"
-                class="modal-accordion-header"
-                data-accordion="about"
-              >
-                <span>Design</span>
-                <i class="fas fa-chevron-down modal-accordion-icon"></i>
-              </button>
-              <div class="modal-accordion-panel" data-accordion-panel="about">
-                <div class="info-details">
-                  <ul id="modal-design-list">
-                    <!-- Replace the three about points below "FOR DESIGN" -->
-                    <li>
-                      <span class="info-value" data-design-item></span>
-                    </li>
-                    <li>
-                      <span class="info-value" data-design-item></span>
-                    </li>
-                    <li>
-                      <span class="info-value" data-design-item></span>
-                    </li>
-                  </ul>
+                  <p id="modal-description" class="description-text" style="white-space: pre-line; margin: 0; color: var(--muted, rgba(255,255,255,0.8)); font-size: 14px; line-height: 1.6;"></p>
                 </div>
               </div>
             </div>
@@ -3973,6 +3929,11 @@
         if (modalCotton) modalCotton.textContent = (card.dataset.cotton || "add details").toLowerCase();
         if (modalQuality) modalQuality.textContent = (card.dataset.quality || "add details").toLowerCase();
         if (modalFabric) modalFabric.textContent = (card.dataset.fabric || "add details").toLowerCase();
+        const modalDescription = document.getElementById("modal-description");
+        if (modalDescription) {
+          const desc = card.dataset.description || card.dataset.cotton || "";
+          modalDescription.textContent = desc || "No description provided.";
+        }
 
         buildSlides(images);
         applyDesignItems(designItems);

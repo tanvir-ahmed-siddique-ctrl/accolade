@@ -185,18 +185,22 @@ function normalizeProduct(docSnap) {
         .split("|")
         .map((item) => item.trim())
         .filter(Boolean);
-  const priceCurrent = toNumber(data.priceCurrent ?? data.price);
-  const priceOriginal = toNumber(data.priceOriginal ?? data.offer, priceCurrent);
-  const discount = calculateDiscount(priceCurrent, priceOriginal);
+  const priceCurrent = toNumber(data.priceCurrent ?? data.price, 0);
+  const rawPriceOriginal = data.priceOriginal ?? data.offer;
+  const priceOriginal = (rawPriceOriginal !== undefined && rawPriceOriginal !== null && rawPriceOriginal !== "") ? toNumber(rawPriceOriginal, 0) : 0;
+  const validPriceOriginal = priceOriginal > priceCurrent ? priceOriginal : 0;
+  const discount = calculateDiscount(priceCurrent, validPriceOriginal);
+  const description = String(data.description || "").trim();
   const categories = getCategories(data);
 
   return {
     id: docSnap.id,
     name: String(data.name || "Unnamed product"),
     priceCurrent,
-    priceOriginal,
+    priceOriginal: validPriceOriginal,
     badge: String(data.badge || "").trim(),
     cotton: String(data.cotton || "add details"),
+    description,
     sizes: Array.isArray(data.sizes)
       ? data.sizes.filter(Boolean)
       : String(data.sizes || "")
@@ -263,11 +267,11 @@ function createProductCard(product) {
   const lqipImage = getOptimizedCloudinaryUrl(rawPrimaryImage, "lqip");
 
   const priceCurrent = toNumber(product.priceCurrent ?? product.price, 0);
-  const priceOriginal = toNumber(
-    product.priceOriginal ?? product.offer,
-    priceCurrent,
-  );
-  const discount = calculateDiscount(priceCurrent, priceOriginal);
+  const rawOriginal = product.priceOriginal ?? product.offer;
+  const priceOriginal = rawOriginal ? toNumber(rawOriginal, 0) : 0;
+  const hasDiscount = priceOriginal > priceCurrent;
+  const priceOriginalHtml = hasDiscount ? `<span class="price-original">${priceOriginal}</span>` : ``;
+  const description = product.description || "";
 
   const categories = Array.isArray(product.categories)
     ? product.categories
@@ -302,23 +306,16 @@ function createProductCard(product) {
         .map((item) => item.trim())
         .filter(Boolean);
 
-  const designPoints = Array.isArray(product.designPoints)
-    ? product.designPoints.filter(Boolean)
-    : String(product.designPoints || "")
-        .split("|")
-        .map((item) => item.trim())
-        .filter(Boolean);
-
   card.dataset.id = product.id || "";
   card.dataset.name = product.name || "Product";
   card.dataset.price = `BDT ${priceCurrent}`;
   card.dataset.priceValue = `${priceCurrent}`;
-  card.dataset.offer = `${priceOriginal}`;
+  card.dataset.offer = hasDiscount ? `${priceOriginal}` : "";
   card.dataset.badge = product.badge || "";
   card.dataset.cotton = product.cotton || "";
+  card.dataset.description = description;
   card.dataset.sizes = sizes.join(",");
   card.dataset.colors = colors.join(",");
-  card.dataset.design = designPoints.join("|");
   card.dataset.images = images.join(",");
 
   const badgeText = String(product.badge || "").trim();
@@ -347,7 +344,7 @@ function createProductCard(product) {
       <h3 class="font-bold text-sm uppercase tracking-wider">${escapeHtml(product.name || "Product")}</h3>
       <div class="price-display">
         <span class="price-currency">BDT</span>
-        <span class="price-original">${priceOriginal}</span>
+        ${priceOriginalHtml}
         <span class="price-current">${priceCurrent}</span>
         ${priceBadgeHtml}
       </div>

@@ -1089,27 +1089,13 @@
           </div>
 
           <div>
-            <button type="button" class="pd-accordion-header" data-accordion="info">
-              <span>Product Info</span>
+            <button type="button" class="pd-accordion-header" data-accordion="description">
+              <span>Description</span>
               <i class="fas fa-chevron-down pd-accordion-icon"></i>
             </button>
-            <div class="pd-accordion-panel" data-accordion-panel="info">
+            <div class="pd-accordion-panel" data-accordion-panel="description">
               <div class="info-details">
-                <ul>
-                  <li>
-                    <span class="info-key">Material</span>
-                    <span id="pd-cotton" class="info-value">Add details</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <button type="button" class="pd-accordion-header" data-accordion="about">
-              <span>Design</span>
-              <i class="fas fa-chevron-down pd-accordion-icon"></i>
-            </button>
-            <div class="pd-accordion-panel" data-accordion-panel="about">
-              <div class="info-details">
-                <ul id="pd-design-list"></ul>
+                <p id="pd-description" class="description-text" style="white-space: pre-line; margin: 0; color: var(--muted, rgba(255,255,255,0.8)); font-size: 14px; line-height: 1.6;"></p>
               </div>
             </div>
           </div>
@@ -1162,15 +1148,25 @@
             if (elTitle) elTitle.textContent = product.name || "";
 
             var priceCur = Number(product.priceCurrent || product.price || 0);
-            var priceOrig = Number(product.priceOriginal || product.offer || priceCur);
+            var priceOrig = Number(product.priceOriginal || product.offer || 0);
+            var hasDisc = priceOrig > priceCur;
 
             var elPrice = document.getElementById("pd-price");
             if (elPrice) elPrice.textContent = String(priceCur);
 
             var elOffer = document.getElementById("pd-offer");
             if (elOffer) {
-              elOffer.textContent = String(priceOrig);
-              elOffer.style.display = priceOrig > priceCur ? "inline-flex" : "none";
+              elOffer.textContent = hasDisc ? String(priceOrig) : "";
+              elOffer.style.display = hasDisc ? "inline-flex" : "none";
+            }
+
+            var elDesc = document.getElementById("pd-description");
+            if (elDesc) {
+              var descStr = product.description || "";
+              if (!descStr && (product.cotton || product.design)) {
+                descStr = (product.cotton ? "Material: " + product.cotton + "\n" : "") + (product.design || "");
+              }
+              elDesc.textContent = descStr.trim() || "No description provided.";
             }
 
             var elBadge = document.getElementById("pd-badge");

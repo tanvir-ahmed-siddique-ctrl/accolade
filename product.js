@@ -91,6 +91,7 @@ const els = {
   badge: document.getElementById("pd-badge"),
   unit: document.getElementById("pd-unit"),
   cotton: document.getElementById("pd-cotton"),
+  description: document.getElementById("pd-description"),
   designList: document.getElementById("pd-design-list"),
   sizeOptions: document.getElementById("pd-size-options"),
   sizeHint: document.getElementById("pd-size-hint"),
@@ -157,17 +158,21 @@ function normalizeProduct(docSnap) {
         .split("|")
         .map((item) => item.trim())
         .filter(Boolean);
-  const priceCurrent = toNumber(data.priceCurrent ?? data.price);
-  const priceOriginal = toNumber(data.priceOriginal ?? data.offer, priceCurrent);
-  const discount = calculateDiscount(priceCurrent, priceOriginal);
+  const priceCurrent = toNumber(data.priceCurrent ?? data.price, 0);
+  const rawPriceOriginal = data.priceOriginal ?? data.offer;
+  const priceOriginal = (rawPriceOriginal !== undefined && rawPriceOriginal !== null && rawPriceOriginal !== "") ? toNumber(rawPriceOriginal, 0) : 0;
+  const validPriceOriginal = priceOriginal > priceCurrent ? priceOriginal : 0;
+  const discount = calculateDiscount(priceCurrent, validPriceOriginal);
+  const description = String(data.description || "").trim();
 
   return {
     id: docSnap.id,
     name: String(data.name || "Unnamed product"),
     priceCurrent,
-    priceOriginal,
+    priceOriginal: validPriceOriginal,
     badge: String(data.badge || "").trim(),
     cotton: String(data.cotton || "add details"),
+    description,
     sizes: Array.isArray(data.sizes)
       ? data.sizes.filter(Boolean)
       : String(data.sizes || "")
@@ -517,9 +522,9 @@ function renderProduct(data, preserveSelection = false) {
 
   if (els.title) els.title.textContent = data.name;
   if (els.offer) {
-    els.offer.textContent = data.priceOriginal;
-    els.offer.style.display =
-      data.priceOriginal > data.priceCurrent ? "inline-flex" : "none";
+    const hasDiscount = data.priceOriginal > data.priceCurrent;
+    els.offer.textContent = hasDiscount ? data.priceOriginal : "";
+    els.offer.style.display = hasDiscount ? "inline-flex" : "none";
   }
   if (els.badge) {
     const bText = String(data.badge || "").trim();
@@ -533,21 +538,15 @@ function renderProduct(data, preserveSelection = false) {
   }
   if (els.cotton) els.cotton.textContent = data.cotton;
 
-  const designPoints = Array.isArray(data.designPoints)
-    ? data.designPoints.filter(Boolean)
-    : String(data.designPoints || "")
-        .split("|")
-        .map((point) => point.trim())
-        .filter(Boolean);
-
-  if (els.designList) {
-    const points = designPoints.length
-      ? designPoints
-      : ["Premium craftsmanship", "Refined silhouette", "Signature Accolade detailing"];
-    els.designList.innerHTML = points
-      .slice(0, 6)
-      .map((point) => `<li><span class="info-value">${escapeHtml(point)}</span></li>`)
-      .join("");
+  if (els.description) {
+    let descText = data.description;
+    if (!descText && (data.cotton || (data.designPoints && data.designPoints.length))) {
+      const parts = [];
+      if (data.cotton && data.cotton !== "add details") parts.push(`Material: ${data.cotton}`);
+      if (data.designPoints && data.designPoints.length) parts.push(data.designPoints.join("\n"));
+      descText = parts.join("\n\n");
+    }
+    els.description.textContent = descText || "No description provided.";
   }
 
   buildGallery(data.images);
