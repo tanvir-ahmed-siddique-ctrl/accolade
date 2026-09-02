@@ -287,8 +287,8 @@
         transform: translateY(1px);
       }
       .section-title {
-        font-size: 22px;
-        font-weight: 450;
+        font-size: 26px;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.12em;
         color: var(--brown);
@@ -300,7 +300,7 @@
         padding: 6px 14px;
         border-radius: 999px;
         font-size: 10px;
-        font-weight: 700;
+        font-weight: 500;
         font-family: "Poppins", sans-serif;
         text-transform: uppercase;
         letter-spacing: 0.15em;
@@ -1745,18 +1745,18 @@
         flex-wrap: wrap;
       }
       .price-currency {
-        font-weight: 700;
+        font-weight: 500;
         color: var(--price);
       }
       .price-original {
-        font-weight: 600;
+        font-weight: 400;
         color: var(--price);
         text-decoration: line-through;
         text-decoration-thickness: 1px;
         text-decoration-color: #ffffff;
       }
       .price-current {
-        font-weight: 800;
+        font-weight: 500;
         font-size: 1.05em;
         color: var(--price);
       }
@@ -1764,7 +1764,7 @@
         background: #c4342f;
         color: #fff;
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.12em;
         padding: 4px 10px;
@@ -2402,9 +2402,9 @@
           <!-- LEFT: Order summary -->
           <div class="w-full md:w-1/3 order-1 md:order-1">
             <div class="summary-card p-6 space-y-4 sticky top-28">
-              <h2 class="text-xl font-black uppercase tracking-widest mb-2">Order summary</h2>
+              <h2 class="section-title text-xl mb-2">Order summary</h2>
               <div id="cart-display" class="space-y-3 text-sm"></div>
-              <div class="border-t border-dashed border-white/20 pt-4 space-y-2 text-sm font-semibold">
+              <div class="border-t border-dashed border-white/20 pt-4 space-y-2 text-sm font-normal">
                 <div class="flex justify-between">
                   <span>Subtotal</span>
                   <span id="display-subtotal" class="price-text">0 Tk</span>
@@ -2421,7 +2421,7 @@
                   <span>Delivery fee</span>
                   <span id="display-delivery" class="price-text">0 Tk</span>
                 </div>
-                <div class="flex justify-between text-lg font-black pt-2 border-t border-dashed border-white/20 mt-2">
+                <div class="flex justify-between text-lg font-semibold pt-2 border-t border-dashed border-white/20 mt-2">
                   <span>Amount payable</span>
                   <span id="display-final-total" class="price-text">0 Tk</span>
                 </div>
@@ -2434,7 +2434,7 @@
 
             <!-- Step 1: Shipping -->
             <div id="step-shipping" class="panel-card p-8 fade-in">
-              <h2 class="text-xl font-black uppercase mb-6 tracking-widest">Shipping details</h2>
+              <h2 class="section-title text-xl mb-6">Shipping details</h2>
               <div class="grid grid-cols-1 gap-5">
                 <div>
                   <label class="form-label">Email address</label>
@@ -2478,14 +2478,14 @@
             <!-- Step 2: Payment -->
             <div id="step-payment" class="hidden-section panel-card p-8 fade-in">
               <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black uppercase tracking-widest">Payment</h2>
+                <h2 class="section-title text-xl">Payment</h2>
                 <button type="button" onclick="backToShipping()" class="text-xs underline opacity-60">Edit shipping</button>
               </div>
 
               <div class="bg-[#e2136e] text-white p-6 rounded-xl mb-6 text-center relative overflow-hidden">
                 <div class="absolute -top-10 -left-10 w-32 h-32 bg-white opacity-10 rounded-full"></div>
                 <p class="text-sm font-medium opacity-90 mb-1">Accolade.clo Bkash number</p>
-                <h3 class="text-3xl font-bold tracking-widest mb-2 select-all">01601502253</h3>
+                <h3 class="text-2xl font-semibold tracking-widest mb-2 select-all">01601502253</h3>
                 <p class="text-xs opacity-80">"Send Money" (personal) - Reference: ACCOLADE.CLO</p>
               </div>
 
@@ -2498,7 +2498,7 @@
                     name="Last 4 Digits"
                     id="inp-last4"
                     required
-                    class="w-full border-2 border-white/20 rounded-lg py-3 px-4 focus:outline-none focus:border-[#e2136e] font-bold text-lg bg-white/10 text-white"
+                    class="w-full border-2 border-white/20 rounded-lg py-3 px-4 focus:outline-none focus:border-[#e2136e] font-medium text-lg bg-white/10 text-white"
                     placeholder="1234"
                   />
                 </div>
@@ -2519,7 +2519,7 @@
         <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl">
           <i class="fas fa-check"></i>
         </div>
-        <h2 class="text-3xl font-black uppercase mb-4">Order received</h2>
+        <h2 class="section-title text-3xl mb-4">Order received</h2>
         <p class="opacity-70 max-w-md mx-auto mb-8">
           We have received your details and payment info! We will contact you shortly to confirm.
         </p>

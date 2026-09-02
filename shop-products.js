@@ -341,7 +341,7 @@ function createProductCard(product) {
       ${badgeHtml}
     </div>
     <div class="mt-4 space-y-2">
-      <h3 class="font-bold text-sm uppercase tracking-wider">${escapeHtml(product.name || "Product")}</h3>
+      <h3 class="font-medium text-sm uppercase tracking-wider">${escapeHtml(product.name || "Product")}</h3>
       <div class="price-display">
         <span class="price-currency">BDT</span>
         ${priceOriginalHtml}
