@@ -1,12 +1,14 @@
-import { collection, db, getDocs } from "./firebase-config.js";
+import { collection, db, getDocs } from "./storefront-firebase.js";
 
 const PRODUCTS_COLLECTION = "products";
+const PROMO_CODES_COLLECTION = "promoCodes";
 const CACHE_KEY_V2 = "accolade_products_v3";
 const CACHE_KEY_LEGACY = "accolade_products_cache";
 const ACTIVE_PRODUCT_KEY = "accolade_selected_product_v2";
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour TTL
 
 let currentRenderedFingerprint = "";
+let eagerImageBudget = 6;
 
 export function getOptimizedCloudinaryUrl(url, mode = "card") {
   if (!url || typeof url !== "string") return url || "photos/any.jpeg";
@@ -14,21 +16,20 @@ export function getOptimizedCloudinaryUrl(url, mode = "card") {
     return url;
   }
 
-  let transform = "f_auto,q_auto,w_600,c_limit";
+  let transform = "f_auto,q_auto:eco,w_480,dpr_auto,c_limit";
   if (mode === "lqip") {
-    transform = "f_auto,q_10,w_80,e_blur:200,c_limit";
+    transform = "f_auto,q_1,w_40,e_blur:250,c_limit";
   } else if (mode === "thumb") {
-    transform = "f_auto,q_auto,w_200,c_limit";
+    transform = "f_auto,q_auto:eco,w_120,dpr_auto,c_limit";
   } else if (mode === "gallery") {
-    transform = "f_auto,q_auto,w_1000,c_limit";
+    transform = "f_auto,q_auto:eco,w_900,dpr_auto,c_limit";
   } else if (mode === "zoom") {
-    transform = "f_auto,q_auto,w_1800,c_limit";
+    transform = "f_auto,q_auto,w_1600,c_limit";
   } else if (mode === "card") {
-    transform = "f_auto,q_auto,w_600,c_limit";
+    transform = "f_auto,q_auto:eco,w_480,dpr_auto,c_limit";
   }
 
-  // Replace /upload/ or /upload/v12345/ with /upload/{transform}/
-  return url.replace(/\/upload\/(?:[^\/]+\/)?/, `/upload/${transform}/`);
+  return url.replace("/upload/", `/upload/${transform}/`);
 }
 
 function getCachedProducts() {
@@ -70,7 +71,7 @@ function generateFingerprint(products) {
       const img = Array.isArray(p.images) ? p.images[0] : "";
       const sizes = Array.isArray(p.sizes) ? p.sizes.join(",") : "";
       const colors = Array.isArray(p.colors) ? p.colors.join(",") : "";
-      return `${p.id}:${p.name}:${p.priceCurrent}:${p.priceOriginal}:${img}:${sizes}:${colors}:${p.badge}:${p.cotton}:${p.sortOrder}:${p.isPublished}`;
+      return `${p.id}:${p.name}:${p.priceCurrent}:${p.priceOriginal}:${img}:${sizes}:${colors}:${p.badge}:${p.cotton}:${p.sizeChartImage || ""}:${p.sortOrder}:${p.isPublished}`;
     })
     .join("|");
 }
@@ -214,6 +215,7 @@ function normalizeProduct(docSnap) {
           .map((item) => item.trim())
           .filter(Boolean),
     sizeChartText: String(data.sizeChartText || ""),
+    sizeChartImage: String(data.sizeChartImage || "").trim(),
     images,
     designPoints,
     categories,
@@ -265,6 +267,8 @@ function createProductCard(product) {
   const rawPrimaryImage = images[0] || "photos/any.jpeg";
   const primaryImage = getOptimizedCloudinaryUrl(rawPrimaryImage, "card");
   const lqipImage = getOptimizedCloudinaryUrl(rawPrimaryImage, "lqip");
+  const isPriorityImage = eagerImageBudget > 0;
+  if (isPriorityImage) eagerImageBudget -= 1;
 
   const priceCurrent = toNumber(product.priceCurrent ?? product.price, 0);
   const rawOriginal = product.priceOriginal ?? product.offer;
@@ -279,14 +283,6 @@ function createProductCard(product) {
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean);
-
-  const isHotSelling =
-    categories.includes("hot-selling") ||
-    categories.includes("hotselling") ||
-    product.hotSelling === true;
-
-  // Never show "Featured" badge on product boxes now or in the future
-  const labelChip = isHotSelling ? "Hot Selling" : "";
 
   const card = document.createElement("article");
   card.className = "product-card info-card";
@@ -316,10 +312,6 @@ function createProductCard(product) {
   const priceBadgeHtml = badgeText
     ? `<span class="price-badge">${escapeHtml(badgeText)}</span>`
     : "";
-  const labelChipHtml = labelChip
-    ? `<span class="label-chip">${escapeHtml(labelChip)}</span>`
-    : "";
-
   card.dataset.id = product.id || "";
   card.dataset.name = product.name || "Product";
   card.dataset.price = `BDT ${priceCurrent}`;
@@ -331,19 +323,20 @@ function createProductCard(product) {
   card.dataset.sizes = sizes.join(",");
   card.dataset.colors = colors.join(",");
   card.dataset.images = images.join(",");
+  card.dataset.sizeChartImage = product.sizeChartImage || "";
 
   card.innerHTML = `
-    <div class="product-image" style="background:rgba(255,255,255,0.04);position:relative;overflow:hidden;">
+    <div class="product-image" style="background-color:rgba(255,255,255,0.04);background-image:url('${lqipImage}');background-size:cover;background-position:center;position:relative;overflow:hidden;">
       <img
         src="${primaryImage}"
         alt="${escapeHtml(product.name || "Product")}"
-        loading="lazy"
+        loading="${isPriorityImage ? "eager" : "lazy"}"
+        fetchpriority="${isPriorityImage ? "high" : "auto"}"
         decoding="async"
         class="product-card-img"
         style="opacity: 0; transition: opacity 0.35s ease; width: 100%; height: 100%; object-fit: cover;"
         onload="this.style.opacity='1'; this.parentElement.classList.add('is-loaded');"
       />
-      ${labelChipHtml}
       ${badgeHtml}
     </div>
     <div class="mt-4 space-y-2">
@@ -407,6 +400,7 @@ function renderProducts(products, force = false) {
     return;
   }
   currentRenderedFingerprint = newFingerprint;
+  eagerImageBudget = 6;
 
   const featuredProducts = products.filter((product) => {
     const cats = Array.isArray(product.categories)
@@ -421,9 +415,34 @@ function renderProducts(products, force = false) {
     return cats.includes("hot-selling");
   });
 
+  const featuredSection = featuredGrid?.closest("section");
+  const hotSection = hotGrid?.closest("section");
+  if (featuredSection) featuredSection.hidden = featuredProducts.length === 0;
+  if (hotSection) hotSection.hidden = hotProducts.length === 0;
+
   renderIntoGrid(featuredGrid, featuredProducts, "No featured products yet.");
   renderIntoGrid(allGrid, products, "No products found.");
   renderIntoGrid(hotGrid, hotProducts, "No hot selling products yet.");
+}
+
+async function loadPromoCodes() {
+  try {
+    const snapshot = await getDocs(collection(db, PROMO_CODES_COLLECTION));
+    const promoCodes = snapshot.docs.reduce((codes, promoDoc) => {
+      const data = promoDoc.data() || {};
+      const code = String(data.code || promoDoc.id).trim().toUpperCase();
+      const percent = Number(data.percent);
+      if (code && data.isActive !== false && Number.isFinite(percent) && percent > 0 && percent <= 100) {
+        codes[code] = percent;
+      }
+      return codes;
+    }, {});
+    window.accoladePromoCodes = promoCodes;
+    window.dispatchEvent(new CustomEvent("accolade:promo-codes-ready", { detail: promoCodes }));
+  } catch (error) {
+    console.error("Failed to load promo codes", error);
+    window.accoladePromoCodes = {};
+  }
 }
 
 async function loadProducts() {
@@ -475,7 +494,11 @@ async function loadProducts() {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", loadProducts);
+  document.addEventListener("DOMContentLoaded", () => {
+    loadProducts();
+    loadPromoCodes();
+  });
 } else {
   loadProducts();
+  loadPromoCodes();
 }

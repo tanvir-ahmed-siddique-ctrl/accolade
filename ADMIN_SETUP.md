@@ -20,6 +20,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == "YOUR_ADMIN_UID";
     }
+    match /promoCodes/{promoCodeId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == "YOUR_ADMIN_UID";
+    }
   }
 }
 ```
@@ -29,7 +33,7 @@ service cloud.firestore {
 1. Zip this project and drag-drop into Netlify.
 2. Keep these files/folders in upload:
    - `index.html`, `shop.html`, `admin.html`
-   - `admin.js`, `shop-products.js`, `firebase-config.js`
+   - `admin.js`, `shop-products.js`, `firebase-config.js`, `storefront-firebase.js`
    - `netlify.toml`
    - `netlify/functions/cloudinary-signature.js`
    - `photos/` and static assets
@@ -84,7 +88,7 @@ Dashboard now supports direct upload:
 
 - Select image file(s) in admin form
 - Click **Upload images** → URLs auto-added under “paste the URL”
-- Size chart is built into the product page (no URL upload needed)
+- Product photos and optional size-chart artwork can both be uploaded securely
 
 Uploads are signed by Netlify function, so API secret stays private.
 
@@ -94,6 +98,7 @@ Uploads are signed by Netlify function, so API secret stays private.
 - Sign in with admin email/password
 - Follow steps 1–4 (card info → details → photos → publish)
 - Prefer **Upload images**; only paste URLs if you already have them
+- Add or edit checkout promo codes from the **Promo codes** panel
 - Click **Save product**
 - Product appears on `shop.html` (Firestore-driven)
 

@@ -298,6 +298,25 @@
         margin: 0 auto;
         line-height: 1.78;
       }
+      .story-card {
+        max-width: 760px;
+        margin: 0 auto 40px;
+        padding: clamp(24px, 5vw, 48px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        background: rgba(15, 15, 15, 0.55);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+      }
+      .story-card p {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        font-size: clamp(14px, 1.8vw, 16px);
+        line-height: 1.9;
+        color: rgba(255, 255, 255, 0.78);
+      }
+      .story-card p + p {
+        margin-top: 1.55em;
+      }
 
       /* Glass cards */
       .cards-grid {
@@ -498,56 +517,17 @@
     <main class="page-main">
       <!-- Hero -->
       <section class="page-hero">
-        <p class="page-kicker">About Accolade</p>
-        <h1 class="page-title">Wear Your<br>Accolade.</h1>
-        <p class="page-sub">Accolade.clo is a Dhaka-based clothing label focused on premium comfort, clean detailing, and limited drops that stay wearable beyond trends.</p>
+        <p class="page-kicker">Our story</p>
+        <h1 class="page-title">About Accolade</h1>
       </section>
 
-      <!-- Cards -->
-      <div class="cards-grid">
-        <div class="glass-card">
-          <p class="card-kicker">Who we are</p>
-          <h2 class="card-title">Our Direction</h2>
-          <div class="card-body">
-            <p>We design around fit, fabric feel, and repeat usability. Every release is curated in small runs to keep quality tight and product identity clear. No mass production — each drop is deliberate.</p>
-          </div>
-        </div>
-        <div class="glass-card">
-          <p class="card-kicker">Principles</p>
-          <h2 class="card-title">What We Value</h2>
-          <div class="card-body">
-            <ul>
-              <li>Honest fabric and sizing communication</li>
-              <li>Comfort-first cuts for daily movement</li>
-              <li>Reliable support before and after purchase</li>
-              <li>Limited, considered drops over quantity</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="stats-strip">
-        <div class="stat-item">
-          <span class="stat-num">460</span>
-          <span class="stat-label">GSM Fleece</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">100%</span>
-          <span class="stat-label">Quality Cotton</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">Dhaka</span>
-          <span class="stat-label">Made in Bangladesh</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">2024</span>
-          <span class="stat-label">Est.</span>
-        </div>
-      </div>
+      <article class="story-card">
+        <p>Unlike many fashion brands, Accolade did not begin with a business plan or the ambition of building a global company. It started as an idea born out of a simple frustration: why should world-class streetwear only belong to a few luxury houses, worn by the few people who could afford it?</p>
+        <p>In 2025, Atiqul Haque founded Accolade from a small house in Bangladesh. No big studio. No outside funding. Just a clear intention to bring the design language he grew up admiring back home and make it something every person in Bangladesh could actually wear.</p>
+        <p>The name Accolade was chosen to mean recognition. Not recognition given by hype or by a logo everyone already knows, but recognition built through quality, design, and honest pricing. It represents the belief that people deserve to be seen and to feel a sense of achievement in what they wear, regardless of what they can afford.</p>
+        <p>Over time, that meaning has grown alongside the brand itself. What started as one person’s obsession with streetwear culture has become a mission: to make modern streetwear reachable for every person in Bangladesh, from a university student to a working professional.</p>
+        <p>Today, Accolade is built around the idea that clothing can be more than just fashion. Through detailed artwork, embroidery, craftsmanship, and vintage wash, the brand aims to create pieces that tell stories and celebrate the beauty found across different cultures and perspectives, all while staying reachable for every person in Bangladesh.</p>
+      </article>
     </main>
 
     <!-- Footer -->

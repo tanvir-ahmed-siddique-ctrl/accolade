@@ -8,8 +8,11 @@
     <link rel="dns-prefetch" href="https://res.cloudinary.com" />
     <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="modulepreload" href="product.js" />
+    <link rel="modulepreload" href="storefront-firebase.js" />
     <link rel="preload" as="image" href="photos/main_bg.jpeg" />
     <style>
       html, body {
@@ -638,7 +641,8 @@
       .pd-accordion-header {
         width: 100%;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
+        gap: 10px;
         align-items: center;
         padding: 14px 0;
         border: none;
@@ -662,6 +666,21 @@
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.25s ease;
+      }
+      .pd-description-block {
+        padding: 16px 18px;
+        border: 1px solid rgba(223, 183, 108, 0.24);
+        border-left: 3px solid var(--price);
+        border-radius: 12px;
+        background: linear-gradient(90deg, rgba(223, 183, 108, 0.1), rgba(255, 255, 255, 0.025));
+      }
+      .pd-description-title {
+        margin: 0 0 12px;
+        color: var(--price);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
       }
       .info-details ul {
         list-style: none;
@@ -709,6 +728,18 @@
         border-radius: 16px;
         background: rgba(20, 20, 20, 0.45);
         overflow: hidden;
+      }
+      .size-chart-figure {
+        margin: 0;
+        padding: 12px 12px 0;
+      }
+      .size-chart-figure img {
+        display: block;
+        width: 100%;
+        max-height: 520px;
+        object-fit: contain;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
       }
       .size-chart-title {
         padding: 14px 16px 10px;
@@ -1089,20 +1120,11 @@
             <p class="pd-color-hint" id="pd-color-hint" hidden></p>
           </div>
 
-          <div>
-            <button type="button" class="pd-accordion-header" data-accordion="description">
-              <span>Product Description</span>
-              <i class="fas fa-chevron-down pd-accordion-icon"></i>
-            </button>
-            <div class="pd-accordion-panel" data-accordion-panel="description">
-              <div class="info-details">
-                <p id="pd-description" class="description-text" style="white-space: pre-line; margin: 0; color: var(--muted, rgba(255,255,255,0.8)); font-size: 14px; line-height: 1.6;"></p>
-              </div>
-            </div>
-          </div>
-
           <div class="size-chart-box" aria-label="Size chart">
             <p class="size-chart-title">Size chart</p>
+            <figure id="pd-size-chart-figure" class="size-chart-figure" hidden>
+              <img id="pd-size-chart-image" alt="" loading="lazy" decoding="async" />
+            </figure>
             <div id="pd-size-chart-container" style="overflow-x: auto;"></div>
           </div>
 
@@ -1113,7 +1135,11 @@
             <button id="pd-buy" class="btn-primary" type="button">
               Buy now <i class="fas fa-arrow-right text-xs"></i>
             </button>
-            <a class="btn-outline" href="shop.html">Continue shopping</a>
+          </div>
+
+          <div class="pd-description-block">
+            <h2 class="pd-description-title">Product Description</h2>
+            <p id="pd-description" class="description-text" style="white-space: pre-line; margin: 0; color: var(--muted, rgba(255,255,255,0.8)); font-size: 14px; line-height: 1.6;"></p>
           </div>
         </div>
       </div>
@@ -1133,7 +1159,7 @@
               if (candidate && candidate.id === id) product = candidate;
             }
             if (!product) {
-              var cacheRaw = sessionStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_cache");
+              var cacheRaw = sessionStorage.getItem("accolade_products_v3") || localStorage.getItem("accolade_products_v3") || localStorage.getItem("accolade_products_cache");
               if (cacheRaw) {
                 var cacheParsed = JSON.parse(cacheRaw);
                 var list = Array.isArray(cacheParsed.products) ? cacheParsed.products : (Array.isArray(cacheParsed) ? cacheParsed : []);

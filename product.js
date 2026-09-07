@@ -1,4 +1,10 @@
-import { db, doc, getDoc } from "./firebase-config.js";
+import { db, doc, getDoc } from "./storefront-firebase.js";
+
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+window.scrollTo(0, 0);
+window.addEventListener("pageshow", () => window.scrollTo(0, 0), { once: true });
 
 const PRODUCTS_COLLECTION = "products";
 const CACHE_KEY_V2 = "accolade_products_v3";
@@ -23,20 +29,20 @@ export function getOptimizedCloudinaryUrl(url, mode = "gallery") {
     return url;
   }
 
-  let transform = "f_auto,q_auto,w_1000,c_limit";
+  let transform = "f_auto,q_auto:eco,w_900,dpr_auto,c_limit";
   if (mode === "lqip") {
-    transform = "f_auto,q_10,w_80,e_blur:200,c_limit";
+    transform = "f_auto,q_1,w_40,e_blur:250,c_limit";
   } else if (mode === "thumb") {
-    transform = "f_auto,q_auto,w_200,c_limit";
+    transform = "f_auto,q_auto:eco,w_120,dpr_auto,c_limit";
   } else if (mode === "gallery") {
-    transform = "f_auto,q_auto,w_1000,c_limit";
+    transform = "f_auto,q_auto:eco,w_900,dpr_auto,c_limit";
   } else if (mode === "zoom") {
-    transform = "f_auto,q_auto,w_1800,c_limit";
+    transform = "f_auto,q_auto,w_1600,c_limit";
   } else if (mode === "card") {
-    transform = "f_auto,q_auto,w_600,c_limit";
+    transform = "f_auto,q_auto:eco,w_480,dpr_auto,c_limit";
   }
 
-  return url.replace(/\/upload\/(?:[^\/]+\/)?/, `/upload/${transform}/`);
+  return url.replace("/upload/", `/upload/${transform}/`);
 }
 
 function escapeHtml(value) {
@@ -141,7 +147,7 @@ function generateSingleProductFingerprint(p) {
   const sizes = Array.isArray(p.sizes) ? p.sizes.join(",") : "";
   const colors = Array.isArray(p.colors) ? p.colors.join(",") : "";
   const design = Array.isArray(p.designPoints) ? p.designPoints.join("|") : "";
-  return `${p.id}:${p.name}:${p.priceCurrent}:${p.priceOriginal}:${p.badge || ""}:${p.cotton}:${images}:${sizes}:${colors}:${design}:${p.sizeChartText || ""}`;
+  return `${p.id}:${p.name}:${p.priceCurrent}:${p.priceOriginal}:${p.badge || ""}:${p.cotton}:${images}:${sizes}:${colors}:${design}:${p.sizeChartText || ""}:${p.sizeChartImage || ""}`;
 }
 
 function normalizeProduct(docSnap) {
@@ -186,6 +192,7 @@ function normalizeProduct(docSnap) {
           .map((item) => item.trim())
           .filter(Boolean),
     sizeChartText: String(data.sizeChartText || ""),
+    sizeChartImage: String(data.sizeChartImage || "").trim(),
     images,
     designPoints,
     isPublished: data.isPublished !== false,
@@ -262,11 +269,12 @@ function updateSlider() {
     thumbs.forEach((thumb, index) => {
       const isActive = index === slideIndex;
       thumb.classList.toggle("is-active", isActive);
-      if (isActive) {
-        thumb.scrollIntoView({
+      if (isActive && els.thumbs) {
+        const centeredLeft =
+          thumb.offsetLeft - (els.thumbs.clientWidth - thumb.offsetWidth) / 2;
+        els.thumbs.scrollTo({
+          left: Math.max(0, centeredLeft),
           behavior: "smooth",
-          block: "nearest",
-          inline: "center",
         });
       }
     });
@@ -300,16 +308,26 @@ function buildGallery(images) {
 
   items.forEach((rawSrc, index) => {
     const gallerySrc = getOptimizedCloudinaryUrl(rawSrc, "gallery");
+    const lqipSrc = getOptimizedCloudinaryUrl(rawSrc, "lqip");
     const thumbSrc = getOptimizedCloudinaryUrl(rawSrc, "thumb");
     const zoomSrc = getOptimizedCloudinaryUrl(rawSrc, "zoom");
 
     const slide = document.createElement("div");
     slide.className = "pd-slide";
+    slide.style.backgroundImage = `url("${lqipSrc}")`;
+    slide.style.backgroundSize = "cover";
+    slide.style.backgroundPosition = "center";
     const img = document.createElement("img");
     img.src = gallerySrc;
     img.alt = `Product image ${index + 1}`;
     img.loading = index === 0 ? "eager" : "lazy";
+    img.fetchPriority = index === 0 ? "high" : "auto";
     img.decoding = "async";
+    img.style.opacity = "0";
+    img.style.transition = "opacity 0.25s ease";
+    img.addEventListener("load", () => {
+      img.style.opacity = "1";
+    });
     img.addEventListener("click", () => openLightbox(zoomSrc));
     slide.appendChild(img);
     els.track.appendChild(slide);
@@ -428,6 +446,20 @@ function buildSizeChart(sizeChartText) {
       </tbody>
     </table>
   `;
+}
+
+function buildSizeChartImage(imageUrl, productName = "Product") {
+  const figure = document.getElementById("pd-size-chart-figure");
+  const image = document.getElementById("pd-size-chart-image");
+  if (!figure || !image) return;
+  if (!imageUrl) {
+    figure.hidden = true;
+    image.removeAttribute("src");
+    return;
+  }
+  image.src = getOptimizedCloudinaryUrl(imageUrl, "gallery");
+  image.alt = `${productName} size guide`;
+  figure.hidden = false;
 }
 
 function buildColorOptions(colors = []) {
@@ -553,6 +585,7 @@ function renderProduct(data, preserveSelection = false) {
   buildSizeOptions(data.sizes);
   buildColorOptions(data.colors);
   buildSizeChart(data.sizeChartText);
+  buildSizeChartImage(data.sizeChartImage, data.name);
   updateTotals();
 
   if (els.skeleton) els.skeleton.hidden = true;

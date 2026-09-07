@@ -8,8 +8,11 @@
     <link rel="dns-prefetch" href="https://res.cloudinary.com" />
     <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="modulepreload" href="shop-products.js" />
+    <link rel="modulepreload" href="storefront-firebase.js" />
     <link rel="preload" as="image" href="photos/main_bg.jpeg" />
     <style>
       html, body {
@@ -18,7 +21,7 @@
     </style>
     <script>
       try {
-        var rawCache = sessionStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_v2") || localStorage.getItem("accolade_products_cache");
+        var rawCache = sessionStorage.getItem("accolade_products_v3") || localStorage.getItem("accolade_products_v3") || localStorage.getItem("accolade_products_cache");
         if (!rawCache) {
           document.documentElement.classList.add("firebase-products-loading");
         }
@@ -457,6 +460,15 @@
         position: relative;
         overflow: hidden;
         margin: 0;
+      }
+      @media (max-width: 768px) {
+        .product-card {
+          border-radius: 0;
+        }
+        .product-image {
+          aspect-ratio: 1 / 1;
+          border-radius: 0;
+        }
       }
       .product-card > .mt-4 {
         margin-top: 8px;
@@ -919,7 +931,8 @@
         width: 100%;
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
+        gap: 10px;
         padding: 8px 2px;
         font-size: 11px;
         font-weight: 600;
@@ -952,6 +965,21 @@
       }
       .modal-info .modal-accordion-panel.is-active {
         padding: 8px 0 2px;
+      }
+      .modal-description-block {
+        padding: 14px 16px;
+        border: 1px solid rgba(122, 106, 79, 0.25);
+        border-left: 3px solid var(--brown);
+        border-radius: 12px;
+        background: linear-gradient(90deg, rgba(122, 106, 79, 0.12), rgba(255, 255, 255, 0.18));
+      }
+      .modal-description-title {
+        margin: 0 0 12px;
+        color: var(--brown);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
       }
       .modal-quantity {
         display: flex;
@@ -1375,10 +1403,11 @@
         .product-card {
           --card-pad: 6px;
           padding: 0;
-          border-radius: 16px;
+          border-radius: 0;
         }
         .product-image {
           border-radius: 0;
+          aspect-ratio: 1 / 1;
         }
         .product-image .label-chip {
           font-size: 8px;
@@ -2396,9 +2425,12 @@
         
         <!-- Order Details (Populated by Javascript) -->
         <input type="hidden" name="Items Ordered" id="final-cart-items">
+        <input type="hidden" name="Selected Sizes" id="final-cart-sizes">
+        <input type="hidden" name="Selected Colours" id="final-cart-colours">
         <input type="hidden" name="Subtotal (after discount)" id="final-total-without-delivery">
         <input type="hidden" name="Total Amount (including delivery)" id="final-total-amount">
         <input type="hidden" name="Promo Code Used" id="final-promo-code">
+        <input type="hidden" name="Promo Discount" id="final-promo-discount">
 
         <div class="flex flex-col md:flex-row gap-8 mt-8">
 
@@ -2428,6 +2460,14 @@
                   <span>Amount payable</span>
                   <span id="display-final-total" class="price-text">0 Tk</span>
                 </div>
+              </div>
+              <div id="promo-section" class="border-t border-white/15 pt-4">
+                <label class="form-label" for="promo-code">Promo code</label>
+                <div class="flex gap-2">
+                  <input id="promo-code" class="form-input" type="text" autocomplete="off" placeholder="Enter code" />
+                  <button id="promo-apply" class="btn-outline" type="button">Apply</button>
+                </div>
+                <p id="promo-message" class="promo-message mt-2" aria-live="polite"></p>
               </div>
             </div>
           </div>
@@ -2611,21 +2651,6 @@
                 <button id="qty-plus" class="qty-btn" type="button">+</button>
               </div>
             </div>
-            <div class="modal-accordion">
-              <button
-                type="button"
-                class="modal-accordion-header"
-                data-accordion="description"
-              >
-                <span>Product Description</span>
-                <i class="fas fa-chevron-down modal-accordion-icon"></i>
-              </button>
-              <div class="modal-accordion-panel" data-accordion-panel="description">
-                <div class="info-details">
-                  <p id="modal-description" class="description-text" style="white-space: pre-line; margin: 0; color: var(--muted, rgba(255,255,255,0.8)); font-size: 14px; line-height: 1.6;"></p>
-                </div>
-              </div>
-            </div>
             <!---------------------- 2 PAIRS LINE OVER "SIZE CHART" ---------------->
             <div class="modal-quick-info">
               <div class="modal-quick-item">
@@ -2673,9 +2698,10 @@
               <button id="modal-buy" class="btn-primary" type="button">
                 Buy now <i class="fas fa-arrow-right text-xs"></i>
               </button>
-                            <button class="btn-outline" type="button" data-modal-close style="color:#ffffff !important; border-color:rgba(255,255,255,0.5) !important; background:transparent !important;">
-                Continue Shopping
-              </button>
+            </div>
+            <div class="modal-description-block">
+              <h4 class="modal-description-title">Product Description</h4>
+              <p id="modal-description" class="description-text" style="white-space: pre-line; margin: 0; color: var(--muted, rgba(255,255,255,0.8)); font-size: 14px; line-height: 1.6;"></p>
             </div>
           </div>
         </div>
@@ -2742,6 +2768,7 @@
       let cart = [];
       let subtotal = 0;
       let promoApplied = false;
+      let appliedPromoPercent = 0;
       let toastTimer = null;
 
       function saveCart() {
@@ -2772,7 +2799,7 @@
       const promoInput = document.getElementById("promo-code");
       const promoButton = document.getElementById("promo-apply");
       const promoMessage = document.getElementById("promo-message");
-      const discountRow = document.getElementById("discount-row");
+      const discountRow = document.getElementById("display-discount-row");
       const discountValue = document.getElementById("display-discount");
       const cartModalDiscountRow = document.getElementById(
         "cart-modal-discount-row",
@@ -3086,7 +3113,9 @@
         const citySelector = document.getElementById("city-selector");
         const city = citySelector ? citySelector.value : "Dhaka";
         const deliveryFee = city === "Dhaka" ? 80 : 130;
-        const promoDiscount = promoApplied ? Math.round(subtotal * 0.05) : 0;
+        const promoDiscount = promoApplied
+          ? Math.round(subtotal * (appliedPromoPercent / 100))
+          : 0;
         const totalAfterDiscount = subtotal - promoDiscount;
         const finalTotal = totalAfterDiscount + deliveryFee;
 
@@ -3132,6 +3161,12 @@
           promoCodeField.value =
             promoApplied && promoInput ? promoInput.value : "None";
         }
+        const promoDiscountField = document.getElementById("final-promo-discount");
+        if (promoDiscountField) {
+          promoDiscountField.value = promoApplied
+            ? `${appliedPromoPercent}% (-${promoDiscount} Tk)`
+            : "None";
+        }
         const finalCartItems = document.getElementById("final-cart-items");
         if (finalCartItems) {
           finalCartItems.value = cart
@@ -3141,6 +3176,18 @@
               const qtyLabel = i.quantity > 1 ? ` x${i.quantity}` : "";
               return `${i.name}${sizeLabel}${colorLabel}${qtyLabel}`;
             })
+            .join(", ");
+        }
+        const finalCartSizes = document.getElementById("final-cart-sizes");
+        if (finalCartSizes) {
+          finalCartSizes.value = cart
+            .map((item) => `${item.name}: ${item.size || "Not selected"}`)
+            .join(", ");
+        }
+        const finalCartColours = document.getElementById("final-cart-colours");
+        if (finalCartColours) {
+          finalCartColours.value = cart
+            .map((item) => `${item.name}: ${item.color || "Not selected"}`)
             .join(", ");
         }
 
@@ -3172,16 +3219,17 @@
         if (promoApplied || !promoInput) {
           return;
         }
-        const code = promoInput.value;
-        if (code === "Ethika05") {
-          //--------------------------------------------promo code name
+        const code = promoInput.value.trim().toUpperCase();
+        const percent = Number(window.accoladePromoCodes?.[code]);
+        if (code && Number.isFinite(percent) && percent > 0 && percent <= 100) {
           promoApplied = true;
+          appliedPromoPercent = percent;
           if (promoButton) {
             promoButton.disabled = true;
           }
           promoInput.disabled = true;
           if (promoMessage) {
-            promoMessage.textContent = "Promo applied: 5% off"; //-----------------promo code percentage(display)
+            promoMessage.textContent = `Promo applied: ${percent}% off`;
             promoMessage.classList.remove("text-red-600");
             promoMessage.classList.add("text-green-600", "is-success");
           }
@@ -3197,6 +3245,14 @@
 
       if (promoButton) {
         promoButton.addEventListener("click", applyPromo);
+      }
+      if (promoInput) {
+        promoInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            applyPromo();
+          }
+        });
       }
 
       function goToPayment() {

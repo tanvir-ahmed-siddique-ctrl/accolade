@@ -8,15 +8,19 @@ import {
   getDocs,
   onAuthStateChanged,
   serverTimestamp,
+  setDoc,
   signInWithEmailAndPassword,
   signOut,
   updateDoc,
 } from "./firebase-config.js";
 
 const PRODUCTS_COLLECTION = "products";
+const PROMO_CODES_COLLECTION = "promoCodes";
 const state = {
   editingId: null,
   products: [],
+  promoCodes: [],
+  promoEditingId: null,
 };
 
 const loginForm = document.getElementById("admin-login-form");
@@ -40,16 +44,23 @@ const previewName = document.getElementById("preview-name");
 const previewCurrent = document.getElementById("preview-current");
 const previewOriginal = document.getElementById("preview-original");
 const previewBadge = document.getElementById("preview-badge");
-const previewChip = document.getElementById("preview-chip");
 const previewDescription = document.getElementById("preview-description");
 const productImagesInput = document.getElementById("product-images");
 const imageFilesInput = document.getElementById("product-image-files");
 const uploadProductImagesButton = document.getElementById("upload-product-images");
 const uploadStatus = document.getElementById("upload-status");
+const sizeChartImageInput = document.getElementById("product-size-chart-image");
+const sizeChartImageFileInput = document.getElementById("size-chart-image-file");
+const uploadSizeChartImageButton = document.getElementById("upload-size-chart-image");
+const sizeChartUploadStatus = document.getElementById("size-chart-upload-status");
+const promoForm = document.getElementById("promo-form");
+const promoList = document.getElementById("promo-list");
+const promoAdminStatus = document.getElementById("promo-admin-status");
 
 const SIGNATURE_ENDPOINT = "/.netlify/functions/cloudinary-signature";
 const MAX_UPLOAD_SIZE_MB = 8;
 const PRODUCT_UPLOAD_FOLDER = "accolade/products";
+const SIZE_CHART_UPLOAD_FOLDER = "accolade/size-charts";
 
 function slugify(value) {
   return String(value || "")
@@ -145,7 +156,6 @@ function getPreviewFields() {
   const badge = rawBadge.toLowerCase() === "featured" ? "" : rawBadge;
   const images = parseList(document.getElementById("product-images")?.value);
   const description = document.getElementById("product-description")?.value.trim() || "";
-  const isHot = document.getElementById("category-hot")?.checked;
 
   return {
     name: name || "Product name",
@@ -154,7 +164,6 @@ function getPreviewFields() {
     badge: badge || "",
     primaryImage: images[0] || "photos/any.jpeg",
     description,
-    chip: isHot ? "Hot Selling" : "",
   };
 }
 
@@ -188,16 +197,6 @@ function updatePreview() {
       previewBadge.style.display = "none";
     }
   }
-  if (previewChip) {
-    if (preview.chip && preview.chip.toLowerCase() !== "featured") {
-      previewChip.textContent = preview.chip;
-      previewChip.style.display = "inline-flex";
-    } else {
-      previewChip.textContent = "";
-      previewChip.style.display = "none";
-    }
-  }
-
   if (previewDescription) {
     previewDescription.textContent = preview.description || "Add product description (optional).";
   }
@@ -218,12 +217,24 @@ function resetForm(statusMessage = "Ready", statusType = "normal") {
   updatePreview();
   setStatus(statusMessage, statusType);
   setUploadStatus("No upload started");
+  setSizeChartUploadStatus("No size chart image uploaded");
 }
 
 function setUploadButtonsDisabled(isDisabled) {
   if (uploadProductImagesButton) {
     uploadProductImagesButton.disabled = isDisabled;
   }
+  if (uploadSizeChartImageButton) {
+    uploadSizeChartImageButton.disabled = isDisabled;
+  }
+}
+
+function setSizeChartUploadStatus(message, type = "normal") {
+  if (!sizeChartUploadStatus) return;
+  sizeChartUploadStatus.textContent = message;
+  sizeChartUploadStatus.classList.remove("is-error", "is-success");
+  if (type === "error") sizeChartUploadStatus.classList.add("is-error");
+  if (type === "success") sizeChartUploadStatus.classList.add("is-success");
 }
 
 function validateFiles(files) {
@@ -266,6 +277,14 @@ async function requestUploadSignature(folder) {
   }
 
   if (!response.ok) {
+    if (
+      response.status === 404 &&
+      ["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ) {
+      throw new Error(
+        "Secure upload function is unavailable on a plain localhost server. Run the site with Netlify Dev or test on the deployed Netlify site.",
+      );
+    }
     throw new Error(payload.error || "Could not get upload signature.");
   }
   return payload;
@@ -339,6 +358,26 @@ async function handleUpload() {
   }
 }
 
+async function handleSizeChartUpload() {
+  if (!sizeChartImageFileInput || !sizeChartImageInput) return;
+  try {
+    const files = Array.from(sizeChartImageFileInput.files || []);
+    validateFiles(files);
+    if (files.length !== 1) throw new Error("Please choose one size chart image.");
+    setUploadButtonsDisabled(true);
+    setSizeChartUploadStatus("Uploading size chart...");
+    const signatureData = await requestUploadSignature(SIZE_CHART_UPLOAD_FOLDER);
+    sizeChartImageInput.value = await uploadSingleFile(files[0], signatureData);
+    sizeChartImageFileInput.value = "";
+    setSizeChartUploadStatus("Size chart image uploaded successfully.", "success");
+  } catch (error) {
+    console.error("Size chart upload failed", error);
+    setSizeChartUploadStatus(error.message || "Size chart upload failed.", "error");
+  } finally {
+    setUploadButtonsDisabled(false);
+  }
+}
+
 function getCategoriesFromForm() {
   const categories = new Set(["all"]);
   const featured = document.getElementById("category-featured").checked;
@@ -375,6 +414,7 @@ function getFormData() {
   const rawColors = (document.getElementById("product-colors")?.value || "").trim();
   const colors = parseList(rawColors.replace(/,/g, "\n"));
   const sizeChartText = (document.getElementById("product-size-chart")?.value || "").trim();
+  const sizeChartImage = (sizeChartImageInput?.value || "").trim();
   const imageUrls = parseList(document.getElementById("product-images").value);
   const description = (document.getElementById("product-description")?.value || "").trim();
   const sortOrder = Number.parseInt(
@@ -403,6 +443,7 @@ function getFormData() {
     sizes: sizes,
     colors: colors,
     sizeChartText: sizeChartText,
+    sizeChartImage,
     images: imageUrls,
     description: description,
     categories,
@@ -481,6 +522,9 @@ function renderProductList() {
       if (sizeChartField) {
         sizeChartField.value = selected.sizeChartText || "";
       }
+      if (sizeChartImageInput) {
+        sizeChartImageInput.value = selected.sizeChartImage || "";
+      }
       document.getElementById("product-images").value = (
         selected.images || []
       ).join("\n");
@@ -538,6 +582,7 @@ function renderProductList() {
 
 function clearClientCaches() {
   try {
+    localStorage.removeItem("accolade_products_v3");
     localStorage.removeItem("accolade_products_v2");
     localStorage.removeItem("accolade_products_cache");
     localStorage.removeItem("accolade_selected_product_v2");
@@ -571,6 +616,67 @@ async function loadProducts() {
   renderProductList();
 }
 
+function setPromoStatus(message, type = "normal") {
+  if (!promoAdminStatus) return;
+  promoAdminStatus.textContent = message;
+  promoAdminStatus.classList.remove("is-error", "is-success");
+  if (type === "error") promoAdminStatus.classList.add("is-error");
+  if (type === "success") promoAdminStatus.classList.add("is-success");
+}
+
+function renderPromoCodes() {
+  if (!promoList) return;
+  if (!state.promoCodes.length) {
+    promoList.innerHTML = '<p class="empty-note">No promo codes yet.</p>';
+    return;
+  }
+  promoList.innerHTML = state.promoCodes.map((promo) => `
+    <div class="map-item">
+      <strong>${escapeHtml(promo.code)}</strong>
+      <span>${escapeHtml(promo.percent)}% off · ${promo.isActive === false ? "Inactive" : "Active"}</span>
+      <div class="product-row-actions">
+        <button type="button" data-promo-edit="${escapeHtml(promo.id)}">Edit</button>
+        <button type="button" class="danger" data-promo-delete="${escapeHtml(promo.id)}">Delete</button>
+      </div>
+    </div>
+  `).join("");
+
+  promoList.querySelectorAll("[data-promo-edit]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const promo = state.promoCodes.find((item) => item.id === button.dataset.promoEdit);
+      if (!promo) return;
+      document.getElementById("promo-admin-code").value = promo.code;
+      document.getElementById("promo-admin-percent").value = promo.percent;
+      document.getElementById("promo-admin-active").checked = promo.isActive !== false;
+      state.promoEditingId = promo.id;
+      setPromoStatus("Edit the values, then save.");
+    });
+  });
+
+  promoList.querySelectorAll("[data-promo-delete]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const promo = state.promoCodes.find((item) => item.id === button.dataset.promoDelete);
+      if (!promo || !window.confirm(`Delete promo code "${promo.code}"?`)) return;
+      try {
+        await deleteDoc(doc(db, PROMO_CODES_COLLECTION, promo.id));
+        await loadPromoCodes();
+        setPromoStatus("Promo code deleted.", "success");
+      } catch (error) {
+        console.error("Promo delete failed", error);
+        setPromoStatus("Could not delete promo code.", "error");
+      }
+    });
+  });
+}
+
+async function loadPromoCodes() {
+  const snapshot = await getDocs(collection(db, PROMO_CODES_COLLECTION));
+  state.promoCodes = snapshot.docs
+    .map((promoDoc) => ({ id: promoDoc.id, ...promoDoc.data() }))
+    .sort((a, b) => String(a.code).localeCompare(String(b.code)));
+  renderPromoCodes();
+}
+
 if (loginForm) {
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -601,6 +707,47 @@ if (cancelEditButton) {
 if (uploadProductImagesButton) {
   uploadProductImagesButton.addEventListener("click", () => {
     handleUpload();
+  });
+}
+
+if (uploadSizeChartImageButton) {
+  uploadSizeChartImageButton.addEventListener("click", handleSizeChartUpload);
+}
+
+if (promoForm) {
+  promoForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const code = document.getElementById("promo-admin-code").value.trim().toUpperCase();
+    const percent = Number(document.getElementById("promo-admin-percent").value);
+    const isActive = document.getElementById("promo-admin-active").checked;
+    if (!/^[A-Z0-9_-]+$/.test(code)) {
+      setPromoStatus("Use letters, numbers, hyphens, or underscores only.", "error");
+      return;
+    }
+    if (!Number.isFinite(percent) || percent < 1 || percent > 100) {
+      setPromoStatus("Discount must be between 1% and 100%.", "error");
+      return;
+    }
+    try {
+      setPromoStatus("Saving promo code...");
+      await setDoc(doc(db, PROMO_CODES_COLLECTION, code), {
+        code,
+        percent,
+        isActive,
+        updatedAt: serverTimestamp(),
+      });
+      if (state.promoEditingId && state.promoEditingId !== code) {
+        await deleteDoc(doc(db, PROMO_CODES_COLLECTION, state.promoEditingId));
+      }
+      state.promoEditingId = null;
+      promoForm.reset();
+      document.getElementById("promo-admin-active").checked = true;
+      await loadPromoCodes();
+      setPromoStatus("Promo code saved successfully.", "success");
+    } catch (error) {
+      console.error("Promo save failed", error);
+      setPromoStatus("Could not save promo code. Check Firestore permissions.", "error");
+    }
   });
 }
 
@@ -658,10 +805,19 @@ onAuthStateChanged(auth, async (user) => {
     userEmailLabel.textContent = user.email || "Admin";
     setStatus("Ready");
     await loadProducts();
+    try {
+      await loadPromoCodes();
+    } catch (error) {
+      console.error("Could not load promo codes", error);
+      setPromoStatus("Could not load promo codes. Check Firestore permissions.", "error");
+    }
   } else {
     userEmailLabel.textContent = "";
     state.products = [];
+    state.promoCodes = [];
+    state.promoEditingId = null;
     renderProductList();
+    renderPromoCodes();
     resetForm();
   }
 });

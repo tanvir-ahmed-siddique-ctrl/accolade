@@ -921,6 +921,18 @@
                   </p>
                 </div>
 
+                <div class="upload-box">
+                  <label for="size-chart-image-file">Size chart picture (optional)</label>
+                  <input id="size-chart-image-file" type="file" accept="image/*" />
+                  <div class="upload-actions">
+                    <button id="upload-size-chart-image" type="button" class="secondary">Upload size chart</button>
+                  </div>
+                  <p id="size-chart-upload-status" class="status">No size chart image uploaded</p>
+                  <label for="product-size-chart-image" style="margin-top:12px;">Or paste the size chart image URL</label>
+                  <input id="product-size-chart-image" type="url" placeholder="https://..." />
+                  <p class="field-hint">This picture appears above the size table in a clean, full-width frame.</p>
+                </div>
+
                 <div>
                   <label for="product-description">Product Description (optional)</label>
                   <textarea id="product-description" rows="4" placeholder="Enter detailed product description here..."></textarea>
@@ -932,7 +944,7 @@
                 <div class="section-head">
                   <div>
                     <h3 id="media-heading" class="section-title">3. Product photos</h3>
-                    <p>First photo becomes the shop thumbnail. Size chart is already fixed on the product page — you do not need to upload one.</p>
+                    <p>First photo becomes the shop thumbnail. Upload the optional size chart picture in Product page details above.</p>
                   </div>
                   <span class="step-badge">3</span>
                 </div>
@@ -969,7 +981,7 @@
                       <li>Click <strong>Upload images</strong> and wait until it says success.</li>
                       <li>Photo links will auto-fill in “paste the URL”.</li>
                       <li>First photo is the main shop image — put your best one first.</li>
-                      <li>Size chart is already shown on the product page. No upload needed.</li>
+                      <li>Use the separate size chart uploader above for measurement artwork.</li>
                     </ol>
                   </aside>
                 </div>
@@ -1016,7 +1028,6 @@
               <p class="helper-note">This is how the shop card will look. First photo, name, badge, and prices appear here.</p>
               <div class="preview-image" style="margin-top: 16px;">
                 <img id="preview-image" src="photos/any.jpeg" alt="Product preview" />
-                <span id="preview-chip" class="preview-chip" style="display: none;"></span>
                 <span id="preview-badge" class="preview-badge" style="display: none;"></span>
               </div>
               <div class="preview-copy">
@@ -1046,6 +1057,32 @@
                   <p id="preview-description" style="margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; white-space: pre-line;">Add product description (optional).</p>
                 </div>
               </div>
+            </section>
+
+            <section class="card panel-pad" aria-labelledby="promo-heading">
+              <p class="eyebrow">Checkout</p>
+              <h2 id="promo-heading" class="section-title">Promo codes</h2>
+              <p class="helper-note">Create a code and choose its exact percentage discount. Codes are matched without case sensitivity.</p>
+              <form id="promo-form" style="margin-top:14px;">
+                <div class="input-grid two">
+                  <div>
+                    <label for="promo-admin-code">Code</label>
+                    <input id="promo-admin-code" type="text" placeholder="WELCOME10" required />
+                  </div>
+                  <div>
+                    <label for="promo-admin-percent">Discount (%)</label>
+                    <input id="promo-admin-percent" type="number" min="1" max="100" placeholder="10" required />
+                  </div>
+                </div>
+                <label style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+                  <input id="promo-admin-active" type="checkbox" checked /> Active
+                </label>
+                <div class="actions">
+                  <button type="submit">Save promo code</button>
+                  <p id="promo-admin-status" class="status">Ready</p>
+                </div>
+              </form>
+              <div id="promo-list" class="map-list" style="margin-top:14px;"></div>
             </section>
 
             <section class="card panel-pad">
