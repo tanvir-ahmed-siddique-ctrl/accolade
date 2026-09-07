@@ -37,7 +37,7 @@ service cloud.firestore {
    - `/shop.html`
    - `/admin.html`
 
-## 3) Add custom Hostinger domain to Netlify
+## 3) Add custom Hostinger domain to Netliy
 
 In Netlify:
 
