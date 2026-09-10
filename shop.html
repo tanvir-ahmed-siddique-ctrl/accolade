@@ -2781,10 +2781,15 @@
 
       function loadCart() {
         const savedCart = localStorage.getItem("accolade_cart");
-        const savedSubtotal = localStorage.getItem("accolade_subtotal");
         if (savedCart) {
-          cart = JSON.parse(savedCart);
-          subtotal = parseFloat(savedSubtotal) || 0;
+          try {
+            const parsedCart = JSON.parse(savedCart);
+            cart = Array.isArray(parsedCart) ? parsedCart : [];
+          } catch (error) {
+            cart = [];
+          }
+          subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+          saveCart();
         } else {
           cart = [];
           subtotal = 0;
@@ -4294,7 +4299,10 @@
             console.error("Order submission failed", error);
             btn.innerText = "Confirm order";
             btn.disabled = false;
-            alert("We could not save your order. Please check your connection and try again.");
+            const isPermissionError = /permission|insufficient/i.test(error?.message || "");
+            alert(isPermissionError
+              ? "Order system is not enabled yet. The shop owner needs to publish the Firestore orders rule, then please try again."
+              : "We could not save your order. Please check your connection and try again.");
           }
         });
       }
@@ -4362,13 +4370,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const isReload = (window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType("navigation")[0] && window.performance.getEntriesByType("navigation")[0].type === "reload") || (window.performance && window.performance.navigation && window.performance.navigation.type === 1);
-    if (isReload) {
-      localStorage.removeItem("accolade_cart");
-      localStorage.removeItem("accolade_subtotal");
-    }
-
     loadCart();
+    window.addEventListener("pageshow", loadCart);
 
     // Check if redirected for checkout
     const urlParams = new URLSearchParams(window.location.search);
