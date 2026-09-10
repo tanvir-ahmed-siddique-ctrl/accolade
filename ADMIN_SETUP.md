@@ -24,6 +24,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == "YOUR_ADMIN_UID";
     }
+    match /orders/{orderId} {
+      allow create: if request.resource.data.customer.email is string
+        && request.resource.data.items is list;
+      allow read, update: if request.auth != null && request.auth.uid == "YOUR_ADMIN_UID";
+    }
   }
 }
 ```
@@ -101,4 +106,14 @@ Uploads are signed by Netlify function, so API secret stays private.
 - Add or edit checkout promo codes from the **Promo codes** panel
 - Click **Save product**
 - Product appears on `shop.html` (Firestore-driven)
+
+## 8) Professional order emails
+
+Orders are saved in the **Customer orders** notification panel in Admin. To send the matching professional receipt to both the customer and the admin, create a [Resend](https://resend.com) account, verify your sending domain, then add these Netlify environment variables:
+
+- `RESEND_API_KEY`
+- `ORDER_EMAIL_FROM` (for example `Accolade <orders@yourdomain.com>`)
+- `ORDER_ADMIN_EMAIL` (the inbox that receives every new order; use `runoffdesignes@gmail.com` if that is your admin inbox)
+
+The customer order is still safely saved in Admin if email configuration is not ready; deploy the new `netlify/functions/send-order-email.js` file with the site.
 

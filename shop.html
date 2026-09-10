@@ -70,17 +70,26 @@
       }
       body {
         font-family: "Poppins", "Inter", sans-serif;
-        background-color: var(--sand);
-        background-image: url('photos/main_bg.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background-color: #1a1510;
+        background-image: none;
         color: var(--brown);
         padding-top: var(--header-height);
         width: 100%;
         max-width: 100vw;
         overflow-x: hidden;
+        isolation: isolate;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: #1a1510 url('photos/main_bg.jpeg') center / cover no-repeat;
+        transform: translateZ(0);
+      }
+      @media (max-width: 768px) {
+        body::before { background-size: auto 1000px; }
       }
       @keyframes skeletonShimmer {
         0% { transform: translateX(-100%); }
@@ -91,6 +100,8 @@
         width: 100%;
         max-width: 100vw;
         overflow-x: hidden;
+        background-color: #1a1510;
+        overscroll-behavior-y: none;
       }
       a {
         color: inherit;
@@ -466,7 +477,7 @@
           border-radius: 0;
         }
         .product-image {
-          aspect-ratio: 1 / 1;
+          aspect-ratio: 4 / 5;
           border-radius: 0;
         }
       }
@@ -1407,7 +1418,7 @@
         }
         .product-image {
           border-radius: 0;
-          aspect-ratio: 1 / 1;
+          aspect-ratio: 4 / 5;
         }
         .product-image .label-chip {
           font-size: 8px;
@@ -2329,7 +2340,6 @@
 
         <!-- RIGHT: Shop + Cart -->
         <div class="nav-right">
-          <a class="nav-link" href="shop.html">Shop</a>
           <button id="cart-button" class="cart-btn-header" aria-label="Cart">
             <i class="fas fa-shopping-bag"></i>
             <span id="cart-badge" class="cart-badge">0</span>
@@ -2342,7 +2352,7 @@
     <!-- Mobile menu (outside header to avoid contain:paint clipping) -->
     <div id="mobile-menu">
       <a href="shop.html">Shop</a>
-      <a href="about.html">About</a>
+      <a href="about.html">Our Story</a>
       <a href="contact.html">Contact</a>
       <a href="#cart" onclick="closeAllSizeMenus(); openCartModal(); return false;">Cart</a>
       <a href="admin.html" class="admin-menu-link">Admin</a>
@@ -2528,7 +2538,7 @@
               <div class="bg-[#e2136e] text-white p-6 rounded-xl mb-6 text-center relative overflow-hidden">
                 <div class="absolute -top-10 -left-10 w-32 h-32 bg-white opacity-10 rounded-full"></div>
                 <p class="text-sm font-medium opacity-90 mb-1">Accolade.clo Bkash number</p>
-                <h3 class="text-2xl font-semibold tracking-widest mb-2 select-all">01601502253</h3>
+                <h3 class="text-2xl font-semibold tracking-widest mb-2 select-all">01685756678</h3>
                 <p class="text-xs opacity-80">"Send Money" (personal) - Reference: ACCOLADE.CLO</p>
               </div>
 
@@ -2756,7 +2766,7 @@
       <div class="footer-inner">
         <div class="footer-links">
           <a href="shop.html" class="active">Shop</a>
-          <a href="about.html">About</a>
+          <a href="about.html">Our Story</a>
           <a href="contact.html">Contact</a>
         </div>
         <p class="footer-copy">&copy; 2026 Accolade.clo. All rights reserved.</p>
@@ -4248,15 +4258,32 @@
 
       const form = document.getElementById("master-form");
       if (form) {
-        form.addEventListener("submit", function (e) {
-          // Do NOT preventDefault — let the form submit naturally to the hidden iframe
-          // (avoids CORS issues with Google Forms)
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
           const btn = document.getElementById("final-btn");
-          btn.innerText = "Verifying...";
+          btn.innerText = "Saving order...";
           btn.disabled = true;
-
-          // After short delay, show success (iframe receives the response silently)
-          setTimeout(() => {
+          try {
+            const city = document.getElementById("city-selector")?.value || "Dhaka";
+            const deliveryFee = city === "Dhaka" ? 80 : 130;
+            const discount = promoApplied ? Math.round(subtotal * (appliedPromoPercent / 100)) : 0;
+            const result = await window.submitAccoladeOrder({
+              customer: {
+                name: `${document.getElementById("inp-first-name").value} ${document.getElementById("inp-last-name").value}`,
+                email: document.getElementById("inp-email").value,
+                phone: document.getElementById("inp-phone").value,
+                city,
+                address: document.getElementById("inp-address").value,
+              },
+              items: cart,
+              subtotal,
+              discount,
+              deliveryFee,
+              total: subtotal - discount + deliveryFee,
+              promoCode: promoApplied ? promoInput.value.trim().toUpperCase() : "None",
+              promoPercent: promoApplied ? appliedPromoPercent : 0,
+              paymentLast4: document.getElementById("inp-last4").value,
+            });
             cart = [];
             subtotal = 0;
             saveCart();
@@ -4264,9 +4291,18 @@
             if (masterForm) masterForm.classList.add("hidden-section");
             const stepSuccess = document.getElementById("step-success");
             if (stepSuccess) stepSuccess.classList.remove("hidden-section");
+            const successText = stepSuccess?.querySelector("p");
+            if (successText) successText.textContent = result.emailSent
+              ? `Order ${result.orderNumber} received. We sent your receipt to your email and will contact you shortly to confirm.`
+              : `Order ${result.orderNumber} received. We will contact you shortly to confirm.`;
             if (typeof hidePaymentScrollButton === "function") hidePaymentScrollButton();
             window.scrollTo(0, 0);
-          }, 1500);
+          } catch (error) {
+            console.error("Order submission failed", error);
+            btn.innerText = "Confirm order";
+            btn.disabled = false;
+            alert("We could not save your order. Please check your connection and try again.");
+          }
         });
       }
 // --- MOBILE MENU LOGIC ---
@@ -4352,5 +4388,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     </script>
     <script type="module" src="shop-products.js"></script>
+    <script type="module" src="checkout-orders.js"></script>
   </body>
 </html>

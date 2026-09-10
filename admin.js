@@ -16,11 +16,13 @@ import {
 
 const PRODUCTS_COLLECTION = "products";
 const PROMO_CODES_COLLECTION = "promoCodes";
+const ORDERS_COLLECTION = "orders";
 const state = {
   editingId: null,
   products: [],
   promoCodes: [],
   promoEditingId: null,
+  orders: [],
 };
 
 const loginForm = document.getElementById("admin-login-form");
@@ -56,6 +58,9 @@ const sizeChartUploadStatus = document.getElementById("size-chart-upload-status"
 const promoForm = document.getElementById("promo-form");
 const promoList = document.getElementById("promo-list");
 const promoAdminStatus = document.getElementById("promo-admin-status");
+const orderList = document.getElementById("order-list");
+const orderCountLabel = document.getElementById("order-count");
+const unreadOrderLabel = document.getElementById("unread-order-count");
 
 const SIGNATURE_ENDPOINT = "/.netlify/functions/cloudinary-signature";
 const MAX_UPLOAD_SIZE_MB = 8;
@@ -145,6 +150,8 @@ function updateDashboardStats() {
     state.products.filter((product) => product.isPublished !== false).length,
   );
   setText(editorModeLabel, state.editingId ? "Edit" : "Add");
+  setText(orderCountLabel, state.orders.length);
+  setText(unreadOrderLabel, state.orders.filter((order) => order.isRead === false).length);
 }
 
 function getPreviewFields() {
@@ -677,6 +684,53 @@ async function loadPromoCodes() {
   renderPromoCodes();
 }
 
+function formatOrderDate(value) {
+  const timestamp = getTimestamp(value);
+  return timestamp ? new Date(timestamp).toLocaleString("en-BD") : "Just received";
+}
+
+function renderOrders() {
+  if (!orderList) return;
+  updateDashboardStats();
+  if (!state.orders.length) {
+    orderList.innerHTML = '<p class="empty-note">No customer orders yet.</p>';
+    return;
+  }
+  orderList.innerHTML = state.orders.map((order) => {
+    const customer = order.customer || {};
+    const items = Array.isArray(order.items) ? order.items : [];
+    const itemSummary = items.map((item) => `${escapeHtml(item.name)} × ${Number(item.quantity) || 1}${item.size ? ` · ${escapeHtml(item.size)}` : ""}${item.color ? ` · ${escapeHtml(item.color)}` : ""}`).join("<br>");
+    return `<article class="product-row" style="grid-template-columns:minmax(0,1fr);${order.isRead === false ? 'border-color:rgba(223,183,108,.75);' : ''}">
+      <div class="product-row-info">
+        <h3>${escapeHtml(order.orderNumber || "Order")}${order.isRead === false ? ' <span class="pill" style="margin-left:6px;">New</span>' : ""}</h3>
+        <p class="meta">${formatOrderDate(order.createdAt)} · ${escapeHtml(order.status || "New")}</p>
+        <p><strong>${escapeHtml(customer.name || "Customer")}</strong><br>${escapeHtml(customer.phone || "")} · ${escapeHtml(customer.email || "")}<br>${escapeHtml(customer.address || "")}, ${escapeHtml(customer.city || "")}</p>
+        <p>${itemSummary}</p>
+        <p class="meta">Total: BDT ${escapeHtml(order.total || 0)}${order.promoCode && order.promoCode !== "None" ? ` · ${escapeHtml(order.promoCode)} (${escapeHtml(order.promoPercent || 0)}% off)` : ""}</p>
+        <div class="product-row-actions">
+          ${order.isRead === false ? `<button type="button" data-order-read="${escapeHtml(order.id)}">Mark read</button>` : ""}
+          <button type="button" data-order-status="${escapeHtml(order.id)}">Mark confirmed</button>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+  orderList.querySelectorAll("[data-order-read]").forEach((button) => button.addEventListener("click", async () => {
+    await updateDoc(doc(db, ORDERS_COLLECTION, button.dataset.orderRead), { isRead: true });
+    await loadOrders();
+  }));
+  orderList.querySelectorAll("[data-order-status]").forEach((button) => button.addEventListener("click", async () => {
+    await updateDoc(doc(db, ORDERS_COLLECTION, button.dataset.orderStatus), { status: "Confirmed", isRead: true });
+    await loadOrders();
+  }));
+}
+
+async function loadOrders() {
+  const snapshot = await getDocs(collection(db, ORDERS_COLLECTION));
+  state.orders = snapshot.docs.map((orderDoc) => ({ id: orderDoc.id, ...orderDoc.data() }))
+    .sort((left, right) => getTimestamp(right.createdAt) - getTimestamp(left.createdAt));
+  renderOrders();
+}
+
 if (loginForm) {
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -811,11 +865,17 @@ onAuthStateChanged(auth, async (user) => {
       console.error("Could not load promo codes", error);
       setPromoStatus("Could not load promo codes. Check Firestore permissions.", "error");
     }
+    try {
+      await loadOrders();
+    } catch (error) {
+      console.error("Could not load orders", error);
+    }
   } else {
     userEmailLabel.textContent = "";
     state.products = [];
     state.promoCodes = [];
     state.promoEditingId = null;
+    state.orders = [];
     renderProductList();
     renderPromoCodes();
     resetForm();

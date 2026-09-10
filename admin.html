@@ -823,6 +823,14 @@
                 <span class="muted">Mode</span>
                 <strong id="editor-mode">Add</strong>
               </div>
+              <div class="stat-card">
+                <span class="muted">Orders</span>
+                <strong id="order-count">0</strong>
+              </div>
+              <div class="stat-card">
+                <span class="muted">New orders</span>
+                <strong id="unread-order-count">0</strong>
+              </div>
             </div>
           </div>
           <div class="hero-actions">
@@ -1096,6 +1104,13 @@
                 Click <strong>Edit</strong> to change a product. Click <strong>Delete</strong> only if you are sure — it cannot be undone.
               </p>
               <div id="product-list" class="product-list" style="margin-top: 14px;"></div>
+            </section>
+
+            <section class="card panel-pad" aria-labelledby="orders-heading">
+              <p class="eyebrow">Notifications</p>
+              <h2 id="orders-heading" class="section-title">Customer orders</h2>
+              <p class="helper-note">Every confirmed checkout appears here with a complete receipt. New orders are highlighted.</p>
+              <div id="order-list" class="product-list" style="margin-top:14px;"></div>
             </section>
           </aside>
         </div>

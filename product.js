@@ -22,6 +22,7 @@ const DEFAULT_SIZE_CHART = {
 };
 
 let currentProductFingerprint = "";
+let currentGalleryFingerprint = "";
 
 export function getOptimizedCloudinaryUrl(url, mode = "gallery") {
   if (!url || typeof url !== "string") return url || "photos/any.jpeg";
@@ -581,7 +582,13 @@ function renderProduct(data, preserveSelection = false) {
     els.description.textContent = descText || "No description provided.";
   }
 
-  buildGallery(data.images);
+  const galleryFingerprint = Array.isArray(data.images)
+    ? data.images.join("|")
+    : String(data.images || "");
+  if (!currentGalleryFingerprint || galleryFingerprint !== currentGalleryFingerprint) {
+    buildGallery(data.images);
+    currentGalleryFingerprint = galleryFingerprint;
+  }
   buildSizeOptions(data.sizes);
   buildColorOptions(data.colors);
   buildSizeChart(data.sizeChartText);

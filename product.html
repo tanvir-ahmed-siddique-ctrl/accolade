@@ -59,16 +59,25 @@
       body {
         font-family: "Poppins", "Inter", sans-serif;
         background-color: #1a1510;
-        background-image: url("photos/main_bg.jpeg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background-image: none;
         color: #ffffff;
         padding-top: var(--header-height);
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        isolation: isolate;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: #1a1510 url("photos/main_bg.jpeg") center / cover no-repeat;
+        transform: translateZ(0);
+      }
+      @media (max-width: 768px) {
+        body::before { background-size: auto 1000px; }
       }
 
       .site-header {
@@ -275,7 +284,7 @@
         grid-template-columns: 1fr;
         gap: 28px;
         width: 100%;
-        max-width: 1400px;
+        max-width: 1180px;
         margin: 0 auto;
         min-width: 0;
       }
@@ -285,8 +294,8 @@
           padding: 32px 40px 64px;
         }
         .pd-layout {
-          grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-          gap: 48px;
+          grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+          gap: 40px;
           align-items: start;
         }
       }
@@ -320,9 +329,9 @@
 
       @media (min-width: 900px) {
         .pd-track {
-          aspect-ratio: 1 / 1.05;
-          min-height: 560px;
-          max-height: 78vh;
+          aspect-ratio: 4 / 5;
+          min-height: 0;
+          max-height: min(72vh, 650px);
         }
       }
 
@@ -340,7 +349,7 @@
       .pd-slide img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         cursor: zoom-in;
         user-select: none;
         -webkit-user-drag: none;
@@ -1013,7 +1022,6 @@
           <span class="brand-text">ACCOLADE</span>
         </a>
         <div class="nav-right">
-          <a class="nav-link" href="shop.html">Shop</a>
           <button id="cart-button" class="cart-btn-header" aria-label="Cart">
             <i class="fas fa-shopping-bag"></i>
             <span id="cart-badge" class="cart-badge">0</span>
@@ -1024,7 +1032,7 @@
 
     <div id="mobile-menu">
       <a href="shop.html">Shop</a>
-      <a href="about.html">About</a>
+      <a href="about.html">Our Story</a>
       <a href="contact.html">Contact</a>
       <a href="shop.html?checkout=true">Cart</a>
       <a href="admin.html" class="admin-menu-link">Admin</a>
@@ -1214,22 +1222,8 @@
             var elCotton = document.getElementById("pd-cotton");
             if (elCotton && product.cotton) elCotton.textContent = product.cotton;
 
-            var images = Array.isArray(product.images) ? product.images : (typeof product.images === 'string' ? product.images.split(',') : []);
-            var firstImg = images[0] || 'photos/any.jpeg';
-            if (firstImg.indexOf('res.cloudinary.com') !== -1 && firstImg.indexOf('/upload/') !== -1) {
-              firstImg = firstImg.replace(/\/upload\/(?:[^\/]+\/)?/, '/upload/f_auto,q_auto,w_1000,c_limit/');
-            }
-            var track = document.getElementById("pd-track");
-            if (track && images.length) {
-              track.innerHTML = '<div class="pd-slide is-active"><img src="' + firstImg + '" alt="' + (product.name||"Product") + '" decoding="async" /></div>';
-            }
-
-            var skeletonEl = document.getElementById("product-skeleton");
-            if (skeletonEl) skeletonEl.hidden = true;
             var statusEl = document.getElementById("product-status");
             if (statusEl) statusEl.hidden = true;
-            var pageEl = document.getElementById("product-page");
-            if (pageEl) pageEl.hidden = false;
           } catch(e) {}
         })();
       </script>
@@ -1249,7 +1243,7 @@
       <div class="footer-inner">
         <div class="footer-links">
           <a href="shop.html">Shop</a>
-          <a href="about.html">About</a>
+          <a href="about.html">Our Story</a>
           <a href="contact.html">Contact</a>
         </div>
         <p class="footer-copy">&copy; 2026 Accolade.clo. All rights reserved.</p>

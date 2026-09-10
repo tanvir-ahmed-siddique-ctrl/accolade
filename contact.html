@@ -39,14 +39,23 @@
       body {
         font-family: "Poppins", "Inter", sans-serif;
         background-color: #1a1510;
-        background-image: url('photos/main_bg.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background-image: none;
         color: var(--brown);
         padding-top: var(--header-height);
         min-height: 100vh;
+        isolation: isolate;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: #1a1510 url('photos/main_bg.jpeg') center / cover no-repeat;
+        transform: translateZ(0);
+      }
+      @media (max-width: 768px) {
+        body::before { background-size: auto 1000px; }
       }
 
       /* Header */
@@ -471,7 +480,6 @@
 
         <!-- RIGHT: Shop + Cart -->
         <div class="nav-right">
-          <a class="nav-link" href="shop.html">Shop</a>
           <a id="cart-button" class="cart-btn-header" href="shop.html?checkout=true" aria-label="Cart">
             <i class="fas fa-shopping-bag"></i>
             <span id="cart-badge" class="cart-badge">0</span>
@@ -484,7 +492,7 @@
     <!-- Mobile menu (outside header to avoid contain:paint clipping) -->
     <div id="mobile-menu">
       <a href="shop.html">Shop</a>
-      <a href="about.html">About</a>
+      <a href="about.html">Our Story</a>
       <a href="contact.html">Contact</a>
       <a href="admin.html" class="admin-menu-link">Admin</a>
     </div>
@@ -511,7 +519,7 @@
           <div class="card-icon"><i class="fab fa-whatsapp"></i></div>
           <p class="card-kicker">Phone / WhatsApp</p>
           <h2 class="card-title">Call or message</h2>
-          <a class="contact-value" href="https://wa.me/8801601502253" target="_blank" rel="noreferrer">+880 1601-502253</a>
+          <a class="contact-value" href="https://wa.me/8801685756678" target="_blank" rel="noreferrer">+880 1601502253</a>
           <p class="card-note">Available 11:00 AM – 9:00 PM (GMT+6).</p>
         </div>
 
@@ -544,7 +552,7 @@
       <div class="footer-inner">
         <div class="footer-links">
           <a href="shop.html">Shop</a>
-          <a href="about.html">About</a>
+          <a href="about.html">Our Story</a>
           <a href="contact.html" class="active">Contact</a>
         </div>
         <p class="footer-copy">&copy; 2026 Accolade.clo. All rights reserved.</p>

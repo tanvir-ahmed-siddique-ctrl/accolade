@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About Us | Accolade.clo</title>
+    <title>Our Story | Accolade.clo</title>
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
     <link rel="dns-prefetch" href="https://res.cloudinary.com" />
     <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
@@ -39,14 +39,23 @@
       body {
         font-family: "Poppins", "Inter", sans-serif;
         background-color: #1a1510;
-        background-image: url('photos/main_bg.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+        background-image: none;
         color: var(--brown);
         padding-top: var(--header-height);
         min-height: 100vh;
+        isolation: isolate;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: #1a1510 url('photos/main_bg.jpeg') center / cover no-repeat;
+        transform: translateZ(0);
+      }
+      @media (max-width: 768px) {
+        body::before { background-size: auto 1000px; }
       }
 
       /* Header */
@@ -496,7 +505,6 @@
 
         <!-- RIGHT: Shop + Cart -->
         <div class="nav-right">
-          <a class="nav-link" href="shop.html">Shop</a>
           <a id="cart-button" class="cart-btn-header" href="shop.html?checkout=true" aria-label="Cart">
             <i class="fas fa-shopping-bag"></i>
             <span id="cart-badge" class="cart-badge">0</span>
@@ -509,7 +517,7 @@
     <!-- Mobile menu (outside header to avoid contain:paint clipping) -->
     <div id="mobile-menu">
       <a href="shop.html">Shop</a>
-      <a href="about.html">About</a>
+      <a href="about.html">Our Story</a>
       <a href="contact.html">Contact</a>
       <a href="admin.html" class="admin-menu-link">Admin</a>
     </div>
@@ -517,8 +525,8 @@
     <main class="page-main">
       <!-- Hero -->
       <section class="page-hero">
-        <p class="page-kicker">Our story</p>
-        <h1 class="page-title">About Accolade</h1>
+        <p class="page-kicker">The Accolade story</p>
+        <h1 class="page-title">Our Story</h1>
       </section>
 
       <article class="story-card">
@@ -535,7 +543,7 @@
       <div class="footer-inner">
         <div class="footer-links">
           <a href="shop.html">Shop</a>
-          <a href="about.html" class="active">About</a>
+          <a href="about.html" class="active">Our Story</a>
           <a href="contact.html">Contact</a>
         </div>
         <p class="footer-copy">&copy; 2026 Accolade.clo. All rights reserved.</p>
