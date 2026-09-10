@@ -4262,6 +4262,9 @@
           btn.innerText = "Saving order...";
           btn.disabled = true;
           try {
+            if (typeof window.submitAccoladeOrder !== "function") {
+              throw new Error("ORDER_SYSTEM_LOADING");
+            }
             const city = document.getElementById("city-selector")?.value || "Dhaka";
             const deliveryFee = city === "Dhaka" ? 80 : 130;
             const discount = promoApplied ? Math.round(subtotal * (appliedPromoPercent / 100)) : 0;
@@ -4299,10 +4302,14 @@
             console.error("Order submission failed", error);
             btn.innerText = "Confirm order";
             btn.disabled = false;
-            const isPermissionError = /permission|insufficient/i.test(error?.message || "");
-            alert(isPermissionError
-              ? "Order system is not enabled yet. The shop owner needs to publish the Firestore orders rule, then please try again."
-              : "We could not save your order. Please check your connection and try again.");
+            const reason = error?.message || "";
+            if (reason === "ORDER_PERMISSION_DENIED") {
+              alert("Order saving is blocked by Firebase. Please publish the Firestore orders rule, wait two minutes, then try again.");
+            } else if (reason === "ORDER_SYSTEM_LOADING") {
+              alert("Order system is still loading. Please wait a moment and press Confirm order again.");
+            } else {
+              alert("We could not save your order. Error: " + reason);
+            }
           }
         });
       }

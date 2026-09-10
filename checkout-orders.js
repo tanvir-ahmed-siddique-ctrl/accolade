@@ -35,7 +35,16 @@ window.submitAccoladeOrder = async function submitAccoladeOrder(order) {
     createdAt: serverTimestamp(),
   };
 
-  const saved = await addDoc(collection(db, ORDERS_COLLECTION), payload);
+  let saved;
+  try {
+    saved = await addDoc(collection(db, ORDERS_COLLECTION), payload);
+  } catch (error) {
+    console.error("Firestore order save failed", error);
+    if (error?.code === "permission-denied") {
+      throw new Error("ORDER_PERMISSION_DENIED");
+    }
+    throw new Error(`ORDER_SAVE_FAILED: ${error?.message || "Unknown error"}`);
+  }
 
   let emailSent = false;
   try {

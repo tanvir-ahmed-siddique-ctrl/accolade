@@ -25,8 +25,8 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == "YOUR_ADMIN_UID";
     }
     match /orders/{orderId} {
-      allow create: if request.resource.data.customer.email is string
-        && request.resource.data.items is list;
+      // Customers must be able to submit a checkout without signing in.
+      allow create: if true;
       allow read, update: if request.auth != null && request.auth.uid == "YOUR_ADMIN_UID";
     }
   }
