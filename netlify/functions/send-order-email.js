@@ -33,9 +33,9 @@ async function send(apiKey, message) {
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed" });
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.ORDER_EMAIL_FROM;
-  const adminEmail = process.env.ORDER_ADMIN_EMAIL || "runoffdesignes@gmail.com";
-  if (!apiKey || !from) return json(503, { error: "Order email is not configured" });
+  const from = process.env.RESEND_FROM_EMAIL;
+  const adminEmail = process.env.SELLER_NOTIFICATION_EMAIL;
+  if (!apiKey || !from || !adminEmail) return json(503, { error: "Order email is not configured" });
 
   let order;
   try { order = JSON.parse(event.body || "{}"); } catch { return json(400, { error: "Invalid order" }); }

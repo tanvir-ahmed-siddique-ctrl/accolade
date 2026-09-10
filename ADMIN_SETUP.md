@@ -112,8 +112,8 @@ Uploads are signed by Netlify function, so API secret stays private.
 Orders are saved in the **Customer orders** notification panel in Admin. To send the matching professional receipt to both the customer and the admin, create a [Resend](https://resend.com) account, verify your sending domain, then add these Netlify environment variables:
 
 - `RESEND_API_KEY`
-- `ORDER_EMAIL_FROM` (for example `Accolade <orders@yourdomain.com>`)
-- `ORDER_ADMIN_EMAIL` (the inbox that receives every new order; use `runoffdesignes@gmail.com` if that is your admin inbox)
+- `RESEND_FROM_EMAIL` (your verified sender, for example `Accolade <orders@yourdomain.com>`)
+- `SELLER_NOTIFICATION_EMAIL` (the inbox that receives every new order)
 
 The customer order is still safely saved in Admin if email configuration is not ready; deploy the new `netlify/functions/send-order-email.js` file with the site.
 
