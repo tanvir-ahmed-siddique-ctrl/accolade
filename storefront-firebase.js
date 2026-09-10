@@ -1,10 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
+  addDoc,
   collection,
   doc,
   getDoc,
   getDocs,
   getFirestore,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-lite.js";
 
 const firebaseConfig = {
@@ -19,4 +21,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export { collection, db, doc, getDoc, getDocs };
+export { addDoc, collection, db, doc, getDoc, getDocs, serverTimestamp };

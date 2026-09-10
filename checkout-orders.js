@@ -1,4 +1,4 @@
-import { addDoc, collection, db, serverTimestamp } from "./firebase-config.js";
+import { addDoc, collection, db, serverTimestamp } from "./storefront-firebase.js";
 
 const ORDERS_COLLECTION = "orders";
 
@@ -61,3 +61,5 @@ window.submitAccoladeOrder = async function submitAccoladeOrder(order) {
 
   return { id: saved.id, orderNumber: payload.orderNumber, emailSent };
 };
+
+window.dispatchEvent(new Event("accolade:order-system-ready"));

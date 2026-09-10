@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="modulepreload" href="shop-products.js" />
+    <link rel="modulepreload" href="checkout-orders.js" />
     <link rel="modulepreload" href="storefront-firebase.js" />
     <link rel="preload" as="image" href="photos/main_bg.jpeg" />
     <style>
@@ -2773,6 +2774,14 @@
       let promoApplied = false;
       let appliedPromoPercent = 0;
       let toastTimer = null;
+      const orderSystemReady = new Promise((resolve) => {
+        if (typeof window.submitAccoladeOrder === "function") {
+          resolve(true);
+          return;
+        }
+        window.addEventListener("accolade:order-system-ready", () => resolve(true), { once: true });
+        setTimeout(() => resolve(false), 8000);
+      });
 
       function saveCart() {
         localStorage.setItem("accolade_cart", JSON.stringify(cart));
@@ -4262,6 +4271,10 @@
           btn.innerText = "Saving order...";
           btn.disabled = true;
           try {
+            if (typeof window.submitAccoladeOrder !== "function") {
+              btn.innerText = "Preparing order...";
+              await orderSystemReady;
+            }
             if (typeof window.submitAccoladeOrder !== "function") {
               throw new Error("ORDER_SYSTEM_LOADING");
             }
